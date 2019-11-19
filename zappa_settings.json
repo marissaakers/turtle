@@ -1,0 +1,16 @@
+{
+    "dev": {
+        "app_function": "setup.app",
+        "aws_region": "us-east-2",
+        "profile_name": "zappauser",
+        "project_name": "backend",
+        "runtime": "python3.7",
+        "s3_bucket": "zappa-mmfqf1gj1",
+        "environment_variables": {
+        	"POSTGRES_USER": "turtle",
+        	"POSTGRES_PW": "avQ^EC6^Zi&n8k)$n1l9",
+        	"POSTGRES_URL": "turtledb.csc2iayec306.us-east-2.rds.amazonaws.com",
+        	"POSTGRES_DB": "turtledb"
+        }
+    }
+}
