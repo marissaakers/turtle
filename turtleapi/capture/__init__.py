@@ -11,7 +11,7 @@ turtles = {
 	'2': 'loggerhead'
 }
 
-class HelloWorld(Resource):
+class Turtle(Resource):
 	def get(self):
 		clutches = Clutch.query.all()
 		clutches_schema = ClutchSchema(many=True)
@@ -34,5 +34,5 @@ class HelloWorld(Resource):
 		del turtles[turtle_id]
 		return turtles, 204
 
-api.add_resource(HelloWorld, '/hello')
+api.add_resource(Turtle, '/api/turtle')
 
