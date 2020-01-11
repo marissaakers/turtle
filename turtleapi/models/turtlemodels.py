@@ -3,8 +3,10 @@ from flask import jsonify
 
 class Turtle(db.Model):
 	turtle_id = db.Column(db.Integer, primary_key=True)
-	#clutches = db.relationship('Clutch', backref='turtle', lazy=True)
+	tags = db.relationship('Tag', backref='turtle', lazy=True)
+	clutches = db.relationship('Clutch', backref='turtle', lazy=True)
 	morphometrics = db.relationship('Morphometrics', backref='turtle', lazy=True)
+	encounters = db.relationship('Encounter', backref='turtle', lazy=True)	
 
 class Tag(db.Model):
 	tag_id = db.Column(db.Integer, primary_key=True)
@@ -16,9 +18,9 @@ class Tag(db.Model):
 
 class Clutch(db.Model):
 	clutch_id = db.Column(db.Integer, primary_key=True)
-	#turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
-	#hatchlings = db.relationship('Hatchlings', backref='clutch', lazy=True)
-	#eggs = db.relationship('Eggs', backref='clutch', lazy=True)
+	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+	hatchlings = db.relationship('Hatchlings', backref='clutch', lazy=True)
+	eggs = db.relationship('Eggs', backref='clutch', lazy=True)
 	clutch_deposited = db.Column(db.Boolean)
 	sand_type = db.Column(db.String(50))
 	placement = db.Column(db.String(50))
@@ -44,7 +46,7 @@ class Clutch(db.Model):
 
 class Hatchlings(db.Model):
 	hatchlings_id = db.Column(db.Integer, primary_key=True)
-	#clutch_id = db.Column(db.Integer, db.ForeignKey('clutch.clutch_id'), nullable=False)
+	clutch_id = db.Column(db.Integer, db.ForeignKey('clutch.clutch_id'), nullable=False)
 	hatched = db.Column(db.Integer)
 	live_hatchlings = db.Column(db.Integer)
 	dead_hatchlings = db.Column(db.Integer)
@@ -54,7 +56,7 @@ class Hatchlings(db.Model):
 
 class Eggs(db.Model):
 	eggs_id = db.Column(db.Integer, primary_key=True)
-	#clutch_id = db.Column(db.Integer, db.ForeignKey('clutch.clutch_id'), nullable=False)
+	clutch_id = db.Column(db.Integer, db.ForeignKey('clutch.clutch_id'), nullable=False)
 	eggs_eggs = db.Column(db.Integer)
 	eggs_undeveloped = db.Column(db.Integer)
 	eggs_sampled_for_sac = db.Column(db.Integer)
@@ -96,8 +98,23 @@ class Morphometrics(db.Model):
 	flipper_carapace = db.Column(db.Text)
 	carapace_damage = db.Column(db.Text)
 
+class Metadata(db.Model):
+	metadata_id = db.Column(db.Integer, primary_key=True)
+	encounters = db.relationship('Encounter', backref='metadata', lazy=True)
+	nets = db.relationship('Net', backref='metadata', lazy=True)
+	incidental_captures = db.relationship('IncidentalCapture', backref='metadata', lazy=True)
+	metadata_date = db.Column(db.Date)
+	metadata_location = db.Column(db.Text)
+	metadata_investigators = db.Column(db.Text)
+	number_of_cc_captured = db.Column(db.Integer)
+	number_of_cm_captured = db.Column(db.Integer)
+	number_of_other_captured = db.Column(db.Integer)
+
 class Encounter(db.Model):
 	encounter_id = db.Column(db.Integer, primary_key=True)
+	samples = db.relationship('Sample', backref='encounter', lazy=True)
+	paps = db.relationship('Paps', backref='encounter', lazy=True)
+	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
 	encounter_date = db.Column(db.Date)
 	encounter_time = db.Column(db.Time)
@@ -157,6 +174,8 @@ class LagoonEncounter(db.Model):
 
 class BeachEncounter(db.Model):
 	beach_encounter_id = db.Column(db.Integer, primary_key=True)
+	beach_dc_data = db.relationship('BeachDcData', backref='beach_encounter', lazy=True, uselist=False)
+	nest_markings = db.relationship('NestMarking', backref='beach_encounter', lazy=True, uselist=False)
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
 	days_45 = db.Column(db.Date)
 	days_70 = db.Column(db.Date)
@@ -171,7 +190,7 @@ class BeachEncounter(db.Model):
 
 class BeachDcData(db.Model):
 	beach_dc_data_id = db.Column(db.Integer, primary_key=True)
-	beach_encounter_id = db.Column(db.Integer, db.ForeignKey('beachencounter.beach_encounter_id'), nullable=False)
+	beach_encounter_id = db.Column(db.Integer, db.ForeignKey('beach_encounter.beach_encounter_id'), nullable=False)
 	outgoing_crawl_width = db.Column(db.Float(5))
 	yolkless_collected = db.Column(db.Boolean)
 	pink_spot_photo_taken = db.Column(db.Boolean)
@@ -179,7 +198,7 @@ class BeachDcData(db.Model):
 
 class NestMarking(db.Model):
 	nest_marking_id = db.Column(db.Integer, primary_key=True)
-	beach_encounter_id = db.Column(db.Integer, db.ForeignKey('beachencounter.beach_encounter_id'), nullable=False)
+	beach_encounter_id = db.Column(db.Integer, db.ForeignKey('beach_encounter.beach_encounter_id'), nullable=False)
 	dist_to_hidden_stake = db.Column(db.Float(5))
 	hidden_stake_planted_in = db.Column(db.Text)
 	dist_to_obvious_stake = db.Column(db.Float(5))
@@ -192,16 +211,6 @@ class NestMarking(db.Model):
 	seaward_of_structure = db.Column(db.Boolean)
 	within_1_m_of_structure = db.Column(db.Boolean)
 	structure_description = db.Column(db.Text)
-
-class Metadata(db.Model):
-	metadata_id = db.Column(db.Integer, primary_key=True)
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
-	metadata_date = db.Column(db.Date)
-	metadata_location = db.Column(db.Text)
-	metadata_investigators = db.Column(db.Text)
-	number_of_cc_captured = db.Column(db.Integer)
-	number_of_cm_captured = db.Column(db.Integer)
-	number_of_other_captured = db.Column(db.Integer)
 
 class Net(db.Model):
 	net_id = db.Column(db.Integer, primary_key=True)
