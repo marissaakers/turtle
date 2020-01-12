@@ -5,54 +5,51 @@ import datetime
 import json
 
 def insert_lagoon():
-    turtle = Turtle(turtle_id=7)
-    db.session.add(turtle)
+    # Make a new turtle
+    turtle = Turtle()
+    # See if the turtle exists (we'll change this to find turtles with the given tags)
+    query_result = Turtle.query.filter_by(turtle_id=9).first()
+    # If the turtle is found, we'll use that turtle; otherwise we'll make a new turtle
+    if query_result is not None:
+        turtle = query_result
+
+    metadata = Metadata(
+        metadata_date=datetime.datetime.now(),
+        metadata_location="My house",
+        metadata_investigators="The whole team",
+        number_of_cc_captured=5,
+        number_of_cm_captured=2,
+        number_of_other_captured=4
+    )
+
+    encounter = Encounter(
+        turtle=turtle,
+        metadata=metadata,
+        encounter_date=datetime.datetime.now(),
+        encounter_time=datetime.datetime.now(),
+        species="Unknown species",
+        investigated_by="Adam",
+        entered_by="Matt",
+        entered_date=datetime.datetime.now(),
+        verified_by="Jade",
+        verified_date=datetime.datetime.now()
+    )
+
+    lagoon_encounter = LagoonEncounter(
+        encounter=encounter,
+        False,
+        "Other information goes here",
+        False,
+        "",
+        True,
+        "Sadly there are leech eggs on this turtle"
+    )
+
+    db.session.add(encounter)
+    db.session.commit()
+    db.session.add(lagoon_encounter)
     db.session.commit()
 
-    turtles = Turtle.query.all()
-    return turtles
-
-	# turtle_id = db.Column(db.Integer, primary_key=True)
-	# tags = db.relationship('Tag', backref='turtle', lazy=True)
-	# clutches = db.relationship('Clutch', backref='turtle', lazy=True)
-	# morphometrics = db.relationship('Morphometrics', backref='turtle', lazy=True)
-	# encounters = db.relationship('Encounter', backref='turtle', lazy=True)	
-
-    # lagoon_encounter = LagoonEncounter(
-    #     0,
-    #     False,
-    #     "Other information goes here",
-    #     False,
-    #     "",
-    #     True,
-    #     "Sadly there are leech eggs on this turtle"
-    # )
-
-    # db.session.add(lagoon_encounter)
-    # db.session.add(encounter)
-    # db.commit()
-
-    # encounter = Encounter(
-    #     0,
-    #     0,
-    #     datetime.datetime.now(),
-    #     datetime.datetime.now(),
-    #     "Unknown species",
-    #     "Adam",
-    #     "Matt",
-    #     datetime.datetime.now(),
-    #     "Jade",
-    #     datetime.datetime.now()
-    # )
-
-    # lagoon_encounter = LagoonEncounter(
-    #     0,
-    #     False,
-    #     "Other information goes here",
-    #     False,
-    #     "",
-    #     True,
-    #     "Sadly there are leech eggs on this turtle"
-    # )
-        
+    lagoon_encounters = LagoonEncounter.query.all()
+    return lagoon_encounters
 
