@@ -16,6 +16,7 @@ turtles = {
 class Turtle(Resource):
 	def get(self):
 		lagoon_encounters = insert_lagoon()
+		
 		lagoon_encounters_schema = LagoonEncounterSchema(many=True)
 		output = lagoon_encounters_schema.dump(lagoon_encounters)
 		return output, 200

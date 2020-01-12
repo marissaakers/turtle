@@ -84,6 +84,8 @@ class Eggs(db.Model):
 class Morphometrics(db.Model):
 	morphometrics_id = db.Column(db.Integer, primary_key=True)
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	encounter = db.relationship('Encounter', back_populates='morphometrics')
 	curved_length = db.Column(db.Float(5))
 	straight_length = db.Column(db.Float(5))
 	minimum_length = db.Column(db.Float(5))
@@ -103,6 +105,7 @@ class Metadata(db.Model):
 	encounters = db.relationship('Encounter', backref='metadata', lazy=True)
 	nets = db.relationship('Net', backref='metadata', lazy=True)
 	incidental_captures = db.relationship('IncidentalCapture', backref='metadata', lazy=True)
+	environment = db.relationship('Environment', uselist=False, back_populates='metadata_')
 	metadata_date = db.Column(db.Date)
 	metadata_location = db.Column(db.Text)
 	metadata_investigators = db.Column(db.Text)
@@ -113,7 +116,8 @@ class Metadata(db.Model):
 class Encounter(db.Model):
 	encounter_id = db.Column(db.Integer, primary_key=True)
 	samples = db.relationship('Sample', backref='encounter', lazy=True)
-	paps = db.relationship('Paps', backref='encounter', lazy=True)
+	paps = db.relationship('Paps', uselist=False, lazy=True, back_populates='encounter')
+	morphometrics = db.relationship('Morphometrics', uselist=False, back_populates='encounter')
 	lagoon_encounter = db.relationship('LagoonEncounter', uselist=False, back_populates='encounter')
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
@@ -143,6 +147,7 @@ class Sample(db.Model):
 class Paps(db.Model):
 	pap_id = db.Column(db.Integer, primary_key=True)
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	encounter = db.relationship('Encounter', back_populates='paps')
 	paps_present = db.Column(db.Boolean)
 	number_of_paps = db.Column(db.Integer)
 	paps_regression = db.Column(db.String(40))
@@ -233,6 +238,7 @@ class IncidentalCapture(db.Model):
 
 class Environment(db.Model):
 	environment_id = db.Column(db.Integer, primary_key=True)
+	metadata_ = db.relationship('Metadata', back_populates='environment')
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 	water_sample = db.Column(db.Boolean)
 	wind_speed = db.Column(db.Float(5))
