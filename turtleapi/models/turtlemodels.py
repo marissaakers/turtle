@@ -3,10 +3,10 @@ from flask import jsonify
 
 class Turtle(db.Model):
 	turtle_id = db.Column(db.Integer, primary_key=True)
-	tags = db.relationship('Tag', backref='turtle', lazy=True)
-	clutches = db.relationship('Clutch', backref='turtle', lazy=True)
-	morphometrics = db.relationship('Morphometrics', backref='turtle', lazy=True)
-	encounters = db.relationship('Encounter', backref='turtle', lazy=True)	
+	tags = db.relationship('Tag', backref='turtle')
+	clutches = db.relationship('Clutch', backref='turtle')
+	morphometrics = db.relationship('Morphometrics', backref='turtle')
+	encounters = db.relationship('Encounter', backref='turtle')	
 
 class Tag(db.Model):
 	tag_id = db.Column(db.Integer, primary_key=True)
@@ -19,8 +19,8 @@ class Tag(db.Model):
 class Clutch(db.Model):
 	clutch_id = db.Column(db.Integer, primary_key=True)
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
-	hatchlings = db.relationship('Hatchlings', backref='clutch', lazy=True)
-	eggs = db.relationship('Eggs', backref='clutch', lazy=True)
+	hatchlings = db.relationship('Hatchlings', backref='clutch')
+	eggs = db.relationship('Eggs', backref='clutch')
 	clutch_deposited = db.Column(db.Boolean)
 	sand_type = db.Column(db.String(50))
 	placement = db.Column(db.String(50))
@@ -102,9 +102,9 @@ class Morphometrics(db.Model):
 
 class Metadata(db.Model):
 	metadata_id = db.Column(db.Integer, primary_key=True)
-	encounters = db.relationship('Encounter', backref='metadata', lazy=True)
+	encounters = db.relationship('Encounter', backref='metadata')
 	nets = db.relationship('Net', backref='metadata', lazy=True)
-	incidental_captures = db.relationship('IncidentalCapture', backref='metadata', lazy=True)
+	incidental_captures = db.relationship('IncidentalCapture', backref='metadata')
 	environment = db.relationship('Environment', uselist=False, back_populates='metadata_')
 	metadata_date = db.Column(db.Date)
 	metadata_location = db.Column(db.Text)
@@ -115,7 +115,7 @@ class Metadata(db.Model):
 
 class Encounter(db.Model):
 	encounter_id = db.Column(db.Integer, primary_key=True)
-	samples = db.relationship('Sample', backref='encounter', lazy=True)
+	samples = db.relationship('Sample', backref='encounter')
 	paps = db.relationship('Paps', uselist=False, lazy=True, back_populates='encounter')
 	morphometrics = db.relationship('Morphometrics', uselist=False, back_populates='encounter')
 	lagoon_encounter = db.relationship('LagoonEncounter', uselist=False, back_populates='encounter')
@@ -309,7 +309,7 @@ class BeachDcDataSchema(ma.ModelSchema):
 	class Meta:
 		model = BeachDcData
 
-class NestMarkinSchema(ma.ModelSchema):
+class NestMarkingSchema(ma.ModelSchema):
 	class Meta:
 		model = NestMarking
 

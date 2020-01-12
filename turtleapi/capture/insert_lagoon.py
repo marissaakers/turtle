@@ -1,10 +1,18 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
-Tag, Morphometrics, Sample, Paps, Metadata, Net, IncidentalCapture, Environment)
+Tag, Morphometrics, Sample, Paps, Metadata, Net, IncidentalCapture, Environment,
+TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
+LagoonEncounterSchema, SampleSchema, PapsSchema, NetSchema, IncidentalCaptureSchema, 
+EnvironmentSchema)
 import datetime
 import json
+from flask import jsonify
 
-def insert_lagoon():
+def insert_lagoon(data):
+    metadata = data['metadata']
+    return metadata
+
+# def insert_lagoon():
     # # Make a new turtle
     # turtle = Turtle()
     # # See if the turtle exists (we'll change this to find turtles with the given tags)
@@ -152,7 +160,3 @@ def insert_lagoon():
     # db.session.add(lagoon_encounter)
     # db.session.add(environment)
     # db.session.commit()
-
-    lagoon_encounters = LagoonEncounter.query.all()
-    return lagoon_encounters
-

@@ -3,7 +3,8 @@ from flask_restful import Resource, Api
 #from turtleapi.models.turtlemodels import Clutch, ClutchSchema
 from turtleapi.models.turtlemodels import LagoonEncounterSchema
 import json
-from turtleapi.capture.insertLagoon import insert_lagoon
+from turtleapi.capture.query_lagoon import query_lagoon
+from turtleapi.capture.insert_lagoon import insert_lagoon
 
 capturebp = Blueprint('captureapi', __name__)
 api = Api(capturebp)
@@ -13,13 +14,13 @@ turtles = {
 	'2': 'loggerhead'
 }
 
-class Turtle(Resource):
+class Lagoon(Resource):
 	def get(self):
-		lagoon_encounters = insert_lagoon()
-		
-		lagoon_encounters_schema = LagoonEncounterSchema(many=True)
-		output = lagoon_encounters_schema.dump(lagoon_encounters)
-		return output, 200
+		return query_lagoon(), 200
+
+	def post(self):
+		json_data = request.get_json(force=True)
+		return insert_lagoon(json_data), 200
 
 	# def get(self):
 	# 	clutches = Clutch.query.all()
@@ -43,5 +44,5 @@ class Turtle(Resource):
 	# 	del turtles[turtle_id]
 	# 	return turtles, 204
 
-api.add_resource(Turtle, '/api/turtle')
+api.add_resource(Lagoon, '/api/capture/lagoon')
 
