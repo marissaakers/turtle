@@ -37,16 +37,14 @@ def insert_lagoon():
 
     lagoon_encounter = LagoonEncounter(
         encounter=encounter,
-        False,
-        "Other information goes here",
-        False,
-        "",
-        True,
-        "Sadly there are leech eggs on this turtle"
+        living_tags=False,
+        other="Other information goes here",
+        leeches=False,
+        leeches_where="",
+        leech_eggs=True,
+        leech_eggs_where="Sadly there are leech eggs on this turtle"
     )
 
-    db.session.add(encounter)
-    db.session.commit()
     db.session.add(lagoon_encounter)
     db.session.commit()
 

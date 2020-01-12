@@ -114,6 +114,7 @@ class Encounter(db.Model):
 	encounter_id = db.Column(db.Integer, primary_key=True)
 	samples = db.relationship('Sample', backref='encounter', lazy=True)
 	paps = db.relationship('Paps', backref='encounter', lazy=True)
+	lagoon_encounter = db.relationship('LagoonEncounter', uselist=False, back_populates='encounter')
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
 	encounter_date = db.Column(db.Date)
@@ -164,6 +165,7 @@ class TridentEncounter(db.Model):
 
 class LagoonEncounter(db.Model):
 	lagoon_encounter_id = db.Column(db.Integer, primary_key=True)
+	encounter = db.relationship('Encounter', back_populates='lagoon_encounter')
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
 	living_tags = db.Column(db.Boolean)
 	other = db.Column(db.Text)
