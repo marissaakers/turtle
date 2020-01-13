@@ -31,7 +31,9 @@ def query_lagoon():
     # Grab encounters
     encounter_id = output['encounters'][0]
     encounter_result = Encounter.query.filter_by(encounter_id=encounter_id).first()
-    output['encounters'] = encounter_schema.dump(encounter_result)
+    # Rename encounter to encounters
+    output['encounter'] = encounter_schema.dump(encounter_result)
+    del output['encounters']
 
     # Grab tags
     turtle_id = output['turtle_id']
@@ -44,22 +46,23 @@ def query_lagoon():
     output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
 
     # Grab metadata
-    metadata_id = output['encounters']['metadata']
+    metadata_id = output['encounter']['metadata']
     metadata_result = Metadata.query.filter_by(metadata_id=metadata_id).first()
     output['metadata'] = metadata_schema.dump(metadata_result)
-    del output['encounters']['metadata']
+    del output['encounter']['metadata']
+    del output['metadata']['encounters']
 
     # Grab lagoon_encounter
-    lagoon_encounter_result = LagoonEncounter.query.filter_by(encounter_id=encounter_id).first()
-    output['encounters']['lagoon_encounter'] = lagoon_encounter_schema.dump(lagoon_encounter_result)
+    # lagoon_encounter_result = LagoonEncounter.query.filter_by(encounter_id=encounter_id).first()
+    # output['encounters']['lagoon_encounter'] = lagoon_encounter_schema.dump(lagoon_encounter_result)
 
     # Grab paps
     paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
-    output['encounters']['paps'] = paps_schema.dump(paps_result)
+    output['encounter']['paps'] = paps_schema.dump(paps_result)
 
     # Grab samples
     samples_result = Sample.query.filter_by(encounter_id=encounter_id).all()
-    output['encounters']['samples'] = sample_schema.dump(samples_result, many=True)
+    output['encounter']['samples'] = sample_schema.dump(samples_result, many=True)
 
     # Grab nets
     nets_result = Net.query.filter_by(metadata_id=metadata_id).all()

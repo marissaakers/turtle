@@ -6,7 +6,7 @@ class Turtle(db.Model):
 	tags = db.relationship('Tag', backref='turtle')
 	clutches = db.relationship('Clutch', backref='turtle')
 	morphometrics = db.relationship('Morphometrics', backref='turtle')
-	encounters = db.relationship('Encounter', backref='turtle')	
+	encounters = db.relationship('Encounter', backref='turtle', lazy='dynamic')	
 
 class Tag(db.Model):
 	tag_id = db.Column(db.Integer, primary_key=True)
@@ -105,7 +105,7 @@ class Metadata(db.Model):
 	encounters = db.relationship('Encounter', backref='metadata')
 	nets = db.relationship('Net', backref='metadata', lazy=True)
 	incidental_captures = db.relationship('IncidentalCapture', backref='metadata')
-	environment = db.relationship('Environment', uselist=False, back_populates='metadata_')
+	environment = db.relationship('Environment', uselist=False, backref='metadata')
 	metadata_date = db.Column(db.Date)
 	metadata_location = db.Column(db.Text)
 	metadata_investigators = db.Column(db.Text)
@@ -118,9 +118,13 @@ class Encounter(db.Model):
 	samples = db.relationship('Sample', backref='encounter')
 	paps = db.relationship('Paps', uselist=False, lazy=True, back_populates='encounter')
 	morphometrics = db.relationship('Morphometrics', uselist=False, back_populates='encounter')
-	lagoon_encounter = db.relationship('LagoonEncounter', uselist=False, back_populates='encounter')
+	type = db.Column(db.String(30))
+
+	# Foreign keys
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+
+	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
 	encounter_time = db.Column(db.Time)
 	species = db.Column(db.String(30))
@@ -129,6 +133,12 @@ class Encounter(db.Model):
 	entered_date = db.Column(db.Date)
 	verified_by = db.Column(db.String(30))
 	verified_date = db.Column(db.Date)
+
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'encounters',
+		'polymorphic_on': type
+	}
 
 class Sample(db.Model):
 	samples_id = db.Column(db.Integer, primary_key=True)
@@ -154,9 +164,14 @@ class Paps(db.Model):
 	photos = db.Column(db.Boolean)
 	pap_photos = db.Column(db.Boolean)
 
-class TridentEncounter(db.Model):
+class TridentEncounter(Encounter):
+	# Primary key
 	trident_encounter_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	
+	# Fields unique to trident encounters
 	capture_location = db.Column(db.String(50))
 	capture_method = db.Column(db.String(50))
 	number_on_carapace = db.Column(db.Integer)
@@ -168,10 +183,19 @@ class TridentEncounter(db.Model):
 	leech_eggs_where = db.Column(db.Text)
 	disposition_of_specimen = db.Column(db.Text)
 
-class LagoonEncounter(db.Model):
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'trident'
+	}
+
+class LagoonEncounter(Encounter):
+	# Primary key
 	lagoon_encounter_id = db.Column(db.Integer, primary_key=True)
-	encounter = db.relationship('Encounter', back_populates='lagoon_encounter')
+
+	# Foreign key
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+
+	# Fields unique to lagoon encounters
 	living_tags = db.Column(db.Boolean)
 	other = db.Column(db.Text)
 	leeches = db.Column(db.Boolean)
@@ -179,11 +203,23 @@ class LagoonEncounter(db.Model):
 	leech_eggs = db.Column(db.Boolean)
 	leech_eggs_where = db.Column(db.Text)
 
-class BeachEncounter(db.Model):
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'lagoon'
+	}
+
+class BeachEncounter(Encounter):
+	# Primary key
 	beach_encounter_id = db.Column(db.Integer, primary_key=True)
-	beach_dc_data = db.relationship('BeachDcData', backref='beach_encounter', lazy=True, uselist=False)
-	nest_markings = db.relationship('NestMarking', backref='beach_encounter', lazy=True, uselist=False)
+
+	# Foreign key
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+
+	# Things that depend on this table
+	beach_dc_data = db.relationship('BeachDcData', backref='encounter', lazy=True, uselist=False)
+	nest_markings = db.relationship('NestMarking', backref='encounter', lazy=True, uselist=False)
+
+	# Fields unique to beach encounters
 	days_45 = db.Column(db.Date)
 	days_70 = db.Column(db.Date)
 	capture_type = db.Column(db.String(40))
@@ -194,6 +230,11 @@ class BeachEncounter(db.Model):
 	lat_w = db.Column(db.Float(5))
 	site_description = db.Column(db.Text)
 	notes = db.Column(db.Text)
+
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'beach'
+	}
 
 class BeachDcData(db.Model):
 	beach_dc_data_id = db.Column(db.Integer, primary_key=True)
@@ -238,7 +279,6 @@ class IncidentalCapture(db.Model):
 
 class Environment(db.Model):
 	environment_id = db.Column(db.Integer, primary_key=True)
-	metadata_ = db.relationship('Metadata', back_populates='environment')
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 	water_sample = db.Column(db.Boolean)
 	wind_speed = db.Column(db.Float(5))
