@@ -2,25 +2,40 @@ from turtleapi import db, ma
 from flask import jsonify
 
 class Turtle(db.Model):
+	# Primary key
 	turtle_id = db.Column(db.Integer, primary_key=True)
+
+	# Dependencies
 	tags = db.relationship('Tag', backref='turtle')
 	clutches = db.relationship('Clutch', backref='turtle')
 	morphometrics = db.relationship('Morphometrics', backref='turtle')
 	encounters = db.relationship('Encounter', backref='turtle', lazy='dynamic')	
 
 class Tag(db.Model):
+	# Primary key
 	tag_id = db.Column(db.Integer, primary_key=True)
+	
+	# Foreign key
 	turtle_id = db.Column(db.ForeignKey('turtle.turtle_id'), nullable=False)
+
+	# Various fields
 	tag_number = db.Column(db.String(30))
 	location = db.Column(db.String(2))
 	active = db.Column(db.Boolean)
 	tag_type = db.Column(db.String(30))
 
 class Clutch(db.Model):
+	# Primary key
 	clutch_id = db.Column(db.Integer, primary_key=True)
+	
+	# Foreign key
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+
+	# Dependencies
 	hatchlings = db.relationship('Hatchlings', backref='clutch')
 	eggs = db.relationship('Eggs', backref='clutch')
+
+	# Various fields
 	clutch_deposited = db.Column(db.Boolean)
 	sand_type = db.Column(db.String(50))
 	placement = db.Column(db.String(50))
@@ -45,8 +60,13 @@ class Clutch(db.Model):
 	verified_date = db.Column(db.Date)
 
 class Hatchlings(db.Model):
+	# Primary key
 	hatchlings_id = db.Column(db.Integer, primary_key=True)
+	
+	# Foreign key
 	clutch_id = db.Column(db.Integer, db.ForeignKey('clutch.clutch_id'), nullable=False)
+
+	# Various fields
 	hatched = db.Column(db.Integer)
 	live_hatchlings = db.Column(db.Integer)
 	dead_hatchlings = db.Column(db.Integer)
@@ -55,8 +75,13 @@ class Hatchlings(db.Model):
 	pipped_dead = db.Column(db.Integer)
 
 class Eggs(db.Model):
+	# Primary key
 	eggs_id = db.Column(db.Integer, primary_key=True)
+	
+	# Foreign key
 	clutch_id = db.Column(db.Integer, db.ForeignKey('clutch.clutch_id'), nullable=False)
+
+	#Various fields
 	eggs_eggs = db.Column(db.Integer)
 	eggs_undeveloped = db.Column(db.Integer)
 	eggs_sampled_for_sac = db.Column(db.Integer)
@@ -82,10 +107,14 @@ class Eggs(db.Model):
 	notes = db.Column(db.Text)
 
 class Morphometrics(db.Model):
+	# Primary key
 	morphometrics_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign keys
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
-	encounter = db.relationship('Encounter', back_populates='morphometrics')
+
+	# Various fields
 	curved_length = db.Column(db.Float(5))
 	straight_length = db.Column(db.Float(5))
 	minimum_length = db.Column(db.Float(5))
@@ -101,11 +130,16 @@ class Morphometrics(db.Model):
 	carapace_damage = db.Column(db.Text)
 
 class Metadata(db.Model):
+	# Primary key
 	metadata_id = db.Column(db.Integer, primary_key=True)
+
+	# Dependencies
 	encounters = db.relationship('Encounter', backref='metadata')
 	nets = db.relationship('Net', backref='metadata', lazy=True)
 	incidental_captures = db.relationship('IncidentalCapture', backref='metadata')
 	environment = db.relationship('Environment', uselist=False, backref='metadata')
+
+	# Various fields
 	metadata_date = db.Column(db.Date)
 	metadata_location = db.Column(db.Text)
 	metadata_investigators = db.Column(db.Text)
@@ -114,15 +148,17 @@ class Metadata(db.Model):
 	number_of_other_captured = db.Column(db.Integer)
 
 class Encounter(db.Model):
+	# Primary key
 	encounter_id = db.Column(db.Integer, primary_key=True)
-	samples = db.relationship('Sample', backref='encounter')
-	paps = db.relationship('Paps', uselist=False, lazy=True, back_populates='encounter')
-	morphometrics = db.relationship('Morphometrics', uselist=False, back_populates='encounter')
-	type = db.Column(db.String(30))
 
 	# Foreign keys
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+
+	# Dependencies
+	samples = db.relationship('Sample', backref='encounter')
+	paps = db.relationship('Paps', uselist=False, lazy=True, backref='encounter')
+	morphometrics = db.relationship('Morphometrics', uselist=False, backref='encounter')
 
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
@@ -135,14 +171,20 @@ class Encounter(db.Model):
 	verified_date = db.Column(db.Date)
 
 	# Polymorphism
+	type = db.Column(db.String(30))
 	__mapper_args__ = {
 		'polymorphic_identity': 'encounters',
 		'polymorphic_on': type
 	}
 
 class Sample(db.Model):
+	# Primary key
 	samples_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+
+	# Various fields
 	skin_1 = db.Column(db.Boolean)
 	skin_1_for = db.Column(db.Text)
 	skin_2 = db.Column(db.Boolean)
@@ -155,9 +197,13 @@ class Sample(db.Model):
 	other_for = db.Column(db.Text)
 
 class Paps(db.Model):
+	# Primary key
 	pap_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
-	encounter = db.relationship('Encounter', back_populates='paps')
+
+	# Various fields
 	paps_present = db.Column(db.Boolean)
 	number_of_paps = db.Column(db.Integer)
 	paps_regression = db.Column(db.String(40))
@@ -237,16 +283,26 @@ class BeachEncounter(Encounter):
 	}
 
 class BeachDcData(db.Model):
+	# Primary key
 	beach_dc_data_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
 	beach_encounter_id = db.Column(db.Integer, db.ForeignKey('beach_encounter.beach_encounter_id'), nullable=False)
+
+	# Various fields
 	outgoing_crawl_width = db.Column(db.Float(5))
 	yolkless_collected = db.Column(db.Boolean)
 	pink_spot_photo_taken = db.Column(db.Boolean)
 	photo_taken_by = db.Column(db.Text)
 
 class NestMarking(db.Model):
+	# Primary key
 	nest_marking_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
 	beach_encounter_id = db.Column(db.Integer, db.ForeignKey('beach_encounter.beach_encounter_id'), nullable=False)
+	
+	# Various fields
 	dist_to_hidden_stake = db.Column(db.Float(5))
 	hidden_stake_planted_in = db.Column(db.Text)
 	dist_to_obvious_stake = db.Column(db.Float(5))
@@ -261,8 +317,13 @@ class NestMarking(db.Model):
 	structure_description = db.Column(db.Text)
 
 class Net(db.Model):
+	# Primary key
 	net_id = db.Column(db.Integer, primary_key=True)
+	
+	# Foreign key
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
+
+	# Various fields
 	net_number = db.Column(db.Integer)
 	net_deploy_start_time = db.Column(db.Time)
 	net_deploy_end_time = db.Column(db.Time)
@@ -270,16 +331,26 @@ class Net(db.Model):
 	net_retrieval_end_time = db.Column(db.Time)
 
 class IncidentalCapture(db.Model):
+	# Primary key
 	incidental_capture_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
+
+	# Various fields
 	species = db.Column(db.String(40))
 	capture_time = db.Column(db.Time)
 	measurement = db.Column(db.Text)
 	notes = db.Column(db.Text)
 
 class Environment(db.Model):
+	# Primary key
 	environment_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
 	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
+	
+	#Various fields
 	water_sample = db.Column(db.Boolean)
 	wind_speed = db.Column(db.Float(5))
 	wind_dir = db.Column(db.String(20))

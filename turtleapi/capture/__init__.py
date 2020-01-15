@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from flask_restful import Resource, Api
+from flask_restful.utils import cors
 #from turtleapi.models.turtlemodels import Clutch, ClutchSchema
 from turtleapi.models.turtlemodels import LagoonEncounterSchema
 import json
@@ -15,6 +16,7 @@ turtles = {
 }
 
 class Lagoon(Resource):
+	@cors.crossdomain(origin='*')
 	def get(self):
 		return query_lagoon(), 200
 
