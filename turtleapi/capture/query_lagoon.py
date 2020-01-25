@@ -32,7 +32,7 @@ def query_lagoon():
     encounter_id = output['encounters'][0]
     encounter_result = Encounter.query.filter_by(encounter_id=encounter_id).first()
     # Rename encounter to encounters
-    output['encounter'] = encounter_schema.dump(encounter_result)
+    output['encounter'] = lagoon_encounter_schema.dump(encounter_result)
     del output['encounters']
 
     # Grab tags

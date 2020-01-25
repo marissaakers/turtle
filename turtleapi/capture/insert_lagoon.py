@@ -6,12 +6,26 @@ LagoonEncounterSchema, SampleSchema, PapsSchema, NetSchema, IncidentalCaptureSch
 EnvironmentSchema)
 import datetime
 import json
+from turtleapi.capture.util import find_turtle_from_tags
 from flask import jsonify
 
 def insert_lagoon(data):
+    tags = data['tags']
+    encounter = data['encounter']
     metadata = data['metadata']
-    return metadata
+    morphometrics = data['morphometrics']
+    samples = encounter['samples']
+    paps = encounter['paps']
+    nets = metadata['nets']
+    environment = metadata['environment']
+    incidental_captures = metadata['incidental_captures']
 
+    # Attempt to find a turtle from the tags
+    turtle = find_turtle_from_tags(tags)
+
+    return morphometrics
+
+# This is the hard-coded insertion code. It still works if we need to remake the database and insert something.
 # def insert_lagoon():
 #     # Make a new turtle
 #     turtle = Turtle()
