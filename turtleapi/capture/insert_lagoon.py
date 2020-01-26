@@ -1,9 +1,11 @@
 from turtleapi import db
-from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
-Tag, Morphometrics, Sample, Paps, Metadata, Net, IncidentalCapture, Environment,
-TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
-LagoonEncounterSchema, SampleSchema, PapsSchema, NetSchema, IncidentalCaptureSchema, 
-EnvironmentSchema)
+from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, Tag,
+                                           Morphometrics, Sample, Paps, Metadata, Net,
+                                           IncidentalCapture, Environment, TurtleSchema,
+                                           EncounterSchema, TagSchema, MorphometricsSchema,
+                                           MetadataSchema, LagoonEncounterSchema, SampleSchema,
+                                           PapsSchema, NetSchema, IncidentalCaptureSchema,
+                                           EnvironmentSchema)
 import datetime
 import json
 from turtleapi.capture.util import find_turtle_from_tags
@@ -22,10 +24,155 @@ def insert_lagoon(data):
 
     # Attempt to find a turtle from the tags
     turtle = find_turtle_from_tags(tags)
+    tag_list = ()
+    if turtle is None:
+        turtle = Turtle()
+        for tag in tags:
+            new_tag = Tag(
+                turtle=turtle,
+                tag_number=tag['tag_number'],
+                location=tag['location'],
+                active=tag['active'],
+                tag_type=tag['tag_type']
+            )
+            tag_list = tag_list + (new_tag,)
+    else:
+        for tag in tags:
+            compare_tag = Tag.query.filter_by(location=tag['location'], active=True)
+            if compare_tag.tag_number != tag['tag_number']:
+                compare_tag.active = False
+                db.session.commit() # Is this necessary to update tag -> inactive?
+                new_tag = Tag(
+                    turtle=turtle,
+                    tag_number=tag['tag_number'],
+                    location=tag['location'],
+                    active=tag['active'],
+                    tag_type=tag['tag_type']
+                )
+                tag_list = tag_list + (new_tag,)
 
-    return morphometrics
+    metadata_item = Metadata(
+        metadata_date=metadata['metadata_date'],
+        metadata_location=metadata['metadata_location'],
+        metadata_investigators=metadata['metadata_investigators'],
+        number_of_cc_captured=metadata['number_of_cc_captured'],
+        number_of_cm_captured=metadata['number_of_cm_captured'],
+        number_of_other_captured=metadata['number_of_other_captured']
+    )
 
-# This is the hard-coded insertion code. It still works if we need to remake the database and insert something.
+    lagoon_encounter = LagoonEncounter(
+        turtle=turtle,
+        metadata=metadata_item,
+        encounter_date=encounter['encounter_date'],
+        encounter_time=encounter['encounter_time'],
+        species=encounter['species'],
+        investigated_by=encounter['investigated_by'],
+        entered_by=encounter['entered_by'],
+        entered_date=encounter['entered_date'],
+        verified_by=encounter['verified_by'],
+        verified_date=encounter['verified_date'],
+        living_tags=encounter['living_tags'],
+        other=encounter['other'],
+        leeches=encounter['leeches'],
+        leeches_where=encounter['leeches_where'],
+        leech_eggs=encounter['leech_eggs'],
+        leech_eggs_where=encounter['leech_eggs_where']
+    )
+
+    morphometrics_item = Morphometrics(
+        turtle=turtle,
+        encounter=lagoon_encounter,
+        curved_length=morphometrics['curved_length'],
+        straight_length=morphometrics['straight_length'],
+        minimum_length=morphometrics['minimum_length'],
+        plastron_length=morphometrics['plastron_length'],
+        weight=morphometrics['weight'],
+        curved_width=morphometrics['curved_width'],
+        straight_width=morphometrics['straight_width'],
+        tail_length_pl_vent=morphometrics['tail_length_pl_vent'],
+        tail_length_pl_tip=morphometrics['tail_length_pl_tip'],
+        head_width=morphometrics['head_width'],
+        body_depth=morphometrics['body_depth'],
+        flipper_carapace=morphometrics['flipper_carapace'],
+        carapace_damage=morphometrics['carapace_damage']
+    )
+
+    sample_list = ()
+    for sample in samples:
+        new_sample = Sample(
+            encounter=lagoon_encounter,
+            skin_1=sample['skin_1'],
+            skin_1_for=sample['skin_1_for'],
+            skin_2=sample['skin_2'],
+            skin_2_for=sample['skin_2_for'],
+            blood=sample['blood'],
+            blood_for=sample['blood_for'],
+            scute=sample['scute'],
+            scute_for=sample['scute_for'],
+            other=sample['other'],
+            other_for=sample['other_for']
+        )
+        sample_list = sample_list + (new_sample,)
+
+    paps_item = Paps(
+        encounter=lagoon_encounter,
+        paps_present=paps['paps_present'],
+        number_of_paps=paps['number_of_paps'],
+        paps_regression=paps['paps_regression'],
+        photos=paps['photos'],
+        pap_photos=paps['pap_photos']
+    )
+
+    net_list = ()
+    for net in nets:
+        new_net = Net(
+            metadata=metadata_item,
+            net_number=net['net_number'],
+            net_deploy_start_time=net['net_deploy_start_time'],
+            net_deploy_end_time=net['net_deploy_end_time'],
+            net_retrieval_start_time=net['net_retrieval_start_time'],
+            net_retrieval_end_time=net['net_retrieval_end_time']
+        )
+        net_list = net_list + (new_net,)
+
+    environment_item = Environment(
+        metadata=metadata_item,
+        water_sample=environment['water_sample'],
+        wind_speed=environment['wind_speed'],
+        wind_dir=environment['wind_dir'],
+        environment_time=environment['environment_time'],
+        weather=environment['weather'],
+        air_temp=environment['air_temp'],
+        water_temp_surface=environment['water_temp_surface'],
+        water_temp_1_m=environment['water_temp_1_m'],
+        water_temp_2_m=environment['water_temp_2_m'],
+        water_temp_6_m=environment['water_temp_6_m'],
+        water_temp_bottom=environment['water_temp_bottom'],
+        salinity_surface=environment['salinity_surface'],
+        salinity_1_m=environment['salinity_1_m'],
+        salinity_2_m=environment['salinity_2_m'],
+        salinity_6_m=environment['salinity_6_m'],
+        salinity_bottom=environment['salinity_bottom']
+    )
+
+    incidental_capture_list = ()
+    for incidental_capture in incidental_captures:
+        new_incidental_capture = IncidentalCapture(
+            metadata=metadata_item,
+            species=incidental_capture['species'],
+            capture_time=incidental_capture['capture_time'],
+            measurement=incidental_capture['measurement'],
+            notes=incidental_capture['notes']
+        )
+    incidental_capture_list = incidental_capture_list + (new_incidental_capture,)
+
+    db.session.add(lagoon_encounter)
+    db.session.add(environment)
+    db.session.commit()
+
+    # return something at some point? Maybe previous turtle encounters as well as error variable
+
+# This is the hard-coded insertion code. It still works if we need to remake db/insert something.
 # def insert_lagoon():
 #     # Make a new turtle
 #     turtle = Turtle()
@@ -127,7 +274,7 @@ def insert_lagoon(data):
 #         number_of_paps=5,
 #         paps_regression="They are not regressing",
 #         photos=False,
-#         pap_photos=False      
+#         pap_photos=False
 #     )
 
 #     net = Net(
