@@ -23,57 +23,54 @@ def query_lagoon():
     environment_schema = EnvironmentSchema()
 
     # Grab turtle
-    turtle_result = Turtle.query.first()
-
+    turtle_result = Turtle.query.all()
     # Make output object
     output = turtle_schema.dump(turtle_result)
 
-    # Grab encounters
-    encounter_id = output['encounters'][0]
-    encounter_result = Encounter.query.filter_by(encounter_id=encounter_id).first()
-    # Rename encounter to encounters
-    output['encounter'] = lagoon_encounter_schema.dump(encounter_result)
-    del output['encounters']
+    for turtle in turtle_result:
+        turtle_id = turtle.turtle_id
+        output['turtle_id'] = turtle_id
 
-    # Grab tags
-    turtle_id = output['turtle_id']
-    tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
-    output['tags'] = tag_schema.dump(tag_result, many=True)
+        # Grab tags
+        tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
+        output['tags'] = tag_schema.dump(tag_result, many=True)
 
-    # Grab morphometrics
-    morphometrics_id = output['morphometrics'][0]
-    morphometrics_result = Morphometrics.query.filter_by(morphometrics_id=morphometrics_id).first()
-    output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
+        # Grab encounters
+        encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).all()
+        for encounter in encounter_result:
+            encounter_id = encounter.encounter_id
+            output['encounter'] = lagoon_encounter_schema.dump(encounter_result, many=True)
 
-    # Grab metadata
-    metadata_id = output['encounter']['metadata']
-    metadata_result = Metadata.query.filter_by(metadata_id=metadata_id).first()
-    output['metadata'] = metadata_schema.dump(metadata_result)
-    del output['encounter']['metadata']
-    del output['metadata']['encounters']
+            # Grab morphometrics
+            morphometrics_result = Morphometrics.query.filter_by(encounter_id=encounter_id).first() # Only one morph per encounter ya?
+            output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
 
-    # Grab lagoon_encounter
-    # lagoon_encounter_result = LagoonEncounter.query.filter_by(encounter_id=encounter_id).first()
-    # output['encounters']['lagoon_encounter'] = lagoon_encounter_schema.dump(lagoon_encounter_result)
+            # Grab metadata
+            #metadata_id = output['encounter']['metadata']
+            metadata_id = 1 #DEBUG
+            metadata_result = Metadata.query.filter_by(metadata_id=metadata_id).all()
+            output['metadata'] = metadata_schema.dump(metadata_result, many=True)
+            #del output['encounter']['metadata']
+            #del output['metadata']['encounters']
 
-    # Grab paps
-    paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
-    output['encounter']['paps'] = paps_schema.dump(paps_result)
+    # # Grab paps
+    # paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
+    # output['encounter']['paps'] = paps_schema.dump(paps_result)
 
-    # Grab samples
-    samples_result = Sample.query.filter_by(encounter_id=encounter_id).all()
-    output['encounter']['samples'] = sample_schema.dump(samples_result, many=True)
+    # # Grab samples
+    # samples_result = Sample.query.filter_by(encounter_id=encounter_id).all()
+    # output['encounter']['samples'] = sample_schema.dump(samples_result, many=True)
 
-    # Grab nets
-    nets_result = Net.query.filter_by(metadata_id=metadata_id).all()
-    output['metadata']['nets'] = net_schema.dump(nets_result, many=True)
+    # # Grab nets
+    # nets_result = Net.query.filter_by(metadata_id=metadata_id).all()
+    # output['metadata']['nets'] = net_schema.dump(nets_result, many=True)
 
-    # Grab incidental captures
-    incidental_captures_result = IncidentalCapture.query.filter_by(metadata_id=metadata_id).all()
-    output['metadata']['incidental_captures'] = incidental_capture_schema.dump(incidental_captures_result, many=True)
+    # # Grab incidental captures
+    # incidental_captures_result = IncidentalCapture.query.filter_by(metadata_id=metadata_id).all()
+    # output['metadata']['incidental_captures'] = incidental_capture_schema.dump(incidental_captures_result, many=True)
 
-    # Grab environment
-    environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
-    output['metadata']['environment'] = environment_schema.dump(environment_result)
+    # # Grab environment
+    # environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
+    # output['metadata']['environment'] = environment_schema.dump(environment_result)
 
     return output
