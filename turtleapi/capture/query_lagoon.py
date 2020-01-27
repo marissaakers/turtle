@@ -25,33 +25,43 @@ def query_lagoon():
     # Grab turtle
     turtle_result = Turtle.query.all()
     # Make output object
-    output = turtle_schema.dump(turtle_result)
+    output = turtle_schema.dump(turtle_result, many=True)
+    t_counter = -1
 
     for turtle in turtle_result:
+        t_counter += 1
+
         turtle_id = turtle.turtle_id
-        output['turtle_id'] = turtle_id
+        t_output = output[t_counter]
+        t_output['turtle_id'] = turtle_id
 
         # Grab tags
         tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
-        output['tags'] = tag_schema.dump(tag_result, many=True)
+        t_output['tags'] = tag_schema.dump(tag_result, many=True)
 
         # Grab encounters
         encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).all()
+        t_output['encounter'] = lagoon_encounter_schema.dump(encounter_result, many=True)
+        del t_output['encounters']
+        e_counter = -1
+
         for encounter in encounter_result:
+            e_counter += 1
+
             encounter_id = encounter.encounter_id
-            output['encounter'] = lagoon_encounter_schema.dump(encounter_result, many=True)
+            #e_output = t_output['0']
 
             # Grab morphometrics
             morphometrics_result = Morphometrics.query.filter_by(encounter_id=encounter_id).first() # Only one morph per encounter ya?
-            output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
+            t_output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
 
             # Grab metadata
             #metadata_id = output['encounter']['metadata']
             metadata_id = 1 #DEBUG
-            metadata_result = Metadata.query.filter_by(metadata_id=metadata_id).all()
-            output['metadata'] = metadata_schema.dump(metadata_result, many=True)
-            #del output['encounter']['metadata']
-            #del output['metadata']['encounters']
+            metadata_result = Metadata.query.filter_by(metadata_id=metadata_id).first()
+            t_output['metadata'] = metadata_schema.dump(metadata_result)
+            #del t_output['encounter']['metadata']
+            #del t_output['metadata']['encounters']
 
     # # Grab paps
     # paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
@@ -73,4 +83,4 @@ def query_lagoon():
     # environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
     # output['metadata']['environment'] = environment_schema.dump(environment_result)
 
-    return output
+    return jsonify(output)
