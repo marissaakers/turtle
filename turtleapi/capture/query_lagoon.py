@@ -34,6 +34,7 @@ def query_lagoon():
         turtle_id = turtle.turtle_id
         t_output = output[t_counter]
         t_output['turtle_id'] = turtle_id
+        del t_output['morphometrics']
 
         # Grab tags
         tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
@@ -41,46 +42,45 @@ def query_lagoon():
 
         # Grab encounters
         encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).all()
-        t_output['encounter'] = lagoon_encounter_schema.dump(encounter_result, many=True)
         del t_output['encounters']
+        t_output['encounters'] = lagoon_encounter_schema.dump(encounter_result, many=True)
         e_counter = -1
 
         for encounter in encounter_result:
             e_counter += 1
 
             encounter_id = encounter.encounter_id
-            #e_output = t_output['0']
+            e_output = t_output['encounters'][e_counter]
 
             # Grab morphometrics
             morphometrics_result = Morphometrics.query.filter_by(encounter_id=encounter_id).first() # Only one morph per encounter ya?
-            t_output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
+            e_output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
 
             # Grab metadata
             #metadata_id = output['encounter']['metadata']
             metadata_id = 1 #DEBUG
             metadata_result = Metadata.query.filter_by(metadata_id=metadata_id).first()
-            t_output['metadata'] = metadata_schema.dump(metadata_result)
-            #del t_output['encounter']['metadata']
-            #del t_output['metadata']['encounters']
+            e_output['metadata'] = metadata_schema.dump(metadata_result)
+            del e_output['metadata']['encounters']
 
-    # # Grab paps
-    # paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
-    # output['encounter']['paps'] = paps_schema.dump(paps_result)
+            # Grab paps
+            paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
+            e_output['paps'] = paps_schema.dump(paps_result)
 
-    # # Grab samples
-    # samples_result = Sample.query.filter_by(encounter_id=encounter_id).all()
-    # output['encounter']['samples'] = sample_schema.dump(samples_result, many=True)
+            # Grab samples
+            samples_result = Sample.query.filter_by(encounter_id=encounter_id).all()
+            e_output['samples'] = sample_schema.dump(samples_result, many=True)
 
-    # # Grab nets
-    # nets_result = Net.query.filter_by(metadata_id=metadata_id).all()
-    # output['metadata']['nets'] = net_schema.dump(nets_result, many=True)
+            # Grab nets
+            nets_result = Net.query.filter_by(metadata_id=metadata_id).all()
+            e_output['metadata']['nets'] = net_schema.dump(nets_result, many=True)
 
-    # # Grab incidental captures
-    # incidental_captures_result = IncidentalCapture.query.filter_by(metadata_id=metadata_id).all()
-    # output['metadata']['incidental_captures'] = incidental_capture_schema.dump(incidental_captures_result, many=True)
+            # Grab incidental captures
+            incidental_captures_result = IncidentalCapture.query.filter_by(metadata_id=metadata_id).all()
+            e_output['metadata']['incidental_captures'] = incidental_capture_schema.dump(incidental_captures_result, many=True)
 
-    # # Grab environment
-    # environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
-    # output['metadata']['environment'] = environment_schema.dump(environment_result)
+            # Grab environment
+            environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
+            e_output['metadata']['environment'] = environment_schema.dump(environment_result)
 
     return jsonify(output)
