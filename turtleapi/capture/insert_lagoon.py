@@ -167,7 +167,7 @@ def insert_lagoon(data):
     incidental_capture_list = incidental_capture_list + (new_incidental_capture,)
 
     db.session.add(lagoon_encounter)
-    db.session.add(environment)
+    db.session.add(environment_item)
     db.session.commit()
 
     # return something at some point? Maybe previous turtle encounters as well as error variable
