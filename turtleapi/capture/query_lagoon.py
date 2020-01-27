@@ -4,7 +4,7 @@ Tag, Morphometrics, Sample, Paps, Metadata, Net, IncidentalCapture, Environment,
 TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
 LagoonEncounterSchema, SampleSchema, PapsSchema, NetSchema, IncidentalCaptureSchema, 
 EnvironmentSchema)
-import datetime
+from datetime import datetime, timedelta
 import json
 from flask import jsonify
 
@@ -22,7 +22,11 @@ def query_lagoon():
     incidental_capture_schema = IncidentalCaptureSchema()
     environment_schema = EnvironmentSchema()
 
-    # Grab turtle
+    FILTER_SPECIES = 'Loggerhead' # Only match this species
+    FILTER_DATE_START = datetime.utcnow() - timedelta(days=1000)
+    FILTER_DATE_END = FILTER_DATE_START + timedelta(days=2000)
+
+    # Grab turtles
     turtle_result = Turtle.query.all()
     # Make output object
     output = turtle_schema.dump(turtle_result, many=True)
@@ -40,8 +44,11 @@ def query_lagoon():
         tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
         t_output['tags'] = tag_schema.dump(tag_result, many=True)
 
-        # Grab encounters
-        encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).all()
+        # Grab encounters, filter by species and date
+        encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).filter_by(species=FILTER_SPECIES).filter(Encounter.encounter_date >= FILTER_DATE_START, Encounter.encounter_date <= FILTER_DATE_END).all()
+        if not encounter_result:
+            del output[t_counter]
+            continue
         t_output['encounters'] = lagoon_encounter_schema.dump(encounter_result, many=True)
         e_counter = -1
 
