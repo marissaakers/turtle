@@ -42,7 +42,6 @@ def query_lagoon():
 
         # Grab encounters
         encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).all()
-        del t_output['encounters']
         t_output['encounters'] = lagoon_encounter_schema.dump(encounter_result, many=True)
         e_counter = -1
 
@@ -57,8 +56,7 @@ def query_lagoon():
             e_output['morphometrics'] = morphometrics_schema.dump(morphometrics_result)
 
             # Grab metadata
-            #metadata_id = output['encounter']['metadata']
-            metadata_id = 1 #DEBUG
+            metadata_id = encounter.metadata_id
             metadata_result = Metadata.query.filter_by(metadata_id=metadata_id).first()
             e_output['metadata'] = metadata_schema.dump(metadata_result)
             del e_output['metadata']['encounters']
