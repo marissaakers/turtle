@@ -22,7 +22,7 @@ def query_lagoon():
     incidental_capture_schema = IncidentalCaptureSchema()
     environment_schema = EnvironmentSchema()
 
-    FILTER_SPECIES = 'Loggerhead' # Only match this species
+    FILTER_SPECIES = 'None' # Only match this species
     FILTER_DATE_START = datetime.utcnow() - timedelta(days=1000)
     FILTER_DATE_END = FILTER_DATE_START + timedelta(days=2000)
 
@@ -48,6 +48,7 @@ def query_lagoon():
         encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).filter_by(species=FILTER_SPECIES).filter(Encounter.encounter_date >= FILTER_DATE_START, Encounter.encounter_date <= FILTER_DATE_END).all()
         if not encounter_result:
             del output[t_counter]
+            t_counter -= 1
             continue
         t_output['encounters'] = lagoon_encounter_schema.dump(encounter_result, many=True)
         e_counter = -1
