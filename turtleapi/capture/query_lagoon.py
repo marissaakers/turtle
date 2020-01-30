@@ -31,9 +31,10 @@ def query_lagoon(data):
     FILTER_SPECIES = data.get('species', '') # Only match this species
 
     string_date_start = data.get('start_date', '') # Match between FILTER_DATE_START and FILTER_DATE_END
-    FILTER_DATE_START = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
     string_date_end = data.get('end_date', '')
-    FILTER_DATE_END = datetime.strptime(string_date_end, '%m/%d/%Y')
+    if string_date_start != '':
+        FILTER_DATE_START = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
+        FILTER_DATE_END = datetime.strptime(string_date_end, '%m/%d/%Y')
 
     queries = []
 
