@@ -17,7 +17,6 @@ turtles = {
 
 class InsertLagoon(Resource):
 	@cors.crossdomain(origin='*')
-
 	def post(self):
 		json_data = request.get_json(force=True)
 		return insert_lagoon(json_data), 200
@@ -48,9 +47,6 @@ class InsertLagoon(Resource):
 
 class QueryLagoon(Resource):
 	@cors.crossdomain(origin='*')
-	# def get(self):
-	# 	return query_lagoon(), 200
-
 	def post(self):
 		json_data = request.get_json(force=True)
 		return query_lagoon(json_data), 200
