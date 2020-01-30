@@ -7,6 +7,7 @@ EnvironmentSchema)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
+from turtleapi.capture.util import find_turtles_from_tags
 
 def query_lagoon(data):
     # Declare schema instances
@@ -22,6 +23,11 @@ def query_lagoon(data):
     incidental_capture_schema = IncidentalCaptureSchema()
     environment_schema = EnvironmentSchema()
 
+    input_tags = data.get('tags', '')
+    print(input_tags)
+
+    #FILTER_TURTLE_ID = data.get
+
     FILTER_SPECIES = data.get('species', '') # Only match this species
 
     string_date_start = data.get('start_date', '') # Match between FILTER_DATE_START and FILTER_DATE_END
@@ -29,8 +35,15 @@ def query_lagoon(data):
     string_date_end = data.get('end_date', '')
     FILTER_DATE_END = datetime.strptime(string_date_end, '%m/%d/%Y')
 
+    queries = []
+
+    # if input_tags != '':
+    #     turtles = find_turtles_from_tags(input_tags)
+    #     print(turtles)
+
     # Grab turtles
-    turtle_result = Turtle.query.all()
+    turtle_result = Turtle.query.filter(*queries).all()
+
     # Make output object
     output = turtle_schema.dump(turtle_result, many=True)
     t_counter = -1
@@ -48,7 +61,7 @@ def query_lagoon(data):
         t_output['tags'] = tag_schema.dump(tag_result, many=True)
 
         # Build list of queries
-        queries = []
+        queries.clear()
         queries.append(Encounter.turtle_id == turtle_id)
 
         if FILTER_SPECIES != '':
