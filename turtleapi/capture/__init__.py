@@ -15,10 +15,8 @@ turtles = {
 	'2': 'loggerhead'
 }
 
-class Lagoon(Resource):
+class InsertLagoon(Resource):
 	@cors.crossdomain(origin='*')
-	def get(self):
-		return query_lagoon(), 200
 
 	def post(self):
 		json_data = request.get_json(force=True)
@@ -48,5 +46,17 @@ class Lagoon(Resource):
 	# 	del turtles[turtle_id]
 	# 	return turtles, 204
 
-api.add_resource(Lagoon, '/api/capture/lagoon')
+class QueryLagoon(Resource):
+	@cors.crossdomain(origin='*')
+	# def get(self):
+	# 	return query_lagoon(), 200
+
+	def post(self):
+		json_data = request.get_json(force=True)
+		return query_lagoon(json_data), 200
+
+
+
+api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
+api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
 

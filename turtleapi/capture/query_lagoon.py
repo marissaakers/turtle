@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import json
 from flask import jsonify
 
-def query_lagoon():
+def query_lagoon(data):
     # Declare schema instances
     turtle_schema = TurtleSchema()
     encounter_schema = EncounterSchema()
@@ -22,9 +22,12 @@ def query_lagoon():
     incidental_capture_schema = IncidentalCaptureSchema()
     environment_schema = EnvironmentSchema()
 
-    FILTER_SPECIES = 'None' # Only match this species
-    FILTER_DATE_START = datetime.utcnow() - timedelta(days=1000)
-    FILTER_DATE_END = FILTER_DATE_START + timedelta(days=2000)
+    FILTER_SPECIES = data.get('species', '') # Only match this species
+
+    string_date_start = data.get('start_date', '') # Match between FILTER_DATE_START and FILTER_DATE_END
+    FILTER_DATE_START = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
+    string_date_end = data.get('end_date', '')
+    FILTER_DATE_END = datetime.strptime(string_date_end, '%m/%d/%Y')
 
     # Grab turtles
     turtle_result = Turtle.query.all()
@@ -44,8 +47,19 @@ def query_lagoon():
         tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
         t_output['tags'] = tag_schema.dump(tag_result, many=True)
 
-        # Grab encounters, filter by species and date
-        encounter_result = Encounter.query.filter_by(turtle_id=turtle_id).filter_by(species=FILTER_SPECIES).filter(Encounter.encounter_date >= FILTER_DATE_START, Encounter.encounter_date <= FILTER_DATE_END).all()
+        # Build list of queries
+        queries = []
+        queries.append(Encounter.turtle_id == turtle_id)
+
+        if FILTER_SPECIES != '':
+            queries.append(Encounter.species == FILTER_SPECIES)
+        if string_date_start != '':
+            queries.append(Encounter.encounter_date >= FILTER_DATE_START)
+            queries.append(Encounter.encounter_date <= FILTER_DATE_END)
+        
+        # Grab encounters, filter by anything appended above
+        encounter_result = Encounter.query.filter(*queries).all()
+
         if not encounter_result:
             del output[t_counter]
             t_counter -= 1
