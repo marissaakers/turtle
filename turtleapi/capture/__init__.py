@@ -19,7 +19,10 @@ class InsertLagoon(Resource):
 	@cors.crossdomain(origin='*')
 	def post(self):
 		json_data = request.get_json(force=True)
-		return insert_lagoon(json_data), 200
+		response = insert_lagoon(json_data)
+		response.headers.add('Access-Control-Allow-Origin', '*')
+		return response, 200
+		#return insert_lagoon(json_data), 200
 		# insert_lagoon()
 		# return 200
 
@@ -49,7 +52,9 @@ class QueryLagoon(Resource):
 	@cors.crossdomain(origin='*')
 	def post(self):
 		json_data = request.get_json(force=True)
-		return query_lagoon(json_data), 200
+		response = query_lagoon(json_data)
+		response.headers.add('Access-Control-Allow-Origin', '*')
+		return response, 200
 
 
 
