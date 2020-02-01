@@ -10,6 +10,7 @@ Click==7.0
 docutils==0.15.2
 durationpy==0.5
 Flask==1.1.1
+Flask-Cors==3.0.8
 flask-marshmallow==0.10.1
 Flask-Migrate==2.5.2
 Flask-RESTful==0.3.7

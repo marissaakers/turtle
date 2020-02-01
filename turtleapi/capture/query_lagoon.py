@@ -117,4 +117,4 @@ def query_lagoon(data):
             environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
             e_output['metadata']['environment'] = environment_schema.dump(environment_result)
 
-    return jsonify(output)
+    return output

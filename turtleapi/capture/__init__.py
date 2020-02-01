@@ -16,11 +16,9 @@ turtles = {
 }
 
 class InsertLagoon(Resource):
-	@cors.crossdomain(origin='*')
 	def post(self):
 		json_data = request.get_json(force=True)
 		response = insert_lagoon(json_data)
-		response.headers.add('Access-Control-Allow-Origin', '*')
 		return response, 200
 		#return insert_lagoon(json_data), 200
 		# insert_lagoon()
@@ -49,11 +47,9 @@ class InsertLagoon(Resource):
 	# 	return turtles, 204
 
 class QueryLagoon(Resource):
-	@cors.crossdomain(origin='*')
 	def post(self):
 		json_data = request.get_json(force=True)
 		response = query_lagoon(json_data)
-		response.headers.add('Access-Control-Allow-Origin', '*')
 		return response, 200
 
 
