@@ -1,0 +1,220 @@
+<html>
+    <body>
+        <h1 class="text-center">{{ info.title }}</h1>
+        <p class="lead text-center">Prepared for {{ info.recipient }} <br>
+            {{ info.date }}</p>
+        {% if features.morphometrics %}
+        <h2 class="text-center">Morphometrics</h2>
+        <table class="table table-striped">
+            <thead>
+                <th class="text-center" scope="col">Metric</th>
+                <th class="text-left" scope="col">Maximum</th>
+                <th class="text-left" scope="col">Minimum</th>
+                <th class="text-left" scope="col">Average</th>
+            </thead>
+            <tbody>
+                {% if features.morphometrics.curved_length %}
+                <tr>
+                    <th scope="row">Curved Length (notch-tip)</th>
+                    <td>{{ data.morphometrics.curved_length_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.curved_length_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.curved_length_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.straight_length %}
+                <tr>
+                    <th scope="row">Straight Length (notch-tip)</th>
+                    <td>{{ data.morphometrics.straight_length_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.straight_length_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.straight_length_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.minimum_length %}
+                <tr>
+                    <th scope="row">Minimum Length (notch-notch)</th>
+                    <td>{{ data.morphometrics.minimum_length_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.minimum_length_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.minimum_length_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.plastron_length %}
+                <tr>
+                    <th scope="row">Plastron length (tape)</th>
+                    <td>{{ data.morphometrics.plastron_length_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.plastron_length_min|round(2, 'floor') }} cm
+                    <td>{{ data.morphometrics.plastron_length_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.weight %}
+                <tr>
+                    <th scope="row">Weight (tare scale)</th>
+                    <td>{{ data.morphometrics.weight_max|round(2, 'floor') }} kg</td>
+                    <td>{{ data.morphometrics.weight_min|round(2, 'floor') }} kg</td>
+                    <td>{{ data.morphometrics.weight_avg|round(2, 'floor') }} kg</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.curved_width %}
+                <tr>
+                    <th scope="row">Curved width (widest)</th>
+                    <td>{{ data.morphometrics.curved_width_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.curved_width_min|round(2, 'floor') }} cm
+                    <td>{{ data.morphometrics.curved_width_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.straight_width %}
+                <tr>
+                    <th scope="row">Straight Width (widest)</th>
+                    <td>{{ data.morphometrics.straight_width_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.straight_width_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.straight_width_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.tail_length_pl_vent %}
+                <tr>
+                    <th scope="row">Tail Length: PL-vent</th>
+                    <td>{{ data.morphometrics.tail_length_pl_vent_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.tail_length_pl_vent_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.tail_length_pl_vent_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.tail_length_pl_tip %}
+                <tr>
+                    <th scope="row">Tail Length: PL-tip</th>
+                    <td>{{ data.morphometrics.tail_length_pl_tip_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.tail_length_pl_tip_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.tail_length_pl_tip_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.head_width %}
+                <tr>
+                    <th scope="row">Head Width (straight)</th>
+                    <td>{{ data.morphometrics.head_width_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.head_width_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.head_width_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+                {% if features.morphometrics.body_depth %}
+                <tr>
+                    <th scope="row">Body Depth (straight)</th>
+                    <td>{{ data.morphometrics.body_depth_max|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.body_depth_min|round(2, 'floor') }} cm</td>
+                    <td>{{ data.morphometrics.body_depth_avg|round(2, 'floor') }} cm</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        <table>
+        {% endif %}
+        {% if features.metadata %}
+        <h2 class="text-center">Metadata</h2>
+            {% if features.metadata.environment %}
+            <h3>Environment</h3>
+            <table class="table table-striped">
+                <thead>
+                    <th class="text-center" scope="col">Metric</th>
+                    <th class="text-left" scope="col">Maximum</th>
+                    <th class="text-left" scope="col">Minimum</th>
+                    <th class="text-left" scope="col">Average</th>
+                </thead>
+                <tbody>
+                    {% if features.metadata.environment.wind_speed %}
+                    <tr>
+                        <th scope="row">Wind Speed</th>
+                        <td>{{ data.metadata.environment.wind_speed_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.wind_speed_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.wind_speed_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.air_temp %}
+                    <tr>
+                        <th scope="row">Air Temperature</th>
+                        <td>{{ data.metadata.environment.air_temp_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.air_temp_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.air_temp_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.water_temp_surface %}
+                    <tr>
+                        <th scope="row">Water Temperature (Surface)</th>
+                        <td>{{ data.metadata.environment.water_temp_surface_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_surface_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_surface_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.water_temp_1m %}
+                    <tr>
+                        <th scope="row">Water Temperature (1m)</th>
+                        <td>{{ data.metadata.environment.water_temp_1m_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_1m_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_1m_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.water_temp_2m %}
+                    <tr>
+                        <th scope="row">Water Temperature (2m)</th>
+                        <td>{{ data.metadata.environment.water_temp_2m_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_2m_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_2m_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.water_temp_6m %}
+                    <tr>
+                        <th scope="row">Water Temperature (6m)</th>
+                        <td>{{ data.metadata.environment.water_temp_6m_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_6m_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_6m_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.water_temp_bottom %}
+                    <tr>
+                        <th scope="row">Water Temperature (Bottom)</th>
+                        <td>{{ data.metadata.environment.water_temp_bottom_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_bottom_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.water_temp_bottom_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.salinity_surface %}
+                    <tr>
+                        <th scope="row">Salinity (Surface)</th>
+                        <td>{{ data.metadata.environment.salinity_surface_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_surface_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_surface_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.salinity_1m %}
+                    <tr>
+                        <th scope="row">Salinity (1m)</th>
+                        <td>{{ data.metadata.environment.salinity_1m_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_1m_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_1m_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.salinity_1m %}
+                    <tr>
+                        <th scope="row">Salinity (2m)</th>
+                        <td>{{ data.metadata.environment.salinity_2m_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_2m_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_2m_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.salinity_6m %}
+                    <tr>
+                        <th scope="row">Salinity (6m)</th>
+                        <td>{{ data.metadata.environment.salinity_6m_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_6m_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_6m_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                    {% if features.metadata.environment.salinity_bottom %}
+                    <tr>
+                        <th scope="row">Salinity (Bottom)</th>
+                        <td>{{ data.metadata.environment.salinity_bottom_max|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_bottom_min|round(2, 'floor') }} cm</td>
+                        <td>{{ data.metadata.environment.salinity_bottom_avg|round(2, 'floor') }} cm</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            {% endif %}
+        {% endif %}
+    </body>
+</html>

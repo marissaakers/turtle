@@ -1,6 +1,5 @@
 from flask import Blueprint, request
 from flask_restful import Resource, Api
-from flask_restful.utils import cors
 #from turtleapi.models.turtlemodels import Clutch, ClutchSchema
 from turtleapi.models.turtlemodels import LagoonEncounterSchema
 import json

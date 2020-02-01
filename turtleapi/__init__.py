@@ -28,4 +28,6 @@ def create_app(config_class=Config):
 
 def register_blueprints(app):
 	from turtleapi.capture import capturebp
+	from turtleapi.reports import reportsbp
 	app.register_blueprint(capturebp)
+	app.register_blueprint(reportsbp)
