@@ -23,11 +23,7 @@ def query_lagoon(data):
     incidental_capture_schema = IncidentalCaptureSchema()
     environment_schema = EnvironmentSchema()
 
-    input_tags = data.get('tags', '')
-    print(input_tags)
-
-    #FILTER_TURTLE_ID = data.get
-
+    FILTER_TAGS = data.get('tags', '')
     FILTER_SPECIES = data.get('species', '') # Only match this species
 
     string_date_start = data.get('start_date', '') # Match between FILTER_DATE_START and FILTER_DATE_END
@@ -38,9 +34,9 @@ def query_lagoon(data):
 
     queries = []
 
-    # if input_tags != '':
-    #     turtles = find_turtles_from_tags(input_tags)
-    #     print(turtles)
+    if FILTER_TAGS != '':
+        turtle_ids = find_turtles_from_tags(FILTER_TAGS)
+        queries.append(Turtle.turtle_id.in_(turtle_ids))
 
     # Grab turtles
     turtle_result = Turtle.query.filter(*queries).all()
