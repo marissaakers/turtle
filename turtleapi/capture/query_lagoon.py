@@ -28,10 +28,17 @@ def query_lagoon(data):
     FILTER_species = data.get('species', '') # Only match this species
 
     string_date_start = data.get('encounter_date_start', '') # Match between FILTER_DATE_START and FILTER_DATE_END
-    string_date_end = data.get('encounter_end_date', '')
-    if string_date_start != '':
-        FILTER_encounter_date_start = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
-        FILTER_encounter_date_end = datetime.strptime(string_date_end, '%m/%d/%Y')
+    string_date_end = data.get('encounter_date_end', '')
+    if string_date_start != '' and string_date_end != '':
+        try:
+            FILTER_encounter_date_start = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
+            FILTER_encounter_date_end = datetime.strptime(string_date_end, '%m/%d/%Y')
+        except: 
+            print("Error: date not in correct format")
+            string_date_start = ''
+
+    print("test")
+    print(string_date_start)
 
     FILTER_entered_by = data.get('entered_by', '')
     FILTER_verified_by = data.get('verified_by', '')
@@ -72,8 +79,8 @@ def query_lagoon(data):
         if FILTER_species != '':
             queries.append(Encounter.species == FILTER_species)
         if string_date_start != '':
-            queries.append(Encounter.encounter_date >= FILTER_DATE_START)
-            queries.append(Encounter.encounter_date <= FILTER_DATE_END)
+            queries.append(Encounter.encounter_date >= FILTER_encounter_date_start)
+            queries.append(Encounter.encounter_date <= FILTER_encounter_date_end)
         if FILTER_investigated_by != '':
             queries.append(Encounter.investigated_by == FILTER_investigated_by)
         if FILTER_entered_by != '':
