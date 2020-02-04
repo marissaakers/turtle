@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, make_response
+from flask import Blueprint, request, render_template
 import requests
 import json
 from turtleapi.reports.reports import lagoon_report
@@ -6,7 +6,6 @@ from turtleapi.capture.query_lagoon import query_lagoon
 
 reportsbp = Blueprint('reports', __name__, url_prefix='/api/reports')
 
-#class ReportApi(Resource):
 @reportsbp.route('/lagoon/pdf', methods=['GET','POST'])
 def post():
     # Grab the JSON coming in
