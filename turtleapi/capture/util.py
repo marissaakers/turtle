@@ -16,20 +16,15 @@ def find_turtle_from_tags(tags):
 
 # Match all turtles
 def find_turtles_from_tags(tags):
-    #turtles = Turtle.query.filter(Turtle.turtle_id.in_(tags)).all()
-    tags = Tag.query.filter(Tag.tag_number.in_(tags)).all() #.distinct()
-    
-    print("TAGS IS")
-    print(tags)
+    #turtle_ids = Tag.query.filter(Tag.tag_number.in_(tags)).all() #.distinct()
+    #turtle_ids = Tag.query.filter(Tag.tag_number.in_(tags)).distinct()
+    turtle_ids = Tag.query.distinct(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all()
+    #turtle_ids = Tag.query.with_entities(Tag.turtle_id).distinct(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all() # doesn't work?
 
-    if tags is not None:
+    if turtle_ids is not None:
         tag_schema = TagSchema()
-        tagdump = tag_schema.dump(tags, many=True)
-        print(tagdump)
+        turtle_ids_dump = tag_schema.dump(turtle_ids, many=True)
 
-        print(list(tagdump['turtle_id'].values()))
-
-        # if turtles is not None:
-        #     turtle_schema = TurtleSchema()
-        #     return turtle_schema.dump(turtles)
+        turtle_ids_list = [d['turtle'] for d in turtle_ids_dump]
+        return turtle_ids_list
     return None

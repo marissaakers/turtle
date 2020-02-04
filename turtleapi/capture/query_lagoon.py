@@ -23,24 +23,35 @@ def query_lagoon(data):
     incidental_capture_schema = IncidentalCaptureSchema()
     environment_schema = EnvironmentSchema()
 
-    input_tags = data.get('tags', '')
-    print(input_tags)
+    ### Filters
+    FILTER_tags = data.get('tags', '')
+    FILTER_species = data.get('species', '') # Only match this species
 
-    #FILTER_TURTLE_ID = data.get
+    string_date_start = data.get('encounter_date_start', '') # Match between FILTER_DATE_START and FILTER_DATE_END
+    string_date_end = data.get('encounter_date_end', '')
+    if string_date_start != '' and string_date_end != '':
+        try:
+            FILTER_encounter_date_start = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
+            FILTER_encounter_date_end = datetime.strptime(string_date_end, '%m/%d/%Y')
+        except: 
+            print("Error: date not in correct format")
+            string_date_start = ''
 
-    FILTER_SPECIES = data.get('species', '') # Only match this species
+    print("test")
+    print(string_date_start)
 
-    string_date_start = data.get('start_date', '') # Match between FILTER_DATE_START and FILTER_DATE_END
-    string_date_end = data.get('end_date', '')
-    if string_date_start != '':
-        FILTER_DATE_START = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
-        FILTER_DATE_END = datetime.strptime(string_date_end, '%m/%d/%Y')
+    FILTER_entered_by = data.get('entered_by', '')
+    FILTER_verified_by = data.get('verified_by', '')
+    FILTER_investigated_by = data.get('investigated_by', '')
+
+
+    ### End filters
 
     queries = []
 
-    # if input_tags != '':
-    #     turtles = find_turtles_from_tags(input_tags)
-    #     print(turtles)
+    if FILTER_tags != '':
+        turtle_ids = find_turtles_from_tags(FILTER_tags)
+        queries.append(Turtle.turtle_id.in_(turtle_ids))
 
     # Grab turtles
     turtle_result = Turtle.query.filter(*queries).all()
@@ -61,17 +72,23 @@ def query_lagoon(data):
         tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
         t_output['tags'] = tag_schema.dump(tag_result, many=True)
 
-        # Build list of queries
+        ### Build list of queries
         queries.clear()
         queries.append(Encounter.turtle_id == turtle_id)
 
-        if FILTER_SPECIES != '':
-            queries.append(Encounter.species == FILTER_SPECIES)
+        if FILTER_species != '':
+            queries.append(Encounter.species == FILTER_species)
         if string_date_start != '':
-            queries.append(Encounter.encounter_date >= FILTER_DATE_START)
-            queries.append(Encounter.encounter_date <= FILTER_DATE_END)
+            queries.append(Encounter.encounter_date >= FILTER_encounter_date_start)
+            queries.append(Encounter.encounter_date <= FILTER_encounter_date_end)
+        if FILTER_investigated_by != '':
+            queries.append(Encounter.investigated_by == FILTER_investigated_by)
+        if FILTER_entered_by != '':
+            queries.append(Encounter.entered_by == FILTER_entered_by)
+        if FILTER_verified_by != '':
+            queries.append(Encounter.verified_by == FILTER_verified_by)
         
-        # Grab encounters, filter by anything appended above
+        ### Grab encounters, filter by anything appended above
         encounter_result = Encounter.query.filter(*queries).all()
 
         if not encounter_result:
