@@ -5,6 +5,8 @@ from turtleapi.models.turtlemodels import LagoonEncounterSchema
 import json
 from turtleapi.capture.query_lagoon import query_lagoon
 from turtleapi.capture.insert_lagoon import insert_lagoon
+from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
+	update_tracking_entry, delete_tracking_entry)
 
 capturebp = Blueprint('captureapi', __name__)
 api = Api(capturebp)
@@ -51,8 +53,31 @@ class QueryLagoon(Resource):
 		response = query_lagoon(json_data)
 		return response, 200
 
+class Sample(Resource):
+	def get(self, sample_id):
+		# We get a sample id, and send back sample info including tracking
+		response = get_sample(sample_id)
+		return response, 200
 
+class SampleTracking(Resource):
+
+	def post(self):
+		print(request.get_json(force=True))
+		tracking_entry = request.get_json(force=True)
+		response = add_tracking_entry(tracking_entry)
+		return response, 201
+
+	def put(self, sample_tracking_id):
+		tracking_entry = request.get_json(force=True)
+		response = update_tracking_entry(sample_tracking_id, tracking_entry)
+		return response, 200
+
+	def delete(self, sample_tracking_id):
+		response = delete_tracking_entry(sample_tracking_id)
+		return response, 200
 
 api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
-
+api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
+api.add_resource(SampleTracking, '/api/capture/sample/tracking',
+								'/api/capture/sample/tracking/<int:sample_tracking_id>')

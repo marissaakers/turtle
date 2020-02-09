@@ -179,10 +179,13 @@ class Encounter(db.Model):
 
 class Sample(db.Model):
 	# Primary key
-	samples_id = db.Column(db.Integer, primary_key=True)
+	sample_id = db.Column(db.Integer, primary_key=True)
 
 	# Foreign key
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+
+	# Dependencies
+	tracking_entries = db.relationship('SampleTracking', backref='sample', lazy='joined')
 
 	# Various fields
 	skin_1 = db.Column(db.Boolean)
@@ -368,6 +371,17 @@ class Environment(db.Model):
 	salinity_6_m = db.Column(db.Float(5))
 	salinity_bottom = db.Column(db.Float(5))
 
+class SampleTracking(db.Model):
+	# Primary key
+	sample_tracking_id = db.Column(db.Integer, primary_key=True)
+
+	# Foreign key
+	sample_id = db.Column(db.Integer, db.ForeignKey('sample.sample_id'), nullable=False)
+
+	# Fields
+	date = db.Column(db.Date)
+	notes = db.Column(db.Text)
+
 class TurtleSchema(ma.ModelSchema):
 	class Meta:
 		model = Turtle
@@ -396,9 +410,14 @@ class EncounterSchema(ma.ModelSchema):
 	class Meta:
 		model = Encounter
 
+class SampleTrackingSchema(ma.ModelSchema):
+	class Meta:
+		model = SampleTracking
+
 class SampleSchema(ma.ModelSchema):
 	class Meta:
 		model = Sample
+	tracking_entries = ma.Nested(SampleTrackingSchema, many=True)
 
 class PapsSchema(ma.ModelSchema):
 	class Meta:
@@ -440,3 +459,7 @@ class EnvironmentSchema(ma.ModelSchema):
 	class Meta:
 		model = Environment
 
+class SampleHistorySchema(ma.Schema):
+	class Meta:
+		fields = ("sample_id", "tracking_entries")
+	tracking_entries = ma.Nested(SampleTrackingSchema, many=True)
