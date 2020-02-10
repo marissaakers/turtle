@@ -5,6 +5,7 @@ from turtleapi.models.turtlemodels import LagoonEncounterSchema
 import json
 from turtleapi.capture.query_lagoon import query_lagoon
 from turtleapi.capture.insert_lagoon import insert_lagoon
+from turtleapi.capture.edit_lagoon import edit_lagoon
 from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 	update_tracking_entry, delete_tracking_entry)
 
@@ -53,6 +54,12 @@ class QueryLagoon(Resource):
 		response = query_lagoon(json_data)
 		return response, 200
 
+class EditLagoon(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = edit_lagoon(json_data)
+		return response, 200
+
 class Sample(Resource):
 	def get(self, sample_id):
 		# We get a sample id, and send back sample info including tracking
@@ -78,6 +85,7 @@ class SampleTracking(Resource):
 
 api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
+api.add_resource(EditLagoon, '/api/capture/lagoon/edit')
 api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
 api.add_resource(SampleTracking, '/api/capture/sample/tracking',
 								'/api/capture/sample/tracking/<int:sample_tracking_id>')

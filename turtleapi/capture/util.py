@@ -28,3 +28,23 @@ def find_turtles_from_tags(tags):
         turtle_ids_list = [d['turtle'] for d in turtle_ids_dump]
         return turtle_ids_list
     return None
+
+# For editing, insert any new tags
+# WIP & untested 
+def insert_new_tags(turtle_id, tags):
+    turtle_result = Tag.query.filter(Tag.turtle_id == turtle_id)
+    
+    if turtle_result is not None:
+        tag_schema = TagSchema()
+        turtle_result_dump = tag_schema.dump(turtle_result, many=True)
+        turtle_tag_list = [d['tag_number'] for d in turtle_result_dump]
+        for t in tags:
+            if t not in turtle_tag_list:
+                new_tag = Tag(
+                turtle=turtle_id,
+                tag_number=t,
+                location="DEBUG",
+                active=tag['active'],
+                tag_type=tag['tag_type'] #grrr
+            )
+        
