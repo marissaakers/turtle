@@ -1,9 +1,8 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
-Tag, Morphometrics, Sample, Paps, Metadata, Net, IncidentalCapture, Environment,
+Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture,
 TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
-LagoonEncounterSchema, SampleSchema, PapsSchema, NetSchema, IncidentalCaptureSchema, 
-EnvironmentSchema)
+LagoonEncounterSchema, SampleSchema, NetSchema, IncidentalCaptureSchema)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
@@ -14,7 +13,7 @@ def query_metadata(data):
     metadata_schema = MetadataSchema()
     net_schema = NetSchema()
     incidental_capture_schema = IncidentalCaptureSchema()
-    environment_schema = EnvironmentSchema()
+    # environment_schema = EnvironmentSchema()
     
     ### FILTERS
     FILTER_metadata_id = data.get('metadata_id', '')
@@ -39,9 +38,9 @@ def query_metadata(data):
         incidental_captures_result = IncidentalCapture.query.filter_by(metadata_id=metadata_id).all()
         output['incidental_captures'] = incidental_capture_schema.dump(incidental_captures_result, many=True)
 
-        # Grab environment
-        environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
-        output['environment'] = environment_schema.dump(environment_result)
+        # # Grab environment
+        # environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
+        # output['environment'] = environment_schema.dump(environment_result)
         
         return output
     else:

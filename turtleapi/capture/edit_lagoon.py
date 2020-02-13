@@ -1,9 +1,8 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
-Tag, Morphometrics, Sample, Paps, Metadata, Net, IncidentalCapture, Environment,
+Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture,
 TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
-LagoonEncounterSchema, SampleSchema, PapsSchema, NetSchema, IncidentalCaptureSchema, 
-EnvironmentSchema)
+LagoonEncounterSchema, SampleSchema, NetSchema, IncidentalCaptureSchema)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
@@ -18,10 +17,10 @@ def edit_lagoon(data):
     metadata_schema = MetadataSchema()
     lagoon_encounter_schema = LagoonEncounterSchema()
     sample_schema = SampleSchema()
-    paps_schema = PapsSchema()
+    # paps_schema = PapsSchema()
     net_schema = NetSchema()
     incidental_capture_schema = IncidentalCaptureSchema()
-    environment_schema = EnvironmentSchema()
+    # environment_schema = EnvironmentSchema()
 
     ### Filters
 

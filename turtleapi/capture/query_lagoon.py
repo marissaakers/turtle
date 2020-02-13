@@ -1,9 +1,8 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
-Tag, Morphometrics, Sample, Paps, Metadata, Net, IncidentalCapture, Environment,
+Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture,
 TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
-LagoonEncounterSchema, SampleSchema, PapsSchema, NetSchema, IncidentalCaptureSchema, 
-EnvironmentSchema)
+LagoonEncounterSchema, SampleSchema, NetSchema, IncidentalCaptureSchema)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
@@ -18,10 +17,10 @@ def query_lagoon(data):
     metadata_schema = MetadataSchema()
     lagoon_encounter_schema = LagoonEncounterSchema()
     sample_schema = SampleSchema()
-    paps_schema = PapsSchema()
+    # paps_schema = PapsSchema()
     net_schema = NetSchema()
     incidental_capture_schema = IncidentalCaptureSchema()
-    environment_schema = EnvironmentSchema()
+    # environment_schema = EnvironmentSchema()
 
     ### Filters
     FILTER_tags = data.get('tags', '')
@@ -116,8 +115,8 @@ def query_lagoon(data):
             del e_output['metadata']['encounters']
 
             # Grab paps
-            paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
-            e_output['paps'] = paps_schema.dump(paps_result)
+            # paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
+            # e_output['paps'] = paps_schema.dump(paps_result)
 
             # Grab samples
             samples_result = Sample.query.filter_by(encounter_id=encounter_id).all()
@@ -132,7 +131,7 @@ def query_lagoon(data):
             e_output['metadata']['incidental_captures'] = incidental_capture_schema.dump(incidental_captures_result, many=True)
 
             # Grab environment
-            environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
-            e_output['metadata']['environment'] = environment_schema.dump(environment_result)
+            # environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
+            # e_output['metadata']['environment'] = environment_schema.dump(environment_result)
 
     return output

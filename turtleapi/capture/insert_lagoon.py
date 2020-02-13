@@ -1,11 +1,10 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, Tag,
-                                           Morphometrics, Sample, Paps, Metadata, Net,
-                                           IncidentalCapture, Environment, TurtleSchema,
+                                           Morphometrics, Sample, Metadata, Net,
+                                           IncidentalCapture, TurtleSchema,
                                            EncounterSchema, TagSchema, MorphometricsSchema,
                                            MetadataSchema, LagoonEncounterSchema, SampleSchema,
-                                           PapsSchema, NetSchema, IncidentalCaptureSchema,
-                                           EnvironmentSchema)
+                                           NetSchema, IncidentalCaptureSchema)
 import datetime
 import json
 from turtleapi.capture.util import find_turtle_from_tags
@@ -17,9 +16,9 @@ def insert_lagoon(data):
     metadata = data['metadata']
     morphometrics = data['morphometrics']
     samples = encounter['samples']
-    paps = encounter['paps']
+    # paps = encounter['paps']
     nets = metadata['nets']
-    environment = metadata['environment']
+    # environment = metadata['environment']
     incidental_captures = metadata['incidental_captures']
 
     # Attempt to find a turtle from the tags
@@ -57,7 +56,23 @@ def insert_lagoon(data):
         metadata_investigators=metadata['metadata_investigators'],
         number_of_cc_captured=metadata['number_of_cc_captured'],
         number_of_cm_captured=metadata['number_of_cm_captured'],
-        number_of_other_captured=metadata['number_of_other_captured']
+        number_of_other_captured=metadata['number_of_other_captured'],
+        water_sample=metadata['water_sample'],
+        wind_speed=metadata['wind_speed'],
+        wind_dir=metadata['wind_dir'],
+        environment_time=metadata['environment_time'],
+        weather=metadata['weather'],
+        air_temp=metadata['air_temp'],
+        water_temp_surface=metadata['water_temp_surface'],
+        water_temp_1_m=metadata['water_temp_1_m'],
+        water_temp_2_m=metadata['water_temp_2_m'],
+        water_temp_6_m=metadata['water_temp_6_m'],
+        water_temp_bottom=metadata['water_temp_bottom'],
+        salinity_surface=metadata['salinity_surface'],
+        salinity_1_m=metadata['salinity_1_m'],
+        salinity_2_m=metadata['salinity_2_m'],
+        salinity_6_m=metadata['salinity_6_m'],
+        salinity_bottom=metadata['salinity_bottom']
     )
 
     lagoon_encounter = LagoonEncounter(
@@ -76,7 +91,12 @@ def insert_lagoon(data):
         leeches=encounter['leeches'],
         leeches_where=encounter['leeches_where'],
         leech_eggs=encounter['leech_eggs'],
-        leech_eggs_where=encounter['leech_eggs_where']
+        leech_eggs_where=encounter['leech_eggs_where'],
+        paps_present=encounter['paps_present'],
+        number_of_paps=encounter['number_of_paps'],
+        paps_regression=encounter['paps_regression'],
+        photos=encounter['photos'],
+        pap_photos=encounter['pap_photos']
     )
 
     morphometrics_item = Morphometrics(
@@ -114,15 +134,6 @@ def insert_lagoon(data):
         )
         sample_list = sample_list + (new_sample,)
 
-    paps_item = Paps(
-        encounter=lagoon_encounter,
-        paps_present=paps['paps_present'],
-        number_of_paps=paps['number_of_paps'],
-        paps_regression=paps['paps_regression'],
-        photos=paps['photos'],
-        pap_photos=paps['pap_photos']
-    )
-
     net_list = ()
     for net in nets:
         new_net = Net(
@@ -134,26 +145,6 @@ def insert_lagoon(data):
             net_retrieval_end_time=net['net_retrieval_end_time']
         )
         net_list = net_list + (new_net,)
-
-    environment_item = Environment(
-        metadata=metadata_item,
-        water_sample=environment['water_sample'],
-        wind_speed=environment['wind_speed'],
-        wind_dir=environment['wind_dir'],
-        environment_time=environment['environment_time'],
-        weather=environment['weather'],
-        air_temp=environment['air_temp'],
-        water_temp_surface=environment['water_temp_surface'],
-        water_temp_1_m=environment['water_temp_1_m'],
-        water_temp_2_m=environment['water_temp_2_m'],
-        water_temp_6_m=environment['water_temp_6_m'],
-        water_temp_bottom=environment['water_temp_bottom'],
-        salinity_surface=environment['salinity_surface'],
-        salinity_1_m=environment['salinity_1_m'],
-        salinity_2_m=environment['salinity_2_m'],
-        salinity_6_m=environment['salinity_6_m'],
-        salinity_bottom=environment['salinity_bottom']
-    )
 
     incidental_capture_list = ()
     for incidental_capture in incidental_captures:
