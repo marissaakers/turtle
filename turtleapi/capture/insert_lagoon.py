@@ -9,6 +9,7 @@ import datetime
 import json
 from turtleapi.capture.util import find_turtle_from_tags
 from flask import jsonify
+import random
 
 # def insert_lagoon(data):
     # tags = data['tags']
@@ -172,46 +173,51 @@ def insert_lagoon():
     # If the turtle is found, we'll use that turtle; otherwise we'll make a new turtle
     if query_result is not None:
         turtle = query_result
-    
+
+    names = ['Matt','Adam','Jade','Marissa','Lucia','Gustavo']
+    tf = [True, False]
+    letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N']
+    timenow = datetime.datetime.now() + datetime.timedelta(days=random.randrange(-2000,2000))
+
     turtle = Turtle(
-        species="Loggerhead",
+        species=random.choice(['Loggerhead', 'Leatherback', 'Green Sea Turtle', 'Hawksbill', 'Olive Ridley']),
     )
 
     metadata = Metadata(
-        metadata_date=datetime.datetime.now(),
+        metadata_date=timenow,
         metadata_location="My house",
         metadata_investigators="The whole team",
-        number_of_cc_captured=5,
-        number_of_cm_captured=2,
-        number_of_other_captured=4,
-        water_sample=False,
-        wind_speed=32.6,
+        number_of_cc_captured=5 + random.randrange(-3,3),
+        number_of_cm_captured=2 + random.randrange(-2,2),
+        number_of_other_captured=4 + random.randrange(-3,3),
+        water_sample=random.choice(tf),
+        wind_speed=32.6 + round(random.uniform(-3,3), 1),
         wind_dir="NNW",
-        environment_time=datetime.datetime.now(),
+        environment_time=timenow,
         weather="Partly cloudy",
         air_temp=33.8,
-        water_temp_surface=29.4,
-        water_temp_1_m=41.8,
-        water_temp_2_m=39.9,
-        water_temp_6_m=48.7,
-        water_temp_bottom=51.5,
-        salinity_surface=14.8,
-        salinity_1_m=10.5,
-        salinity_2_m=11.8,
-        salinity_6_m=12.8,
-        salinity_bottom=19.2
+        water_temp_surface=29.4 + round(random.uniform(-3,3), 1),
+        water_temp_1_m=41.8 + round(random.uniform(-3,3), 1),
+        water_temp_2_m=39.9 + round(random.uniform(-3,3), 1),
+        water_temp_6_m=48.7 + round(random.uniform(-3,3), 1),
+        water_temp_bottom=51.5 + round(random.uniform(-3,3), 1),
+        salinity_surface=14.8 + round(random.uniform(-3,3), 1),
+        salinity_1_m=10.5 + round(random.uniform(-3,3), 1),
+        salinity_2_m=11.8 + round(random.uniform(-3,3), 1),
+        salinity_6_m=12.8 + round(random.uniform(-3,3), 1),
+        salinity_bottom=19.2 + round(random.uniform(-3,3), 1)
     )
 
     lagoon_encounter = LagoonEncounter(
         turtle=turtle,
         metadata=metadata,
-        encounter_date=datetime.datetime.now(),
-        encounter_time=datetime.datetime.now(),
-        investigated_by="Matt",
-        entered_by="Jade",
-        entered_date=datetime.datetime.now(),
-        verified_by="Adam",
-        verified_date=datetime.datetime.now(),
+        encounter_date=timenow,
+        encounter_time=timenow,
+        investigated_by=random.choice(names),
+        entered_by=random.choice(names),
+        entered_date=timenow,
+        verified_by=random.choice(names),
+        verified_date=timenow,
         living_tags=False,
         other="Other information goes here",
         leeches=False,
@@ -227,7 +233,7 @@ def insert_lagoon():
 
     tag1 = Tag(
         turtle=turtle,
-        tag_number="BB123456",
+        tag_number=random.choice(letters) + random.choice(letters) + str(random.randint(1000,9999)),
         location="LF",
         active=True,
         tag_type="I don't know what this is"
@@ -235,7 +241,7 @@ def insert_lagoon():
 
     tag2 = Tag(
         turtle=turtle,
-        tag_number="CD765432",
+        tag_number=random.choice(letters) + random.choice(letters) + str(random.randint(1000,9999)),
         location="RF",
         active=True,
         tag_type="I don't know what this is"
@@ -243,7 +249,7 @@ def insert_lagoon():
 
     tag3 = Tag(
         turtle=turtle,
-        tag_number="CC999999",
+        tag_number=random.choice(letters) + random.choice(letters) + str(random.randint(1000,9999)),
         location="RR",
         active=True,
         tag_type="I don't know what this is"
@@ -254,17 +260,17 @@ def insert_lagoon():
     morphometrics = Morphometrics(
         turtle=turtle,
         encounter=lagoon_encounter,
-        curved_length=14.0,
-        straight_length=23.7,
-        minimum_length=12.5,
-        plastron_length=50.2,
-        weight=132,
-        curved_width=32.0,
-        straight_width=14.5,
-        tail_length_pl_vent=32.0,
-        tail_length_pl_tip=31.9,
-        head_width=7.1,
-        body_depth=14.1,
+        curved_length=14.0 + round(random.uniform(-3,3), 1),
+        straight_length=23.7 + round(random.uniform(-3,3), 1),
+        minimum_length=12.5 + round(random.uniform(-3,3), 1),
+        plastron_length=50.2 + round(random.uniform(-3,3), 1),
+        weight=132 + round(random.uniform(-3,3), 1),
+        curved_width=32.0 + round(random.uniform(-3,3), 1),
+        straight_width=14.5 + round(random.uniform(-3,3), 1),
+        tail_length_pl_vent=32.0 + round(random.uniform(-3,3), 1),
+        tail_length_pl_tip=31.9 + round(random.uniform(-3,3), 1),
+        head_width=7.1 + round(random.uniform(-3,3), 1),
+        body_depth=14.1 + round(random.uniform(-3,3), 1),
         flipper_carapace='Something should go here',
         carapace_damage='I am out of ideas'
     )
@@ -286,10 +292,10 @@ def insert_lagoon():
     net = Net(
         metadata=metadata,
         net_number=3,
-        net_deploy_start_time=datetime.datetime.now(),
-        net_deploy_end_time=datetime.datetime.now(),
-        net_retrieval_start_time=datetime.datetime.now(),
-        net_retrieval_end_time=datetime.datetime.now()
+        net_deploy_start_time=timenow,
+        net_deploy_end_time=timenow,
+        net_retrieval_start_time=timenow,
+        net_retrieval_end_time=timenow
     )
 
     incidental_capture = IncidentalCapture(
