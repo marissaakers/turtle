@@ -9,6 +9,8 @@ from flask import jsonify
 from turtleapi.capture.util import find_turtles_from_tags
 
 def query_lagoon(data):
+
+    print("TESTTTTTT!!!")
     # Declare schema instances
     turtle_schema = TurtleSchema()
     encounter_schema = EncounterSchema()
@@ -51,6 +53,8 @@ def query_lagoon(data):
     if FILTER_tags != '':
         turtle_ids = find_turtles_from_tags(FILTER_tags)
         queries.append(Turtle.turtle_id.in_(turtle_ids))
+    if FILTER_species != '':
+            queries.append(Turtle.species == FILTER_species)
 
     # Grab turtles
     turtle_result = Turtle.query.filter(*queries).all()
@@ -75,8 +79,6 @@ def query_lagoon(data):
         queries.clear()
         queries.append(Encounter.turtle_id == turtle_id)
 
-        if FILTER_species != '':
-            queries.append(Encounter.species == FILTER_species)
         if string_date_start != '':
             queries.append(Encounter.encounter_date >= FILTER_encounter_date_start)
         if string_date_end != '':
