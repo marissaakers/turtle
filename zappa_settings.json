@@ -2,7 +2,6 @@
     "dev": {
         "app_function": "setup.app",
         "aws_region": "us-east-2",
-        "profile_name": "zappauser",
         "project_name": "backend",
         "runtime": "python3.7",
         "s3_bucket": "zappa-mmfqf1gj1",

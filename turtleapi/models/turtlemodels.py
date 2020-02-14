@@ -23,7 +23,7 @@ class Tag(db.Model):
 
 	# Various fields
 	tag_number = db.Column(db.String(30))
-	location = db.Column(db.String(2))
+	tag_scars = db.Column(db.Boolean)
 	active = db.Column(db.Boolean)
 	tag_type = db.Column(db.String(30))
 
@@ -222,6 +222,7 @@ class Encounter(db.Model):
 	entered_date = db.Column(db.Date)
 	verified_by = db.Column(db.String(30))
 	verified_date = db.Column(db.Date)
+	notes = db.Column(db.Text)
 
 	# Paps
 	paps_present = db.Column(db.Boolean)
@@ -338,7 +339,6 @@ class BeachEncounter(Encounter):
 	lat_n = db.Column(db.Float(5))
 	lat_w = db.Column(db.Float(5))
 	site_description = db.Column(db.Text)
-	notes = db.Column(db.Text)
 
 	# DC Data
 	outgoing_crawl_width = db.Column(db.Float(5))

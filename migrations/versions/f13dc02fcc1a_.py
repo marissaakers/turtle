@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: caccede2e007
+Revision ID: f13dc02fcc1a
 Revises: 
-Create Date: 2020-02-12 19:55:13.608221
+Create Date: 2020-02-13 19:16:09.347456
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'caccede2e007'
+revision = 'f13dc02fcc1a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -117,6 +117,12 @@ def upgrade():
     sa.Column('entered_date', sa.Date(), nullable=True),
     sa.Column('verified_by', sa.String(length=30), nullable=True),
     sa.Column('verified_date', sa.Date(), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('paps_present', sa.Boolean(), nullable=True),
+    sa.Column('number_of_paps', sa.Integer(), nullable=True),
+    sa.Column('paps_regression', sa.String(length=40), nullable=True),
+    sa.Column('photos', sa.Boolean(), nullable=True),
+    sa.Column('pap_photos', sa.Boolean(), nullable=True),
     sa.Column('type', sa.String(length=30), nullable=True),
     sa.ForeignKeyConstraint(['metadata_id'], ['metadata.metadata_id'], ),
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
@@ -147,7 +153,7 @@ def upgrade():
     sa.Column('tag_id', sa.Integer(), nullable=False),
     sa.Column('turtle_id', sa.Integer(), nullable=False),
     sa.Column('tag_number', sa.String(length=30), nullable=True),
-    sa.Column('location', sa.String(length=2), nullable=True),
+    sa.Column('tag_scars', sa.Boolean(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('tag_type', sa.String(length=30), nullable=True),
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
@@ -165,7 +171,6 @@ def upgrade():
     sa.Column('lat_n', sa.Float(precision=5), nullable=True),
     sa.Column('lat_w', sa.Float(precision=5), nullable=True),
     sa.Column('site_description', sa.Text(), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('outgoing_crawl_width', sa.Float(precision=5), nullable=True),
     sa.Column('yolkless_collected', sa.Boolean(), nullable=True),
     sa.Column('pink_spot_photo_taken', sa.Boolean(), nullable=True),
@@ -218,17 +223,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
     sa.PrimaryKeyConstraint('morphometrics_id')
     )
-    op.create_table('paps',
-    sa.Column('pap_id', sa.Integer(), nullable=False),
-    sa.Column('encounter_id', sa.Integer(), nullable=False),
-    sa.Column('paps_present', sa.Boolean(), nullable=True),
-    sa.Column('number_of_paps', sa.Integer(), nullable=True),
-    sa.Column('paps_regression', sa.String(length=40), nullable=True),
-    sa.Column('photos', sa.Boolean(), nullable=True),
-    sa.Column('pap_photos', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
-    sa.PrimaryKeyConstraint('pap_id')
-    )
     op.create_table('sample',
     sa.Column('sample_id', sa.Integer(), nullable=False),
     sa.Column('encounter_id', sa.Integer(), nullable=False),
@@ -277,7 +271,6 @@ def downgrade():
     op.drop_table('sample_tracking')
     op.drop_table('trident_encounter')
     op.drop_table('sample')
-    op.drop_table('paps')
     op.drop_table('morphometrics')
     op.drop_table('lagoon_encounter')
     op.drop_table('beach_encounter')

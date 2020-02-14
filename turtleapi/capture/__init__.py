@@ -20,11 +20,11 @@ turtles = {
 
 class InsertLagoon(Resource):
 	def post(self):
-		# json_data = request.get_json(force=True)
-		# response = insert_lagoon(json_data)
-		# return response, 200
-		insert_lagoon()
-		return 200
+		json_data = request.get_json(force=True)
+		response = insert_lagoon(json_data)
+		return response, 200
+		# insert_lagoon()
+		# return 200
 
 	# def get(self):
 	# 	clutches = Clutch.query.all()
