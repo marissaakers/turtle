@@ -12,52 +12,75 @@ from flask import jsonify
 import random # we can remove this when we're done and don't do the manual test insertions anymore
 
 def insert_lagoon(data):
-    metadata_schema = MetadataSchema()
-
     tags = data['tags']
     encounter = data['encounter']
-    metadata_id = encounter['metadata_id']
-    metadata = metadata_schema.dump(Metadata.query.filter_by(metadata_id=metadata_id))
+    metadata = Metadata.query.filter_by(metadata_id=data['metadata_id']).first()
     morphometrics = data['morphometrics']
     samples = encounter['samples']
-    nets = metadata['nets']
-    incidental_captures = metadata['incidental_captures']
 
     # Attempt to find a turtle from the tags
     turtle = find_turtle_from_tags(tags)
+    
     tag_list = ()
     if turtle is None:
-        turtle = Turtle()
+        turtle = Turtle(
+            species=data['species']
+        )
         for tag in tags:
             new_tag = Tag(
                 turtle=turtle,
                 tag_number=tag['tag_number'],
-                location=tag['location'],
+                tag_scars=tag['tag_scars'],
                 active=tag['active'],
                 tag_type=tag['tag_type']
             )
             tag_list = tag_list + (new_tag,)
     else:
         for tag in tags:
-            compare_tag = Tag.query.filter_by(location=tag['location'], active=True)
+            compare_tag = Tag.query.filter_by(turtle_id=turtle.turtle_id, tag_type=tag['tag_type']).first()
             if compare_tag.tag_number != tag['tag_number']:
-                compare_tag.active = False
-                db.session.commit() # Is this necessary to update tag -> inactive?
+                setattr(compare_tag, 'active', False)
+                print("\n\nhello\n\n")
                 new_tag = Tag(
                     turtle=turtle,
                     tag_number=tag['tag_number'],
-                    location=tag['location'],
+                    tag_scars=tag['tag_scars'],
                     active=tag['active'],
                     tag_type=tag['tag_type']
                 )
+                print("\n\nhello\n\n")
                 tag_list = tag_list + (new_tag,)
+
+    # metadata_item = Metadata(
+    #     metadata_date=metadata['metadata_date'],
+    #     metadata_location=metadata['metadata_location'],
+    #     metadata_investigators=metadata['metadata_investigators'],
+    #     number_of_cc_captured=metadata['number_of_cc_captured'],
+    #     number_of_cm_captured=metadata['number_of_cm_captured'],
+    #     number_of_other_captured=metadata['number_of_other_captured'],
+    #     water_sample=metadata['water_sample'],
+    #     wind_speed=metadata['wind_speed'],
+    #     wind_dir=metadata['wind_dir'],
+    #     environment_time=metadata['environment_time'],
+    #     weather=metadata['weather'],
+    #     air_temp=metadata['air_temp'],
+    #     water_temp_surface=metadata['water_temp_surface'],
+    #     water_temp_1_m=metadata['water_temp_1_m'],
+    #     water_temp_2_m=metadata['water_temp_2_m'],
+    #     water_temp_6_m=metadata['water_temp_6_m'],
+    #     water_temp_bottom=metadata['water_temp_bottom'],
+    #     salinity_surface=metadata['salinity_surface'],
+    #     salinity_1_m=metadata['salinity_1_m'],
+    #     salinity_2_m=metadata['salinity_2_m'],
+    #     salinity_6_m=metadata['salinity_6_m'],
+    #     salinity_bottom=metadata['salinity_bottom']
+    # )
 
     lagoon_encounter = LagoonEncounter(
         turtle=turtle,
         metadata=metadata,
         encounter_date=encounter['encounter_date'],
         encounter_time=encounter['encounter_time'],
-        species=encounter['species'],
         investigated_by=encounter['investigated_by'],
         entered_by=encounter['entered_by'],
         entered_date=encounter['entered_date'],
@@ -111,29 +134,7 @@ def insert_lagoon(data):
         )
         sample_list = sample_list + (new_sample,)
 
-    net_list = ()
-    for net in nets:
-        new_net = Net(
-            metadata=metadata,
-            net_number=net['net_number'],
-            net_deploy_start_time=net['net_deploy_start_time'],
-            net_deploy_end_time=net['net_deploy_end_time'],
-            net_retrieval_start_time=net['net_retrieval_start_time'],
-            net_retrieval_end_time=net['net_retrieval_end_time']
-        )
-        net_list = net_list + (new_net,)
-
-    incidental_capture_list = ()
-    for incidental_capture in incidental_captures:
-        new_incidental_capture = IncidentalCapture(
-            metadata=metadata,
-            species=incidental_capture['species'],
-            capture_time=incidental_capture['capture_time'],
-            measurement=incidental_capture['measurement'],
-            notes=incidental_capture['notes']
-        )
-    incidental_capture_list = incidental_capture_list + (new_incidental_capture,)
-
+    # db.session.add(tag_list)
     db.session.add(lagoon_encounter)
     db.session.commit()
 
