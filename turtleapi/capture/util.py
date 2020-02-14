@@ -3,15 +3,22 @@ from turtleapi.models.turtlemodels import Turtle, Tag, TurtleSchema, TagSchema
 
 # Match one turtle
 def find_turtle_from_tags(tags):
-    taglist = []
+    # taglist = []
     
-    for t in tags:
-        taglist.append(t['tag_number'])
+    # for t in tags:
+    #     taglist.append(t['tag_number'])
 
-    turtle = Turtle.query.filter(Tag.tag_number.in_(taglist)).first()
-    if turtle is not None:
-        turtle_schema = TurtleSchema()
-        return turtle_schema.dump(turtle)
+    # turtle = Turtle.query.filter(Tag.tag_number.in_(taglist)).first()
+    # if turtle is not None:
+    #     turtle_schema = TurtleSchema()
+    #     return turtle_schema.dump(turtle)
+    # return None
+
+    for t in tags:
+        res = Tag.query.filter_by(tag_number=t['tag_number']).first()
+        if res is not None:
+            turtle = Turtle.query.filter_by(turtle_id=res.turtle_id).first()
+            return turtle
     return None
 
 # Match all turtles
