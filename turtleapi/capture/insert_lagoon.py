@@ -40,7 +40,6 @@ def insert_lagoon(data):
             compare_tag = Tag.query.filter_by(turtle_id=turtle.turtle_id, tag_type=tag['tag_type']).first()
             if compare_tag.tag_number != tag['tag_number']:
                 setattr(compare_tag, 'active', False)
-                print("\n\nhello\n\n")
                 new_tag = Tag(
                     turtle=turtle,
                     tag_number=tag['tag_number'],
@@ -48,7 +47,6 @@ def insert_lagoon(data):
                     active=tag['active'],
                     tag_type=tag['tag_type']
                 )
-                print("\n\nhello\n\n")
                 tag_list = tag_list + (new_tag,)
 
     # metadata_item = Metadata(
