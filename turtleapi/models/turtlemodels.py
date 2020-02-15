@@ -162,7 +162,7 @@ class Morphometrics(db.Model):
 	tail_length_pl_tip = db.Column(db.Float(5))
 	head_width = db.Column(db.Float(5))
 	body_depth = db.Column(db.Float(5))
-	flipper_carapace = db.Column(db.Text)
+	flipper_damage = db.Column(db.Text)
 	carapace_damage = db.Column(db.Text)
 
 class Metadata(db.Model):

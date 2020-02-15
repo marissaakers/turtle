@@ -6,6 +6,7 @@ import json
 from turtleapi.capture.query_lagoon import query_lagoon
 from turtleapi.capture.insert_lagoon import insert_lagoon
 from turtleapi.capture.edit_lagoon import edit_lagoon
+from turtleapi.capture.insert_trident import insert_trident
 from turtleapi.capture.metadata import query_metadata, insert_metadata
 from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 	update_tracking_entry, delete_tracking_entry)
@@ -60,6 +61,14 @@ class EditLagoon(Resource):
 		response = edit_lagoon(json_data)
 		return response, 200
 
+class InsertTrident(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = insert_trident(json_data)
+		return response, 200
+		# insert_trident()
+		# return 200
+
 class QueryMetadata(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
@@ -98,6 +107,7 @@ class SampleTracking(Resource):
 api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
 api.add_resource(EditLagoon, '/api/capture/lagoon/edit')
+api.add_resource(InsertTrident, '/api/capture/trident/insert')
 api.add_resource(QueryMetadata, '/api/capture/metadata/query')
 api.add_resource(InsertMetadata, '/api/capture/metadata/insert')
 api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')

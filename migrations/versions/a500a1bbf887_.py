@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f13dc02fcc1a
+Revision ID: a500a1bbf887
 Revises: 
-Create Date: 2020-02-13 19:16:09.347456
+Create Date: 2020-02-14 21:09:33.118831
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f13dc02fcc1a'
+revision = 'a500a1bbf887'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -217,7 +217,7 @@ def upgrade():
     sa.Column('tail_length_pl_tip', sa.Float(precision=5), nullable=True),
     sa.Column('head_width', sa.Float(precision=5), nullable=True),
     sa.Column('body_depth', sa.Float(precision=5), nullable=True),
-    sa.Column('flipper_carapace', sa.Text(), nullable=True),
+    sa.Column('flipper_damage', sa.Text(), nullable=True),
     sa.Column('carapace_damage', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),

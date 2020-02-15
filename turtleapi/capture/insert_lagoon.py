@@ -84,6 +84,7 @@ def insert_lagoon(data):
         entered_date=encounter['entered_date'],
         verified_by=encounter['verified_by'],
         verified_date=encounter['verified_date'],
+        notes=encounter['notes'],
         living_tags=encounter['living_tags'],
         other=encounter['other'],
         leeches=encounter['leeches'],
@@ -111,7 +112,7 @@ def insert_lagoon(data):
         tail_length_pl_tip=morphometrics['tail_length_pl_tip'],
         head_width=morphometrics['head_width'],
         body_depth=morphometrics['body_depth'],
-        flipper_carapace=morphometrics['flipper_carapace'],
+        flipper_damage=morphometrics['flipper_damage'],
         carapace_damage=morphometrics['carapace_damage']
     )
 
