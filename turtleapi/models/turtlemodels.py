@@ -13,6 +13,7 @@ class Turtle(db.Model):
 
 	# Various fields
 	species = db.Column(db.String(30))
+	old_turtle_id = db.Column(db.Integer)
 
 class Tag(db.Model):
 	# Primary key
@@ -56,7 +57,7 @@ class Clutch(db.Model):
 	washed_out = db.Column(db.String(20))
 	washed_out_post_hatch = db.Column(db.Boolean)
 	poached = db.Column(db.Boolean)
-	inventoried_by = db.Column(db.String(40))
+	inventoried_by = db.Column(db.String(500))
 	entered_by = db.Column(db.String(40))
 	entered_date = db.Column(db.Date)
 	verified_by = db.Column(db.String(40))
@@ -71,14 +72,14 @@ class Clutch(db.Model):
 	pipped_dead = db.Column(db.Integer)
 	
 	# Eggs
-	eggs_eggs = db.Column(db.Integer)
+	eggs_addled = db.Column(db.Integer)
 	eggs_undeveloped = db.Column(db.Integer)
 	eggs_sampled_for_sac = db.Column(db.Integer)
-	eggs_1_4_embryo = db.Column(db.Integer)
-	eggs_2_4_embryo = db.Column(db.Integer)
-	eggs_3_4_embryo = db.Column(db.Integer)
-	eggs_4_4_embryo = db.Column(db.Integer)
-	eggs_damaged_racoons = db.Column(db.Integer)
+	eggs_embryo_1_4 = db.Column(db.Integer)
+	eggs_embryo_2_4 = db.Column(db.Integer)
+	eggs_embryo_3_4 = db.Column(db.Integer)
+	eggs_embryo_4_4 = db.Column(db.Integer)
+	eggs_damaged_raccoons = db.Column(db.Integer)
 	eggs_damaged_ghost_crabs = db.Column(db.Integer)
 	egg_damaged_plant_roots = db.Column(db.Integer)
 	eggs_damaged_another_turtle = db.Column(db.Integer)
@@ -206,7 +207,7 @@ class Encounter(db.Model):
 	encounter_id = db.Column(db.Integer, primary_key=True)
 
 	# Foreign keys
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
+	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'))
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
 
 	# Dependencies
@@ -217,7 +218,7 @@ class Encounter(db.Model):
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
 	encounter_time = db.Column(db.Time)
-	investigated_by = db.Column(db.String(30))
+	investigated_by = db.Column(db.String(500))
 	entered_by = db.Column(db.String(30))
 	entered_date = db.Column(db.Date)
 	verified_by = db.Column(db.String(30))
@@ -226,7 +227,7 @@ class Encounter(db.Model):
 
 	# Paps
 	paps_present = db.Column(db.Boolean)
-	number_of_paps = db.Column(db.Integer)
+	pap_category = db.Column(db.Integer)
 	paps_regression = db.Column(db.String(40))
 	photos = db.Column(db.Boolean)
 	pap_photos = db.Column(db.Boolean)
@@ -334,10 +335,10 @@ class BeachEncounter(Encounter):
 	days_70 = db.Column(db.Date)
 	capture_type = db.Column(db.String(40))
 	activity = db.Column(db.String(50))
-	location = db.Column(db.Float(5))
+	location_detail = db.Column(db.Text)
 	location_NS = db.Column(db.String(1))
-	lat_n = db.Column(db.Float(5))
-	lat_w = db.Column(db.Float(5))
+	latitude = db.Column(db.Float(5))
+	longitude = db.Column(db.Float(5))
 	site_description = db.Column(db.Text)
 
 	# DC Data
