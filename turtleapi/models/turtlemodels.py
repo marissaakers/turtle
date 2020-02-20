@@ -1,5 +1,6 @@
 from turtleapi import db, ma
 from flask import jsonify
+from marshmallow import Schema, fields
 
 class Turtle(db.Model):
 	# Primary key
@@ -544,3 +545,11 @@ class SampleHistorySchema(ma.Schema):
 	class Meta:
 		fields = ("sample_id", "tracking_entries")
 	tracking_entries = ma.Nested(SampleTrackingSchema, many=True)
+
+class LagoonQuerySchema(ma.Schema):
+	class Meta:
+
+		#fields = ("encounter_id","turtle_id","encounter_date","type","metadata_location","entered_by","species","old_turtle_id")
+		# fields = (ma.Nested(LagoonEncounterSchema), ma.Nested(TurtleSchema)
+	
+		# fields = ("encounter_id","turtle_id","encounter_date","type","metadata_location","entered_by","species","old_turtle_id")

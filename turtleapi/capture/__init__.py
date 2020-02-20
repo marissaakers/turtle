@@ -3,7 +3,7 @@ from flask_restful import Resource, Api
 #from turtleapi.models.turtlemodels import Clutch, ClutchSchema
 from turtleapi.models.turtlemodels import LagoonEncounterSchema
 import json
-from turtleapi.capture.query_lagoon import query_lagoon
+from turtleapi.capture.query_lagoon import query_lagoon, mini_query_lagoon
 from turtleapi.capture.insert_lagoon import insert_lagoon
 from turtleapi.capture.edit_lagoon import edit_lagoon
 from turtleapi.capture.insert_trident import insert_trident
@@ -48,6 +48,12 @@ class InsertLagoon(Resource):
 	# 	turtle_id = args['id']
 	# 	del turtles[turtle_id]
 	# 	return turtles, 204
+
+class MiniQueryLagoon(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = mini_query_lagoon(json_data)
+		return response, 200
 
 class QueryLagoon(Resource):
 	def post(self):
@@ -106,6 +112,7 @@ class SampleTracking(Resource):
 
 api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
+api.add_resource(MiniQueryLagoon, '/api/capture/lagoon/mini_query')
 api.add_resource(EditLagoon, '/api/capture/lagoon/edit')
 api.add_resource(InsertTrident, '/api/capture/trident/insert')
 api.add_resource(QueryMetadata, '/api/capture/metadata/query')

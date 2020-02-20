@@ -2,7 +2,7 @@ from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
 Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture,
 TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
-LagoonEncounterSchema, SampleSchema, NetSchema, IncidentalCaptureSchema)
+LagoonEncounterSchema, SampleSchema, NetSchema, IncidentalCaptureSchema, LagoonQuerySchema)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
@@ -136,4 +136,89 @@ def query_lagoon(data):
             # environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
             # e_output['metadata']['environment'] = environment_schema.dump(environment_result)
 
+    return output
+
+def mini_query_lagoon(data):
+    print("TESTTTTTT!!!")
+    # Declare schema instances
+    turtle_schema = TurtleSchema()
+    encounter_schema = EncounterSchema()
+    tag_schema = TagSchema()
+    morphometrics_schema = MorphometricsSchema()
+    metadata_schema = MetadataSchema()
+    lagoon_encounter_schema = LagoonEncounterSchema()
+    sample_schema = SampleSchema()
+    # paps_schema = PapsSchema()
+    net_schema = NetSchema()
+    incidental_capture_schema = IncidentalCaptureSchema()
+    # environment_schema = EnvironmentSchema()
+    lagoon_query_schema = LagoonQuerySchema()
+
+    ### Filters
+    FILTER_tags = data.get('tags', '')
+    FILTER_species = data.get('species', '') # Only match this species
+
+    string_date_start = data.get('encounter_date_start', '') # Match between FILTER_DATE_START and FILTER_DATE_END
+    string_date_end = data.get('encounter_date_end', '')
+    if string_date_start != '':
+        try:
+            FILTER_encounter_date_start = datetime.strptime(string_date_start, '%m/%d/%Y') # .date()
+        except: 
+            print("Error: date not in correct format")
+    if string_date_end != '':
+        try:
+            FILTER_encounter_date_end = datetime.strptime(string_date_end, '%m/%d/%Y')
+        except: 
+            print("Error: date not in correct format")
+
+    FILTER_entered_by = data.get('entered_by', '')
+    FILTER_verified_by = data.get('verified_by', '')
+    FILTER_investigated_by = data.get('investigated_by', '')
+    FILTER_turtle_ids = '' # Only get this from tag query
+
+    ### End filters
+
+    queries = []
+
+    if FILTER_tags != '':
+        FILTER_turtle_ids = find_turtles_from_tags(FILTER_tags)
+        # queries.append(Turtle.turtle_id.in_(turtle_ids))
+    # if FILTER_species != '':
+    #         queries.append(Turtle.species == FILTER_species)
+
+    # # Grab turtles
+    # turtle_result = Turtle.query.filter(*queries).all()
+
+    # # Make output object
+    # output = turtle_schema.dump(turtle_result, many=True)
+    # t_counter = -1
+    
+    if FILTER_turtle_ids != '':
+        queries.append(Encounter.turtle_id.in_(FILTER_turtle_ids))
+    if string_date_start != '':
+        queries.append(Encounter.encounter_date >= FILTER_encounter_date_start)
+    if string_date_end != '':
+        queries.append(Encounter.encounter_date <= FILTER_encounter_date_end)
+    if FILTER_investigated_by != '':
+        queries.append(Encounter.investigated_by == FILTER_investigated_by)
+    if FILTER_entered_by != '':
+        queries.append(Encounter.entered_by == FILTER_entered_by)
+    if FILTER_verified_by != '':
+        queries.append(Encounter.verified_by == FILTER_verified_by)
+
+    queries.append(Encounter.type == "lagoon")
+    
+    ### Grab encounters, filter by anything appended above
+    # encounter_result = Encounter.query.filter(*queries).all()
+    # encounter_result = db.session.query(Encounter).filter(*queries).all()
+    # encounter_result = db.session.query(Encounter,Turtle).filter(*queries).join(Turtle, Turtle.turtle_id == Encounter.turtle_id).all()
+    encounter_result = db.session.query(Encounter,Turtle).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all()
+
+    # e_counter = -1
+    # for encounter in encounter_result:
+    #     e_counter += 1
+    print(encounter_result)
+    output = lagoon_query_schema.dump([{"encounter": x[0], "turtle":x[1]} for x in encounter_result])
+    #output = lagoon_query_schema.dump(encounter_result, many=True)
+    #print(output[0])
     return output
