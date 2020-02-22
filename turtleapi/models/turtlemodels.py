@@ -1,6 +1,6 @@
 from turtleapi import db, ma
 from flask import jsonify
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, pre_dump, post_dump
 
 class Turtle(db.Model):
 	# Primary key
@@ -546,10 +546,26 @@ class SampleHistorySchema(ma.Schema):
 		fields = ("sample_id", "tracking_entries")
 	tracking_entries = ma.Nested(SampleTrackingSchema, many=True)
 
-class LagoonQuerySchema(ma.Schema):
-	class Meta:
+class TurtleQuerySchema(ma.Schema):
+    species = fields.Str()
 
-		#fields = ("encounter_id","turtle_id","encounter_date","type","metadata_location","entered_by","species","old_turtle_id")
-		# fields = (ma.Nested(LagoonEncounterSchema), ma.Nested(TurtleSchema)
-	
-		# fields = ("encounter_id","turtle_id","encounter_date","type","metadata_location","entered_by","species","old_turtle_id")
+class EncounterQuerySchema(ma.Schema):
+    encounter_id = fields.Int()
+    turtle_id = fields.Int()
+    encounter_date = fields.Date()
+    type = fields.Str()
+    entered_by = fields.Str()
+
+class LagoonQuerySchema(ma.Schema):
+    encounter_id = fields.Int()
+    turtle_id = fields.Int()
+    encounter_date = fields.Date()
+    type = fields.Str()
+    entered_by = fields.Str()
+    turtle = fields.Nested(TurtleSchema(only=('species',)))
+    
+    @post_dump
+    def flatten_json(self, item, many, **kwargs):
+        item['species'] = item['turtle']['species']
+        del item['turtle']
+        return item
