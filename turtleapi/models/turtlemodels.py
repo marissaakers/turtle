@@ -562,10 +562,5 @@ class LagoonQuerySchema(ma.Schema):
     encounter_date = fields.Date()
     type = fields.Str()
     entered_by = fields.Str()
-    turtle = fields.Nested(TurtleSchema(only=('species',)))
-    
-    @post_dump
-    def flatten_json(self, item, many, **kwargs):
-        item['species'] = item['turtle']['species']
-        del item['turtle']
-        return item
+    species = fields.Pluck(TurtleSchema, 'species', attribute='turtle')
+    metadata_location = fields.Pluck(MetadataSchema, 'metadata_location', attribute='metadata')
