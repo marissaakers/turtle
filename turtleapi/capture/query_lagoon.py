@@ -10,7 +10,6 @@ from turtleapi.capture.util import find_turtles_from_tags
 
 def query_lagoon(data):
 
-    print("TESTTTTTT!!!")
     # Declare schema instances
     turtle_schema = TurtleSchema()
     encounter_schema = EncounterSchema()
@@ -19,10 +18,8 @@ def query_lagoon(data):
     metadata_schema = MetadataSchema()
     lagoon_encounter_schema = LagoonEncounterSchema()
     sample_schema = SampleSchema()
-    # paps_schema = PapsSchema()
     net_schema = NetSchema()
     incidental_capture_schema = IncidentalCaptureSchema()
-    # environment_schema = EnvironmentSchema()
 
     ### Filters
     FILTER_tags = data.get('tags', '')
@@ -116,10 +113,6 @@ def query_lagoon(data):
             e_output['metadata'] = metadata_schema.dump(metadata_result)
             del e_output['metadata']['encounters']
 
-            # Grab paps
-            # paps_result = Paps.query.filter_by(encounter_id=encounter_id).first()
-            # e_output['paps'] = paps_schema.dump(paps_result)
-
             # Grab samples
             samples_result = Sample.query.filter_by(encounter_id=encounter_id).all()
             e_output['samples'] = sample_schema.dump(samples_result, many=True)
@@ -132,26 +125,12 @@ def query_lagoon(data):
             incidental_captures_result = IncidentalCapture.query.filter_by(metadata_id=metadata_id).all()
             e_output['metadata']['incidental_captures'] = incidental_capture_schema.dump(incidental_captures_result, many=True)
 
-            # Grab environment
-            # environment_result = Environment.query.filter_by(metadata_id=metadata_id).first()
-            # e_output['metadata']['environment'] = environment_schema.dump(environment_result)
-
     return output
 
 def mini_query_lagoon(data):
-    print("TESTTTTTT!!!")
+
     # Declare schema instances
-    turtle_schema = TurtleSchema()
-    encounter_schema = EncounterSchema()
-    tag_schema = TagSchema()
-    morphometrics_schema = MorphometricsSchema()
-    metadata_schema = MetadataSchema()
-    lagoon_encounter_schema = LagoonEncounterSchema()
-    sample_schema = SampleSchema()
-    # paps_schema = PapsSchema()
-    net_schema = NetSchema()
-    incidental_capture_schema = IncidentalCaptureSchema()
-    # environment_schema = EnvironmentSchema()
+    lagoon_query_schema = LagoonQuerySchema()
 
     ### Filters
     FILTER_tags = data.get('tags', '')
@@ -171,58 +150,29 @@ def mini_query_lagoon(data):
             print("Error: date not in correct format")
 
     FILTER_entered_by = data.get('entered_by', '')
-    FILTER_verified_by = data.get('verified_by', '')
-    FILTER_investigated_by = data.get('investigated_by', '')
-    FILTER_turtle_ids = '' # Only get this from tag query
+    FILTER_turtle_ids = ''
+    if FILTER_tags != '':
+        FILTER_turtle_ids = find_turtles_from_tags(FILTER_tags)
 
     ### End filters
 
     queries = []
 
-    if FILTER_tags != '':
-        FILTER_turtle_ids = find_turtles_from_tags(FILTER_tags)
-        # queries.append(Turtle.turtle_id.in_(turtle_ids))
-    # if FILTER_species != '':
-    #         queries.append(Turtle.species == FILTER_species)
-
-    # # Grab turtles
-    # turtle_result = Turtle.query.filter(*queries).all()
-
-    # # Make output object
-    # output = turtle_schema.dump(turtle_result, many=True)
-    # t_counter = -1
-    
     if FILTER_turtle_ids != '':
         queries.append(Encounter.turtle_id.in_(FILTER_turtle_ids))
     if string_date_start != '':
         queries.append(Encounter.encounter_date >= FILTER_encounter_date_start)
     if string_date_end != '':
         queries.append(Encounter.encounter_date <= FILTER_encounter_date_end)
-    if FILTER_investigated_by != '':
-        queries.append(Encounter.investigated_by == FILTER_investigated_by)
     if FILTER_entered_by != '':
         queries.append(Encounter.entered_by == FILTER_entered_by)
-    if FILTER_verified_by != '':
-        queries.append(Encounter.verified_by == FILTER_verified_by)
+    if FILTER_species != '':
+        queries.append(Turtle.species == FILTER_species)
 
     queries.append(Encounter.type == "lagoon")
-    
-    ### Grab encounters, filter by anything appended above
-    # encounter_result = Encounter.query.filter(*queries).all()
-    # encounter_result = db.session.query(Encounter).filter(*queries).all()
-    # encounter_result = db.session.query(Encounter,Turtle).filter(*queries).join(Turtle, Turtle.turtle_id == Encounter.turtle_id).all()
-    # encounter_result = db.session.query(Encounter,Turtle).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all()
 
-    # # e_counter = -1
-    # # for encounter in encounter_result:
-    # #     e_counter += 1
-    # print(encounter_result)
-    # output = lagoon_query_schema.dump([{"encounter": x[0], "turtle":x[1]} for x in encounter_result])
-    # #output = lagoon_query_schema.dump(encounter_result, many=True)
-    # #print(output[0])
-    # return output
     result = db.session.query(Encounter,Turtle).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all()
     encounters = [x[0] for x in result]
-    lagoon_query_schema = LagoonQuerySchema()
+
     output = lagoon_query_schema.dump(encounters, many=True)
     return output
