@@ -410,3 +410,55 @@ class LagoonQuerySchema(ma.Schema):
     entered_by = fields.Str()
     species = fields.Pluck(TurtleSchema, 'species', attribute='turtle')
     metadata_location = fields.Pluck(MetadataSchema, 'metadata_location', attribute='metadata')
+
+class FullLagoonQuerySchema(ma.Schema):	
+	class Meta:
+		additional = ('encounter_id', 'turtle_id','metadata_id','turtle_id','encounter_date','encounter_time','investigated_by','entered_by','entered_date','verified_by','verified_date','notes','paps_present','pap_category','paps_regression','photos','pap_photos','living_tags','other','leeches','leeches_where','leech_eggs','leech_eggs_where')
+	
+	species = fields.Pluck(TurtleSchema, 'species', attribute='turtle')
+	samples = ma.Nested(SampleTrackingSchema)
+	morphometrics = ma.Nested(MorphometricsSchema)
+	nets = ma.Nested(NetSchema)
+	incidentalcaptures = ma.Nested(IncidentalCaptureSchema)
+	
+	### None of these seem to include tags successfully:
+
+	# tags = ma.Nested(TagSchema, attribute='turtle') 
+	# tags = fields.Nested(TagSchema, data_key='turtle_id')
+	# tags = fields.Nested(TagSchema, many=True)
+	# tags = fields.List(fields.Nested(TagSchema, many=True)) 
+
+	# # Keys
+	# encounter_id = fields.Int()
+	# lagoon_encounter_id = fields.Int()
+	# metadata_id = fields.Int()
+	# turtle_id = fields.Int()
+
+	# # # Dependencies
+	# # samples = ma.Nested(SampleTrackingSchema)
+	# # morphometrics = ma.Nested(MorphometricsSchema)
+
+	# # # Fields common to all encounter types
+	# # encounter_date = fields.Date()
+	# # encounter_time = fields.Time()
+	# # investigated_by = fields.Str()
+	# # entered_by = fields.Str()
+	# # entered_date = fields.Date()
+	# # verified_by =  fields.Str()
+	# # verified_date =  fields.Date()
+	# # notes =  fields.Str()
+
+	# # # Paps
+	# # paps_present = fields.Boolean()
+	# # pap_category = fields.Int()
+	# # paps_regression = fields.Str()
+	# # photos = fields.Boolean()
+	# # pap_photos = fields.Boolean()
+
+	# # # Fields unique to lagoon encounters
+	# # living_tags = fields.Boolean()
+	# # other = fields.Str()
+	# # leeches = fields.Boolean()
+	# # leeches_where = fields.Str()
+	# # leech_eggs = fields.Boolean()
+	# # leech_eggs_where = fields.Str()
