@@ -1,6 +1,6 @@
 from turtleapi import db, ma
 from flask import jsonify
-from marshmallow import Schema, fields, pre_dump, post_dump
+from marshmallow import Schema, fields, pre_dump, post_dump, missing
 
 class Turtle(db.Model):
 	# Primary key
@@ -412,6 +412,12 @@ class LagoonQuerySchema(ma.Schema):
     metadata_location = fields.Pluck(MetadataSchema, 'metadata_location', attribute='metadata')
 
 class FullLagoonQuerySchema(ma.Schema):	
+	# def on_bind_field(self, field_name, field_obj):
+	# # Override default missing attribute so
+	# # that missing values deserialize to None
+	# 	if field_obj.missing == missing:
+	# 		field_obj.missing = None
+	# 		field_obj.allow_none = True
 	class Meta:
 		additional = ('encounter_id', 'turtle_id','metadata_id','turtle_id','encounter_date','encounter_time','investigated_by','entered_by','entered_date','verified_by','verified_date','notes','paps_present','pap_category','paps_regression','photos','pap_photos','living_tags','other','leeches','leeches_where','leech_eggs','leech_eggs_where')
 	
