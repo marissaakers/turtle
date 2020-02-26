@@ -11,6 +11,9 @@ from turtleapi.capture.util import find_turtle_from_tags
 from flask import jsonify
 import random # we can remove this when we're done and don't do the manual test insertions anymore
 
+def mini_query_trident(data):
+    print(test)
+
 def insert_trident(data):
     tags = data['tags']
     encounter = data['encounter']

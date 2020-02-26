@@ -1,14 +1,14 @@
 {
     "dev": {
         "app_function": "setup.app",
-        "aws_region": "us-east-1",
+        "aws_region": "us-east-2",
         "project_name": "backend",
         "runtime": "python3.7",
-        "s3_bucket": "mtrg-zappa-bucket",
+        "s3_bucket": "zappa-mmfqf1gj1",
         "environment_variables": {
-        	"POSTGRES_USER": "MTRG_ADMIN",
-        	"POSTGRES_PW": "qR)SMn^w8LKxb4^iq^L2",
-        	"POSTGRES_URL": "turtledb.cryuatlylxd4.us-east-1.rds.amazonaws.com",
+        	"POSTGRES_USER": "turtle",
+        	"POSTGRES_PW": "avQ^EC6^Zi&n8k)$n1l9",
+        	"POSTGRES_URL": "turtledb.csc2iayec306.us-east-2.rds.amazonaws.com",
         	"POSTGRES_DB": "turtledb"
         }
     }
