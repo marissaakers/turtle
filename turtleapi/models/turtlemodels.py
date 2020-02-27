@@ -10,7 +10,7 @@ class Turtle(db.Model):
 	tags = db.relationship('Tag', backref='turtle')
 	clutches = db.relationship('Clutch', backref='turtle')
 	morphometrics = db.relationship('Morphometrics', backref='turtle')
-	encounters = db.relationship('Encounter', backref='turtle', lazy='dynamic')	
+	encounters = db.relationship('Encounter', backref='turtle', lazy='dynamic')
 
 	# Various fields
 	species = db.Column(db.String(30))
@@ -124,6 +124,22 @@ class Metadata(db.Model):
 	encounters = db.relationship('Encounter', backref='metadata')
 	nets = db.relationship('Net', backref='metadata', lazy=True)
 	incidental_captures = db.relationship('IncidentalCapture', backref='metadata')
+	
+	# Polymorphism
+	type = db.Column(db.String(30))
+	__mapper_args__ = {
+		'polymorphic_identity': 'metadatas',
+		'polymorphic_on': type
+	}
+
+class LagoonMetadata(Metadata):
+	# Primary & Foreign key
+	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False)
+
+	# Dependencies
+	# encounters = db.relationship('Encounter', backref='metadata')
+	# nets = db.relationship('Net', backref='metadata', lazy=True)
+	# incidental_captures = db.relationship('IncidentalCapture', backref='metadata')
 
 	# Various fields
 	metadata_date = db.Column(db.Date)
@@ -151,34 +167,62 @@ class Metadata(db.Model):
 	salinity_6_m = db.Column(db.Float(5))
 	salinity_bottom = db.Column(db.Float(5))
 
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'lagoon'
+	}
+
+class TridentMetadata(Metadata):
+	# Primary key
+	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False)
+
+	# Dependencies
+	# encounters = db.relationship('Encounter', backref='metadata')
+	# nets = db.relationship('Net', backref='metadata', lazy=True)
+	# incidental_captures = db.relationship('IncidentalCapture', backref='metadata')
+
+	# Various fields
+	metadata_date = db.Column(db.Date)
+	metadata_location = db.Column(db.Text)
+	metadata_investigators = db.Column(db.Text)
+	number_of_cc_captured = db.Column(db.Integer)
+	number_of_cm_captured = db.Column(db.Integer)
+	number_of_other_captured = db.Column(db.Integer)
+
+	# Environment
+	water_sample = db.Column(db.Boolean)
+	wind_speed = db.Column(db.Float(5))
+	wind_dir = db.Column(db.String(20))
+	environment_time = db.Column(db.Time)
+	weather = db.Column(db.String(100))
+	air_temp = db.Column(db.Float(5))
+	water_temp_surface = db.Column(db.Float(5))
+	water_temp_1_m = db.Column(db.Float(5))
+	water_temp_2_m = db.Column(db.Float(5))
+	water_temp_6_m = db.Column(db.Float(5))
+	water_temp_bottom = db.Column(db.Float(5))
+	salinity_surface = db.Column(db.Float(5))
+	salinity_1_m = db.Column(db.Float(5))
+	salinity_2_m = db.Column(db.Float(5))
+	salinity_6_m = db.Column(db.Float(5))
+	salinity_bottom = db.Column(db.Float(5))
+
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'trident'
+	}
+
 class Encounter(db.Model):
 	# Primary key
 	encounter_id = db.Column(db.Integer, primary_key=True)
 
 	# Foreign keys
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'))
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
 
 	# Dependencies
 	samples = db.relationship('Sample', backref='encounter')
 	morphometrics = db.relationship('Morphometrics', uselist=False, backref='encounter')
-
-	# Fields common to all encounter types
-	encounter_date = db.Column(db.Date)
-	encounter_time = db.Column(db.Time)
-	investigated_by = db.Column(db.String(500))
-	entered_by = db.Column(db.String(30))
-	entered_date = db.Column(db.Date)
-	verified_by = db.Column(db.String(30))
-	verified_date = db.Column(db.Date)
-	notes = db.Column(db.Text)
-
-	# Paps
-	paps_present = db.Column(db.Boolean)
-	pap_category = db.Column(db.Integer)
-	paps_regression = db.Column(db.String(40))
-	photos = db.Column(db.Boolean)
-	pap_photos = db.Column(db.Boolean)
 
 	# Polymorphism
 	type = db.Column(db.String(30))
@@ -228,6 +272,23 @@ class TridentEncounter(Encounter):
 	leech_eggs_where = db.Column(db.Text)
 	disposition_of_specimen = db.Column(db.Text)
 
+	# Fields common to all encounter types
+	encounter_date = db.Column(db.Date)
+	encounter_time = db.Column(db.Time)
+	investigated_by = db.Column(db.String(500))
+	entered_by = db.Column(db.String(30))
+	entered_date = db.Column(db.Date)
+	verified_by = db.Column(db.String(30))
+	verified_date = db.Column(db.Date)
+	notes = db.Column(db.Text)
+
+	# Paps
+	paps_present = db.Column(db.Boolean)
+	pap_category = db.Column(db.Integer)
+	paps_regression = db.Column(db.String(40))
+	photos = db.Column(db.Boolean)
+	pap_photos = db.Column(db.Boolean)
+
 	# Polymorphism
 	__mapper_args__ = {
 		'polymorphic_identity': 'trident'
@@ -247,6 +308,23 @@ class LagoonEncounter(Encounter):
 	leeches_where = db.Column(db.Text)
 	leech_eggs = db.Column(db.Boolean)
 	leech_eggs_where = db.Column(db.Text)
+
+	# Fields common to all encounter types
+	encounter_date = db.Column(db.Date)
+	encounter_time = db.Column(db.Time)
+	investigated_by = db.Column(db.String(500))
+	entered_by = db.Column(db.String(30))
+	entered_date = db.Column(db.Date)
+	verified_by = db.Column(db.String(30))
+	verified_date = db.Column(db.Date)
+	notes = db.Column(db.Text)
+
+	# Paps
+	paps_present = db.Column(db.Boolean)
+	pap_category = db.Column(db.Integer)
+	paps_regression = db.Column(db.String(40))
+	photos = db.Column(db.Boolean)
+	pap_photos = db.Column(db.Boolean)
 
 	# Polymorphism
 	__mapper_args__ = {
@@ -290,6 +368,19 @@ class BeachEncounter(Encounter):
 	seaward_of_structure = db.Column(db.Boolean)
 	within_1_m_of_structure = db.Column(db.Boolean)
 	structure_description = db.Column(db.Text)
+
+	# Fields common to all encounter types
+	encounter_date = db.Column(db.Date)
+	encounter_time = db.Column(db.Time)
+	investigated_by = db.Column(db.String(500))
+	entered_by = db.Column(db.String(30))
+	entered_date = db.Column(db.Date)
+	verified_by = db.Column(db.String(30))
+	verified_date = db.Column(db.Date)
+	notes = db.Column(db.Text)
+
+	# Paps
+	paps_present = db.Column(db.Boolean)
 
 	# Polymorphism
 	__mapper_args__ = {
