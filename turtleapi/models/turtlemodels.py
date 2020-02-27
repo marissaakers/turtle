@@ -281,10 +281,7 @@ class Sample(db.Model):
 
 class TridentEncounter(Encounter):
 	# Primary key
-	trident_encounter_id = db.Column(db.Integer, primary_key=True)
-
-	# Foreign key
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False)
 	
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
@@ -322,10 +319,7 @@ class TridentEncounter(Encounter):
 
 class LagoonEncounter(Encounter):
 	# Primary key
-	lagoon_encounter_id = db.Column(db.Integer, primary_key=True)
-
-	# Foreign key
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False)
 
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
@@ -359,10 +353,7 @@ class LagoonEncounter(Encounter):
 
 class BeachEncounter(Encounter):
 	# Primary key
-	beach_encounter_id = db.Column(db.Integer, primary_key=True)
-
-	# Foreign key
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False)
 
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
