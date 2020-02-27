@@ -28,6 +28,9 @@ class Tag(db.Model):
 	tag_scars = db.Column(db.Boolean)
 	active = db.Column(db.Boolean)
 	tag_type = db.Column(db.String(30))
+	pit = db.Column(db.Boolean)
+	scanned = db.Column(db.Boolean)
+	scanner_number = db.Column(db.String(30))
 
 class Clutch(db.Model):
 	# Primary key
@@ -37,6 +40,7 @@ class Clutch(db.Model):
 	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
 
 	# Various fields
+	stake_number = db.Column(db.String(30))
 	clutch_deposited = db.Column(db.Boolean)
 	sand_type = db.Column(db.String(50))
 	placement = db.Column(db.String(50))
@@ -82,7 +86,11 @@ class Clutch(db.Model):
 	eggs_damaged_another_turtle = db.Column(db.Integer)
 	eggs_damaged_bobcat = db.Column(db.Integer)
 	eggs_damaged_other = db.Column(db.Integer)
-	eggs_damaged_plant_details = db.Column(db.Text)
+	eggs_damaged_sea_oats = db.Column(db.Boolean)
+	eggs_damaged_sea_purslane = db.Column(db.Boolean)
+	eggs_damaged_railroad_vine = db.Column(db.Boolean)
+	eggs_damaged_beach_sunflower = db.Column(db.Boolean)
+	eggs_damaged_sea_grape = db.Column(db.Boolean)
 	eggs_broken = db.Column(db.Integer)
 	eggs_washout = db.Column(db.Integer)
 	eggs_other = db.Column(db.Integer)
@@ -286,6 +294,7 @@ class TridentEncounter(Encounter):
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
 	encounter_time = db.Column(db.Time)
+	capture_type = db.Column(db.String(40))
 	investigated_by = db.Column(db.String(500))
 	entered_by = db.Column(db.String(30))
 	entered_date = db.Column(db.Date)
@@ -324,6 +333,7 @@ class LagoonEncounter(Encounter):
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
 	encounter_time = db.Column(db.Time)
+	capture_type = db.Column(db.String(40))
 	investigated_by = db.Column(db.String(500))
 	entered_by = db.Column(db.String(30))
 	entered_date = db.Column(db.Date)
@@ -358,23 +368,24 @@ class BeachEncounter(Encounter):
 	# Fields common to all encounter types
 	encounter_date = db.Column(db.Date)
 	encounter_time = db.Column(db.Time)
+	capture_type = db.Column(db.String(40))
 	investigated_by = db.Column(db.String(500))
 	entered_by = db.Column(db.String(30))
 	entered_date = db.Column(db.Date)
 	verified_by = db.Column(db.String(30))
 	verified_date = db.Column(db.Date)
-	notes = db.Column(db.Text)
 
 	# Fields unique to beach encounters
+	prime_tag = db.Column(db.String(30))
 	days_45 = db.Column(db.Date)
 	days_70 = db.Column(db.Date)
-	capture_type = db.Column(db.String(40))
 	activity = db.Column(db.String(50))
 	location_detail = db.Column(db.Text)
 	location_NS = db.Column(db.String(1))
 	latitude = db.Column(db.Float(5))
 	longitude = db.Column(db.Float(5))
 	site_description = db.Column(db.Text)
+	notes = db.Column(db.Text)
 
 	# DC Data
 	outgoing_crawl_width = db.Column(db.Float(5))
@@ -391,6 +402,7 @@ class BeachEncounter(Encounter):
 	dist_to_high_tide = db.Column(db.Float(5))
 	can_buried = db.Column(db.Boolean)
 	can_buried_NS = db.Column(db.String(1))
+	sign_stake_in_place = db.Column(db.Boolean)
 	scarp_over_46_cm = db.Column(db.Boolean)
 	seaward_of_structure = db.Column(db.Boolean)
 	within_1_m_of_structure = db.Column(db.Boolean)
