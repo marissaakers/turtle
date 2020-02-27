@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f3a9b9959492
+Revision ID: 26cc614c7b49
 Revises: 
-Create Date: 2020-02-26 19:59:09.433356
+Create Date: 2020-02-27 14:20:47.427312
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f3a9b9959492'
+revision = '26cc614c7b49'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,6 +22,154 @@ def upgrade():
     sa.Column('metadata_id', sa.Integer(), nullable=False),
     sa.Column('type', sa.String(length=30), nullable=True),
     sa.PrimaryKeyConstraint('metadata_id')
+    )
+    op.create_table('ns_refuge',
+    sa.Column('ns_refuge_id', sa.Integer(), nullable=False),
+    sa.Column('type', sa.String(length=10), nullable=True),
+    sa.Column('date', sa.Date(), nullable=True),
+    sa.Column('initials', sa.String(length=30), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('below_htl_cc_nest', sa.Integer(), nullable=True),
+    sa.Column('below_htl_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('below_htl_cm_nest', sa.Integer(), nullable=True),
+    sa.Column('below_htl_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('below_htl_dc_nest', sa.Integer(), nullable=True),
+    sa.Column('below_htl_dc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_5_155_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_5_155_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_5_155_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_5_155_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_55_16_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_55_16_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_55_16_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_55_16_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_6_165_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_6_165_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_6_165_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_6_165_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_65_17_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_65_17_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_65_17_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_65_17_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_7_175_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_7_175_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_7_175_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_7_175_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_75_18_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_75_18_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_75_18_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_75_18_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_8_185_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_8_185_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_8_185_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_8_185_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_85_19_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_85_19_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_85_19_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_85_19_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_9_195_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_9_195_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_9_195_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_9_195_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_95_20_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_95_20_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_95_20_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_95_20_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_10_205_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_10_205_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_10_205_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_10_205_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_105_21_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_105_21_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_105_21_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_105_21_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_11_215_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_11_215_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_11_215_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_11_215_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_115_22_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_115_22_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_115_22_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_115_22_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_12_225_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_12_225_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_12_225_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_12_225_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_125_23_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_125_23_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_125_23_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_125_23_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_13_235_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_13_235_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_13_235_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_13_235_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_135_24_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_135_24_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_135_24_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_135_24_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_14_245_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_14_245_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_14_245_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_14_245_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_145_25_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_145_25_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_145_25_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_145_25_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('km_15_255_cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_15_255_cc_fc', sa.Integer(), nullable=True),
+    sa.Column('km_15_255_cm_nests', sa.Integer(), nullable=True),
+    sa.Column('km_15_255_cm_fc', sa.Integer(), nullable=True),
+    sa.Column('enginr', sa.Float(precision=5), nullable=True),
+    sa.Column('enginr_cc_below', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_tran', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_on', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_b_l', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_b_p', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_b_ac', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_t_l', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_t_p', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_t_ac', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_o_l', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_o_p', sa.Integer(), nullable=True),
+    sa.Column('enginr_cc_o_ac', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_below', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_tran', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_on', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_b_l', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_b_p', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_b_ac', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_t_l', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_t_p', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_t_ac', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_o_l', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_o_p', sa.Integer(), nullable=True),
+    sa.Column('enginr_cm_o_ac', sa.Integer(), nullable=True),
+    sa.Column('natural', sa.Float(precision=5), nullable=True),
+    sa.Column('natural_cc_below', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_tran', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_on', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_b_l', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_b_p', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_b_ac', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_t_l', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_t_p', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_t_ac', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_o_l', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_o_p', sa.Integer(), nullable=True),
+    sa.Column('natural_cc_o_ac', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_below', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_tran', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_on', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_b_l', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_b_p', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_b_ac', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_t_l', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_t_p', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_t_ac', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_o_l', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_o_p', sa.Integer(), nullable=True),
+    sa.Column('natural_cm_o_ac', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('ns_refuge_id')
     )
     op.create_table('turtle',
     sa.Column('turtle_id', sa.Integer(), nullable=False),
@@ -86,10 +234,38 @@ def upgrade():
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
     sa.PrimaryKeyConstraint('clutch_id')
     )
+    op.create_table('dc_crawl',
+    sa.Column('dc_crawl_id', sa.Integer(), nullable=False),
+    sa.Column('ns_refuge_id', sa.Integer(), nullable=False),
+    sa.Column('km', sa.Float(precision=5), nullable=True),
+    sa.Column('type', sa.String(length=10), nullable=True),
+    sa.ForeignKeyConstraint(['ns_refuge_id'], ['ns_refuge.ns_refuge_id'], ),
+    sa.PrimaryKeyConstraint('dc_crawl_id')
+    )
+    op.create_table('depredation',
+    sa.Column('depredation_id', sa.Integer(), nullable=False),
+    sa.Column('ns_refuge_id', sa.Integer(), nullable=False),
+    sa.Column('species', sa.String(length=30), nullable=True),
+    sa.Column('km', sa.Float(precision=5), nullable=True),
+    sa.Column('predator', sa.String(length=30), nullable=True),
+    sa.Column('eggs_destroyed', sa.Integer(), nullable=True),
+    sa.Column('stake', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['ns_refuge_id'], ['ns_refuge.ns_refuge_id'], ),
+    sa.PrimaryKeyConstraint('depredation_id')
+    )
+    op.create_table('disorientation',
+    sa.Column('disorientation_id', sa.Integer(), nullable=False),
+    sa.Column('ns_refuge_id', sa.Integer(), nullable=False),
+    sa.Column('km', sa.Float(precision=5), nullable=True),
+    sa.Column('adult', sa.String(length=10), nullable=True),
+    sa.Column('hatchling', sa.String(length=10), nullable=True),
+    sa.ForeignKeyConstraint(['ns_refuge_id'], ['ns_refuge.ns_refuge_id'], ),
+    sa.PrimaryKeyConstraint('disorientation_id')
+    )
     op.create_table('encounter',
     sa.Column('encounter_id', sa.Integer(), nullable=False),
+    sa.Column('metadata_id', sa.Integer(), nullable=True),
     sa.Column('turtle_id', sa.Integer(), nullable=False),
-    sa.Column('metadata_id', sa.Integer(), nullable=False),
     sa.Column('type', sa.String(length=30), nullable=True),
     sa.ForeignKeyConstraint(['metadata_id'], ['metadata.metadata_id'], ),
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
@@ -143,6 +319,34 @@ def upgrade():
     sa.ForeignKeyConstraint(['metadata_id'], ['metadata.metadata_id'], ),
     sa.PrimaryKeyConstraint('net_id')
     )
+    op.create_table('offshore_metadata',
+    sa.Column('metadata_id', sa.Integer(), nullable=False),
+    sa.Column('capture_date', sa.Date(), nullable=True),
+    sa.Column('capture_time', sa.Time(), nullable=True),
+    sa.Column('capture_latitude', sa.Float(precision=5), nullable=True),
+    sa.Column('capture_longitude', sa.Float(precision=5), nullable=True),
+    sa.Column('cloud_cover', sa.Text(), nullable=True),
+    sa.Column('seas', sa.Text(), nullable=True),
+    sa.Column('wind', sa.Text(), nullable=True),
+    sa.Column('capture_sargassum_water_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('capture_open_water_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('capture_air_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('release_latitude', sa.Float(precision=5), nullable=True),
+    sa.Column('release_longitude', sa.Float(precision=5), nullable=True),
+    sa.Column('release_time', sa.Time(), nullable=True),
+    sa.Column('release_sargassum_water_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('sargassum_salinity', sa.Float(precision=5), nullable=True),
+    sa.Column('release_air_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('release_open_water_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('open_water_salinity', sa.Float(precision=5), nullable=True),
+    sa.Column('drifter_released', sa.Boolean(), nullable=True),
+    sa.Column('drifter1_id', sa.Text(), nullable=True),
+    sa.Column('drifter2_id', sa.Text(), nullable=True),
+    sa.Column('drifter1_type', sa.Text(), nullable=True),
+    sa.Column('drifter2_type', sa.Text(), nullable=True),
+    sa.ForeignKeyConstraint(['metadata_id'], ['metadata.metadata_id'], ),
+    sa.PrimaryKeyConstraint('metadata_id')
+    )
     op.create_table('tag',
     sa.Column('tag_id', sa.Integer(), nullable=False),
     sa.Column('turtle_id', sa.Integer(), nullable=False),
@@ -181,8 +385,15 @@ def upgrade():
     sa.PrimaryKeyConstraint('metadata_id')
     )
     op.create_table('beach_encounter',
-    sa.Column('beach_encounter_id', sa.Integer(), nullable=False),
     sa.Column('encounter_id', sa.Integer(), nullable=False),
+    sa.Column('encounter_date', sa.Date(), nullable=True),
+    sa.Column('encounter_time', sa.Time(), nullable=True),
+    sa.Column('investigated_by', sa.String(length=500), nullable=True),
+    sa.Column('entered_by', sa.String(length=30), nullable=True),
+    sa.Column('entered_date', sa.Date(), nullable=True),
+    sa.Column('verified_by', sa.String(length=30), nullable=True),
+    sa.Column('verified_date', sa.Date(), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('days_45', sa.Date(), nullable=True),
     sa.Column('days_70', sa.Date(), nullable=True),
     sa.Column('capture_type', sa.String(length=40), nullable=True),
@@ -208,27 +419,12 @@ def upgrade():
     sa.Column('seaward_of_structure', sa.Boolean(), nullable=True),
     sa.Column('within_1_m_of_structure', sa.Boolean(), nullable=True),
     sa.Column('structure_description', sa.Text(), nullable=True),
-    sa.Column('encounter_date', sa.Date(), nullable=True),
-    sa.Column('encounter_time', sa.Time(), nullable=True),
-    sa.Column('investigated_by', sa.String(length=500), nullable=True),
-    sa.Column('entered_by', sa.String(length=30), nullable=True),
-    sa.Column('entered_date', sa.Date(), nullable=True),
-    sa.Column('verified_by', sa.String(length=30), nullable=True),
-    sa.Column('verified_date', sa.Date(), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('paps_present', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
-    sa.PrimaryKeyConstraint('beach_encounter_id')
+    sa.PrimaryKeyConstraint('encounter_id')
     )
     op.create_table('lagoon_encounter',
-    sa.Column('lagoon_encounter_id', sa.Integer(), nullable=False),
     sa.Column('encounter_id', sa.Integer(), nullable=False),
-    sa.Column('living_tags', sa.Boolean(), nullable=True),
-    sa.Column('other', sa.Text(), nullable=True),
-    sa.Column('leeches', sa.Boolean(), nullable=True),
-    sa.Column('leeches_where', sa.Text(), nullable=True),
-    sa.Column('leech_eggs', sa.Boolean(), nullable=True),
-    sa.Column('leech_eggs_where', sa.Text(), nullable=True),
     sa.Column('encounter_date', sa.Date(), nullable=True),
     sa.Column('encounter_time', sa.Time(), nullable=True),
     sa.Column('investigated_by', sa.String(length=500), nullable=True),
@@ -242,8 +438,14 @@ def upgrade():
     sa.Column('paps_regression', sa.String(length=40), nullable=True),
     sa.Column('photos', sa.Boolean(), nullable=True),
     sa.Column('pap_photos', sa.Boolean(), nullable=True),
+    sa.Column('living_tags', sa.Boolean(), nullable=True),
+    sa.Column('other', sa.Text(), nullable=True),
+    sa.Column('leeches', sa.Boolean(), nullable=True),
+    sa.Column('leeches_where', sa.Text(), nullable=True),
+    sa.Column('leech_eggs', sa.Boolean(), nullable=True),
+    sa.Column('leech_eggs_where', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
-    sa.PrimaryKeyConstraint('lagoon_encounter_id')
+    sa.PrimaryKeyConstraint('encounter_id')
     )
     op.create_table('morphometrics',
     sa.Column('morphometrics_id', sa.Integer(), nullable=False),
@@ -283,8 +485,15 @@ def upgrade():
     sa.PrimaryKeyConstraint('sample_id')
     )
     op.create_table('trident_encounter',
-    sa.Column('trident_encounter_id', sa.Integer(), nullable=False),
     sa.Column('encounter_id', sa.Integer(), nullable=False),
+    sa.Column('encounter_date', sa.Date(), nullable=True),
+    sa.Column('encounter_time', sa.Time(), nullable=True),
+    sa.Column('investigated_by', sa.String(length=500), nullable=True),
+    sa.Column('entered_by', sa.String(length=30), nullable=True),
+    sa.Column('entered_date', sa.Date(), nullable=True),
+    sa.Column('verified_by', sa.String(length=30), nullable=True),
+    sa.Column('verified_date', sa.Date(), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('capture_location', sa.String(length=50), nullable=True),
     sa.Column('capture_method', sa.String(length=50), nullable=True),
     sa.Column('number_on_carapace', sa.Integer(), nullable=True),
@@ -295,21 +504,13 @@ def upgrade():
     sa.Column('leech_eggs', sa.Boolean(), nullable=True),
     sa.Column('leech_eggs_where', sa.Text(), nullable=True),
     sa.Column('disposition_of_specimen', sa.Text(), nullable=True),
-    sa.Column('encounter_date', sa.Date(), nullable=True),
-    sa.Column('encounter_time', sa.Time(), nullable=True),
-    sa.Column('investigated_by', sa.String(length=500), nullable=True),
-    sa.Column('entered_by', sa.String(length=30), nullable=True),
-    sa.Column('entered_date', sa.Date(), nullable=True),
-    sa.Column('verified_by', sa.String(length=30), nullable=True),
-    sa.Column('verified_date', sa.Date(), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('paps_present', sa.Boolean(), nullable=True),
     sa.Column('pap_category', sa.Integer(), nullable=True),
     sa.Column('paps_regression', sa.String(length=40), nullable=True),
     sa.Column('photos', sa.Boolean(), nullable=True),
     sa.Column('pap_photos', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
-    sa.PrimaryKeyConstraint('trident_encounter_id')
+    sa.PrimaryKeyConstraint('encounter_id')
     )
     op.create_table('sample_tracking',
     sa.Column('sample_tracking_id', sa.Integer(), nullable=False),
@@ -332,11 +533,16 @@ def downgrade():
     op.drop_table('beach_encounter')
     op.drop_table('trident_metadata')
     op.drop_table('tag')
+    op.drop_table('offshore_metadata')
     op.drop_table('net')
     op.drop_table('lagoon_metadata')
     op.drop_table('incidental_capture')
     op.drop_table('encounter')
+    op.drop_table('disorientation')
+    op.drop_table('depredation')
+    op.drop_table('dc_crawl')
     op.drop_table('clutch')
     op.drop_table('turtle')
+    op.drop_table('ns_refuge')
     op.drop_table('metadata')
     # ### end Alembic commands ###

@@ -36,18 +36,30 @@ def insert_lagoon(data):
     # Insert
     morphometrics = data.get('morphometrics')
     # print(morphometrics) # needed? bad list?
-    # del data['morphometrics']
+    del data['morphometrics']
+    del data['samples']
+    del data['tags']
     # print(data)
 
-    turtle = turtle_schema.load(data, unknown='EXCLUDE')
-    db.session.add(turtle)
-    db.session.flush()
-    encounter = lagoon_encounter_schema.load(data, unknown='EXCLUDE')
-    tags = tag_schema.load(data, unknown='EXCLUDE')
-    print("!!TEST!!")
-    print(encounter)
-    print(tags)
+   # turtle = turtle_schema.load(data, unknown='EXCLUDE')
+ #   db.session.add(turtle)
+  #  db.session.flush()
+   # db.session.commit()
+    encounter_schema = EncounterSchema()
+    data['turtle_id'] = 9
+    print(data)
 
+    encounterdata = {
+        'turtle_id': data.get('turtle_id'),
+        'type': data.get('type')
+    }
+
+    encounter = encounter_schema.load(encounterdata, unknown='EXCLUDE')
+    db.session.add(encounter)
+    tags = tag_schema.load(data, unknown='EXCLUDE')
+    # print("!!TEST!!")
+    # print(tags)
+    db.session.commit()
 
 
 
