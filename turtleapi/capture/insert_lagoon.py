@@ -13,10 +13,11 @@ import random # we can remove this when we're done and don't do the manual test 
 
 def insert_lagoon(data):
 
-    lagoon_schema = FullLagoonQuerySchema()
-    lagoon = lagoon_schema.load(data, unknown='EXCLUDE')
-    db.session.add(lagoon)
-    db.session.commit()
+    # lagoon_schema = FullLagoonQuerySchema()
+    # lagoon = lagoon_schema.load(data, unknown='EXCLUDE')
+    # db.session.add(lagoon)
+    # db.session.commit()
+
     # 1) make turtle object
     # 2) db.session.add(turtle)
     # 3) db.session.flush() for turtle
@@ -26,6 +27,29 @@ def insert_lagoon(data):
     # 7) make morphometrics/samples
     # 8) db.session.add(morphometrics/samples)
     # 9) db.session.commit()
+
+    # Schemas
+    turtle_schema = TurtleSchema()
+    lagoon_encounter_schema = LagoonEncounterSchema()
+    tag_schema = TagSchema()
+
+    # Insert
+    morphometrics = data.get('morphometrics')
+    # print(morphometrics) # needed? bad list?
+    # del data['morphometrics']
+    # print(data)
+
+    turtle = turtle_schema.load(data, unknown='EXCLUDE')
+    db.session.add(turtle)
+    db.session.flush()
+    encounter = lagoon_encounter_schema.load(data, unknown='EXCLUDE')
+    tags = tag_schema.load(data, unknown='EXCLUDE')
+    print("!!TEST!!")
+    print(encounter)
+    print(tags)
+
+
+
 
     # tags = data['tags']
     # encounter = data['encounter']
