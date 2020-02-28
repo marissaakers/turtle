@@ -10,11 +10,11 @@ class Turtle(BaseModel):
 	# Primary key
 	turtle_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
-	# # Dependencies
-	# tags = relationship('Tag', backref='turtle', supports_dict=True)
-	# clutches = relationship('Clutch', backref='turtle', supports_dict=True)
-	# morphometrics = relationship('Morphometrics', backref='turtle', supports_dict=True)
-	# encounters = relationship('Encounter', backref='turtle', lazy='dynamic', supports_dict=True)	
+	# Dependencies
+	tags = relationship('Tag', backref='turtle', supports_dict=True)
+	clutches = relationship('Clutch', backref='turtle', supports_dict=True)
+	morphometrics = relationship('Morphometrics', backref='turtle', supports_dict=True)
+	encounters = relationship('Encounter', backref='turtle', lazy='dynamic', supports_dict=True)	
 
 	# Various fields
 	species = Column(db.String(30), supports_dict=True)
@@ -26,7 +26,7 @@ class Tag(BaseModel):
 	tag_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	turtle_id = Column(db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
+	turtle_id = Column(db.ForeignKey('turtle.turtle_id'), nullable=False, supports_dict=True)
 
 	# Various fields
 	tag_number = Column(db.String(30), supports_dict=True)
@@ -43,7 +43,7 @@ class Clutch(BaseModel):
 	clutch_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
+	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False, supports_dict=True)
 
 	# Various fields
 	stake_number = Column(db.String(30), supports_dict=True)
@@ -113,8 +113,8 @@ class Morphometrics(BaseModel):
 	morphometrics_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign keys
-	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
-	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), nullable=False, supports_dict=True)
+	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False, supports_dict=True)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False, supports_dict=True)
 
 	# Various fields
 	curved_length = Column(db.Float(5), supports_dict=True)
@@ -151,7 +151,7 @@ class Metadata(BaseModel):
 class LagoonMetadata(Metadata):
 	__tablename__ = 'lagoon_metadata'
 	# Foreign key
-	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True),primary_key=True, nullable=False, supports_dict=True)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'),primary_key=True, nullable=False, supports_dict=True)
 
 	# Various fields
 	metadata_date = Column(db.Date, supports_dict=True)
@@ -187,7 +187,7 @@ class LagoonMetadata(Metadata):
 class TridentMetadata(Metadata):
 	__tablename__ = 'trident_metadata'
 	# Foreign key
-	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False, supports_dict=True)
 
 	# Various fields
 	metadata_date = Column(db.Date, supports_dict=True)
@@ -223,7 +223,7 @@ class TridentMetadata(Metadata):
 class OffshoreMetadata(Metadata):
 	__tablename__ = 'offshore_metadata'
 	# Foreign key
-	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False, supports_dict=True)
 
 	# Capture
 	capture_date = Column(db.Date, supports_dict=True)
@@ -263,8 +263,8 @@ class Encounter(BaseModel):
 	encounter_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign keys
-	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), supports_dict=True)
-	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'))
+	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False, supports_dict=True)
 
 	# Dependencies
 	samples = relationship('Sample', backref='encounter', supports_dict=True)
@@ -283,7 +283,7 @@ class Sample(BaseModel):
 	sample_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), nullable=False, supports_dict=True)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False, supports_dict=True)
 
 	# Dependencies
 	tracking_entries = relationship('SampleTracking', backref='sample', lazy='joined', supports_dict=True)
@@ -303,7 +303,7 @@ class Sample(BaseModel):
 class TridentEncounter(Encounter):
 	__tablename__ = 'trident_encounter'
 	# Primary key
-	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False, supports_dict=True)
 	
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True)
@@ -343,7 +343,7 @@ class TridentEncounter(Encounter):
 class LagoonEncounter(Encounter):
 	__tablename__ = 'lagoon_encounter'
 	# Primary key
-	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False, supports_dict=True)
 
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True)
@@ -379,7 +379,7 @@ class LagoonEncounter(Encounter):
 class BeachEncounter(Encounter):
 	__tablename__ = 'beach_encounter'
 	# Primary key
-	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False, supports_dict=True)
 
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True)
@@ -438,7 +438,7 @@ class Net(BaseModel):
 	net_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), nullable=False, supports_dict=True)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False, supports_dict=True)
 
 	# Various fields
 	net_number = Column(db.Integer, supports_dict=True)
@@ -453,7 +453,7 @@ class IncidentalCapture(BaseModel):
 	incidental_capture_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), nullable=False, supports_dict=True)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False, supports_dict=True)
 
 	# Various fields
 	species = Column(db.String(40), supports_dict=True)
@@ -467,7 +467,7 @@ class SampleTracking(BaseModel):
 	sample_tracking_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	sample_id = Column(db.Integer, db.ForeignKey('sample.sample_id', supports_dict=True), nullable=False, supports_dict=True)
+	sample_id = Column(db.Integer, db.ForeignKey('sample.sample_id'), nullable=False, supports_dict=True)
 
 	# Fields
 	date = Column(db.Date, supports_dict=True)
@@ -662,7 +662,7 @@ class DcCrawl(BaseModel):
 	dc_crawl_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id', supports_dict=True), nullable=False, supports_dict=True)
+	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id'), nullable=False, supports_dict=True)
 
 	# Fields
 	km = Column(db.Float(5), supports_dict=True)
@@ -674,7 +674,7 @@ class Disorientation(BaseModel):
 	disorientation_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id', supports_dict=True), nullable=False, supports_dict=True)
+	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id'), nullable=False, supports_dict=True)
 
 	# Fields
 	km = Column(db.Float(5), supports_dict=True)
@@ -687,7 +687,7 @@ class Depredation(BaseModel):
 	depredation_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id', supports_dict=True), nullable=False, supports_dict=True)
+	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id'), nullable=False, supports_dict=True)
 
 	# Fields
 	species = Column(db.String(30), supports_dict=True)

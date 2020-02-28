@@ -31,6 +31,7 @@ def insert_lagoon(data):
     turtle = Turtle.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
     print(turtle)
     print(turtle.species)
+    return {}
     # db.session.add(turtle)
     # db.session.commit()
 

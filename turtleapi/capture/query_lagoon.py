@@ -1,18 +1,12 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
-Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture,
-TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
-LagoonEncounterSchema, SampleSchema, NetSchema, IncidentalCaptureSchema, LagoonQuerySchema, FullLagoonQuerySchema)
+Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
 from turtleapi.capture.util import find_turtles_from_tags
 
 def query_lagoon(data):
-
-    # Declare schema instances
-    tag_schema = TagSchema()
-    full_lagoon_query_schema = FullLagoonQuerySchema()
 
     # Filters
     FILTER_encounter_id = data.get('encounter_id')
@@ -43,9 +37,6 @@ def query_lagoon(data):
     return output
 
 def mini_query_lagoon(data):
-
-    # Declare schema instances
-    lagoon_query_schema = LagoonQuerySchema()
 
     ### Filters
     FILTER_tags = data.get('tags')

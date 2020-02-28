@@ -18,8 +18,6 @@ def create_app(config_class=Config):
 	CORS(app)
 	db = SQLAlchemy(app, model_class=FlaskBaseModel)
 	db = initialize_flask_sqlathanor(db)
-	db.init_app(app)
-	ma.init_app(app)
 	migrate.init_app(app, db)
 	#api = Api(app)
 
