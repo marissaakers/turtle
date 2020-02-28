@@ -4,7 +4,7 @@ from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, T
                                            IncidentalCapture, TurtleSchema,
                                            EncounterSchema, TagSchema, MorphometricsSchema,
                                            MetadataSchema, LagoonEncounterSchema, SampleSchema,
-                                           NetSchema, IncidentalCaptureSchema, FullLagoonQuerySchema)
+                                           NetSchema, IncidentalCaptureSchema)
 import datetime
 import json
 from turtleapi.capture.util import find_turtle_from_tags
@@ -13,11 +13,6 @@ import random # we can remove this when we're done and don't do the manual test 
 from sqlalchemy import func
 
 def insert_lagoon(data):
-
-    # lagoon_schema = FullLagoonQuerySchema()
-    # lagoon = lagoon_schema.load(data, unknown='EXCLUDE')
-    # db.session.add(lagoon)
-    # db.session.commit()
 
     # 1) make turtle object
     # 2) db.session.add(turtle)
@@ -31,39 +26,22 @@ def insert_lagoon(data):
 
     # Schemas
     turtle_schema = TurtleSchema()
-    encounter_schema = EncounterSchema()
     lagoon_encounter_schema = LagoonEncounterSchema()
     tag_schema = TagSchema()
 
     # Insert
-    morphometrics = data.get('morphometrics')
     tags = data.get('tags')
     samples = data.get('samples')
-    # print(morphometrics) # needed? bad list?
-    #del data['morphometrics']
     del data['samples']
     del data['tags']
-    # print(data)
 
     turtle = turtle_schema.load(data, unknown='EXCLUDE')
     db.session.add(turtle)
     db.session.flush()
-    db.session.commit()
-
-    # encounter = encounter_schema.load(data, unknown='EXCLUDE')
-    # encounter.turtle=turtle
-    # # print(encounter_schema.dump(encounter))
-    # db.session.add(encounter)
-    # db.session.flush()
     
     stupid_next_id = db.session.query(func.max(Encounter.encounter_id)).first()
-    # print(stupid_next_id[0])
     data['encounter_id'] = stupid_next_id[0] + 1
-    # print(data['encounter_id'])
     lagoon_encounter = lagoon_encounter_schema.load(data, unknown='EXCLUDE')
-    # lagoon_encounter.encounter=encounter
     lagoon_encounter.turtle=turtle
-    # print(lagoon_encounter_schema.dump(lagoon_encounter))
-    # db.session.delete(encounter)
     db.session.add(lagoon_encounter)
     db.session.commit()
