@@ -91,6 +91,16 @@ def mini_query_lagoon(data):
 
     result = db.session.query(Encounter,Turtle).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all()
     encounters = [x[0] for x in result]
+    turtles = [x[1] for x in result]
 
-    output = lagoon_query_schema.dump(encounters, many=True)
+    output = [x.to_dict() for x in encounters]
+    output2 = [x.to_dict() for x in turtles]
+
+    loop_length = len(output)
+    for x in range(0,loop_length):
+        output[x].update(output2[x])
+
+    # output = [x.to_dict() for x in result]
+    # output = lagoon_query_schema.dump(encounters, many=True)
+    
     return output
