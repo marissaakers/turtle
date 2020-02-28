@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify, Response
 from flask_restful import Resource, Api
 #from turtleapi.models.turtlemodels import Clutch, ClutchSchema
 from turtleapi.models.turtlemodels import LagoonEncounterSchema
@@ -52,14 +52,12 @@ class InsertLagoon(Resource):
 class MiniQueryLagoon(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		response = mini_query_lagoon(json_data)
-		return response, 200
+		return mini_query_lagoon(json_data)
 
 class QueryLagoon(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		response = query_lagoon(json_data)
-		return response, 200
+		return query_lagoon(json_data)
 
 class EditLagoon(Resource):
 	def post(self):

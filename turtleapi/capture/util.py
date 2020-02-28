@@ -1,5 +1,7 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import Turtle, Tag, TurtleSchema, TagSchema
+import json
+from flask import jsonify
 
 # Match one turtle
 def find_turtle_from_tags(tags):
@@ -55,3 +57,11 @@ def insert_new_tags(turtle_id, tags):
                 tag_type=tag['tag_type'] #grrr
             )
         
+def my_custom_serializer(value, **kwargs):
+    filter_fields = kwargs.pop("filter_fields", None)
+    result = {}
+    for field in filter_fields:
+        result[field] = value.get(field, None)
+
+    return result
+#    return json.dumps(result)

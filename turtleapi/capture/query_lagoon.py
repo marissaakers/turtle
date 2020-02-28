@@ -4,7 +4,7 @@ Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
-from turtleapi.capture.util import find_turtles_from_tags
+from turtleapi.capture.util import find_turtles_from_tags, my_custom_serializer
 
 def query_lagoon(data):
 
@@ -24,17 +24,24 @@ def query_lagoon(data):
 
     # Grab turtles
     result = db.session.query(Encounter,Turtle).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
+    print(result)
     result_encounter = result[0]
+    result_turtle = result[1]
 
     # Make output object
-    output = full_lagoon_query_schema.dump(result_encounter)
+    # output = result.to_dict(max_nesting=1)
+    output = result_turtle.to_dict(max_nesting=2)
+    #print(output)
+    # output = result.dump_to_dict(max_nesting=4)
 
     # Grab tags
-    turtle_id = output['turtle_id']
-    tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
-    output['tags'] = tag_schema.dump(tag_result, many=True)
-
-    return output
+    # turtle_id = output['turtle_id']
+    # tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
+    # output['tags'] = tag_schema.dump(tag_result, many=True)
+    
+    #resp = Response(response=output, status=200, mimetype="application/json")
+    #return(resp)
+    return jsonify(output)
 
 def mini_query_lagoon(data):
 
@@ -101,6 +108,7 @@ def mini_query_lagoon(data):
         output[x].update(output2[x])
 
     # output = [x.to_dict() for x in result]
-    # output = lagoon_query_schema.dump(encounters, many=True)
-    
-    return output
+
+    final_encounter = [x.to_json(serialize_function=my_custom_serializer,  filter_fields = ['turtle_id', 'encounter_id']) for x in encounters]
+
+    return jsonify(final_encounter)
