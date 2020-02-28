@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 26cc614c7b49
+Revision ID: 615e707f9679
 Revises: 
-Create Date: 2020-02-27 14:20:47.427312
+Create Date: 2020-02-28 13:53:25.574726
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '26cc614c7b49'
+revision = '615e707f9679'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -180,6 +180,7 @@ def upgrade():
     op.create_table('clutch',
     sa.Column('clutch_id', sa.Integer(), nullable=False),
     sa.Column('turtle_id', sa.Integer(), nullable=False),
+    sa.Column('stake_number', sa.String(length=30), nullable=True),
     sa.Column('clutch_deposited', sa.Boolean(), nullable=True),
     sa.Column('sand_type', sa.String(length=50), nullable=True),
     sa.Column('placement', sa.String(length=50), nullable=True),
@@ -221,7 +222,11 @@ def upgrade():
     sa.Column('eggs_damaged_another_turtle', sa.Integer(), nullable=True),
     sa.Column('eggs_damaged_bobcat', sa.Integer(), nullable=True),
     sa.Column('eggs_damaged_other', sa.Integer(), nullable=True),
-    sa.Column('eggs_damaged_plant_details', sa.Text(), nullable=True),
+    sa.Column('eggs_damaged_sea_oats', sa.Boolean(), nullable=True),
+    sa.Column('eggs_damaged_sea_purslane', sa.Boolean(), nullable=True),
+    sa.Column('eggs_damaged_railroad_vine', sa.Boolean(), nullable=True),
+    sa.Column('eggs_damaged_beach_sunflower', sa.Boolean(), nullable=True),
+    sa.Column('eggs_damaged_sea_grape', sa.Boolean(), nullable=True),
     sa.Column('eggs_broken', sa.Integer(), nullable=True),
     sa.Column('eggs_washout', sa.Integer(), nullable=True),
     sa.Column('eggs_other', sa.Integer(), nullable=True),
@@ -354,6 +359,9 @@ def upgrade():
     sa.Column('tag_scars', sa.Boolean(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('tag_type', sa.String(length=30), nullable=True),
+    sa.Column('pit', sa.Boolean(), nullable=True),
+    sa.Column('scanned', sa.Boolean(), nullable=True),
+    sa.Column('scanner_number', sa.String(length=30), nullable=True),
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
     sa.PrimaryKeyConstraint('tag_id')
     )
@@ -388,21 +396,22 @@ def upgrade():
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('encounter_date', sa.Date(), nullable=True),
     sa.Column('encounter_time', sa.Time(), nullable=True),
+    sa.Column('capture_type', sa.String(length=40), nullable=True),
     sa.Column('investigated_by', sa.String(length=500), nullable=True),
     sa.Column('entered_by', sa.String(length=30), nullable=True),
     sa.Column('entered_date', sa.Date(), nullable=True),
     sa.Column('verified_by', sa.String(length=30), nullable=True),
     sa.Column('verified_date', sa.Date(), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('prime_tag', sa.String(length=30), nullable=True),
     sa.Column('days_45', sa.Date(), nullable=True),
     sa.Column('days_70', sa.Date(), nullable=True),
-    sa.Column('capture_type', sa.String(length=40), nullable=True),
     sa.Column('activity', sa.String(length=50), nullable=True),
     sa.Column('location_detail', sa.Text(), nullable=True),
     sa.Column('location_NS', sa.String(length=1), nullable=True),
     sa.Column('latitude', sa.Float(precision=5), nullable=True),
     sa.Column('longitude', sa.Float(precision=5), nullable=True),
     sa.Column('site_description', sa.Text(), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('outgoing_crawl_width', sa.Float(precision=5), nullable=True),
     sa.Column('yolkless_collected', sa.Boolean(), nullable=True),
     sa.Column('pink_spot_photo_taken', sa.Boolean(), nullable=True),
@@ -415,6 +424,7 @@ def upgrade():
     sa.Column('dist_to_high_tide', sa.Float(precision=5), nullable=True),
     sa.Column('can_buried', sa.Boolean(), nullable=True),
     sa.Column('can_buried_NS', sa.String(length=1), nullable=True),
+    sa.Column('sign_stake_in_place', sa.Boolean(), nullable=True),
     sa.Column('scarp_over_46_cm', sa.Boolean(), nullable=True),
     sa.Column('seaward_of_structure', sa.Boolean(), nullable=True),
     sa.Column('within_1_m_of_structure', sa.Boolean(), nullable=True),
@@ -427,6 +437,7 @@ def upgrade():
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('encounter_date', sa.Date(), nullable=True),
     sa.Column('encounter_time', sa.Time(), nullable=True),
+    sa.Column('capture_type', sa.String(length=40), nullable=True),
     sa.Column('investigated_by', sa.String(length=500), nullable=True),
     sa.Column('entered_by', sa.String(length=30), nullable=True),
     sa.Column('entered_date', sa.Date(), nullable=True),
@@ -449,7 +460,6 @@ def upgrade():
     )
     op.create_table('morphometrics',
     sa.Column('morphometrics_id', sa.Integer(), nullable=False),
-    sa.Column('turtle_id', sa.Integer(), nullable=False),
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('curved_length', sa.Float(precision=5), nullable=True),
     sa.Column('straight_length', sa.Float(precision=5), nullable=True),
@@ -465,7 +475,6 @@ def upgrade():
     sa.Column('flipper_damage', sa.Text(), nullable=True),
     sa.Column('carapace_damage', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
-    sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
     sa.PrimaryKeyConstraint('morphometrics_id')
     )
     op.create_table('sample',
@@ -488,6 +497,7 @@ def upgrade():
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('encounter_date', sa.Date(), nullable=True),
     sa.Column('encounter_time', sa.Time(), nullable=True),
+    sa.Column('capture_type', sa.String(length=40), nullable=True),
     sa.Column('investigated_by', sa.String(length=500), nullable=True),
     sa.Column('entered_by', sa.String(length=30), nullable=True),
     sa.Column('entered_date', sa.Date(), nullable=True),

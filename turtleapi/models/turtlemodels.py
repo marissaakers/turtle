@@ -9,7 +9,6 @@ class Turtle(db.Model):
 	# Dependencies
 	tags = db.relationship('Tag', backref='turtle')
 	clutches = db.relationship('Clutch', backref='turtle')
-	morphometrics = db.relationship('Morphometrics', backref='turtle')
 	encounters = db.relationship('Encounter', backref='turtle', lazy='dynamic')	
 
 	# Various fields
@@ -106,7 +105,6 @@ class Morphometrics(db.Model):
 	morphometrics_id = db.Column(db.Integer, primary_key=True)
 
 	# Foreign keys
-	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
 	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
 
 	# Various fields
