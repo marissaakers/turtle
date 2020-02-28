@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from turtleapi.config import Config
+from sqlathanor import FlaskBaseModel, initialize_flask_sqlathanor
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -15,6 +16,8 @@ def create_app(config_class=Config):
 	app.config.from_object(config_class)
 
 	CORS(app)
+	db = SQLAlchemy(app, model_class=FlaskBaseModel)
+	db = initialize_flask_sqlathanor(db)
 	db.init_app(app)
 	ma.init_app(app)
 	migrate.init_app(app, db)

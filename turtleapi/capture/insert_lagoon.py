@@ -28,38 +28,45 @@ def insert_lagoon(data):
     # 8) db.session.add(morphometrics/samples)
     # 9) db.session.commit()
 
-    # Schemas
-    turtle_schema = TurtleSchema()
-    lagoon_encounter_schema = LagoonEncounterSchema()
-    tag_schema = TagSchema()
+    turtle = Turtle.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
+    print(turtle)
+    print(turtle.species)
+    # db.session.add(turtle)
+    # db.session.commit()
 
-    # Insert
-    morphometrics = data.get('morphometrics')
-    # print(morphometrics) # needed? bad list?
-    del data['morphometrics']
-    del data['samples']
-    del data['tags']
-    # print(data)
 
-   # turtle = turtle_schema.load(data, unknown='EXCLUDE')
- #   db.session.add(turtle)
-  #  db.session.flush()
-   # db.session.commit()
-    encounter_schema = EncounterSchema()
-    data['turtle_id'] = 9
-    print(data)
+#     # Schemas
+#     turtle_schema = TurtleSchema()
+#     lagoon_encounter_schema = LagoonEncounterSchema()
+#     tag_schema = TagSchema()
 
-    encounterdata = {
-        'turtle_id': data.get('turtle_id'),
-        'type': data.get('type')
-    }
+#     # Insert
+#     morphometrics = data.get('morphometrics')
+#     # print(morphometrics) # needed? bad list?
+#     del data['morphometrics']
+#     del data['samples']
+#     del data['tags']
+#     # print(data)
 
-    encounter = encounter_schema.load(encounterdata, unknown='EXCLUDE')
-    db.session.add(encounter)
-    tags = tag_schema.load(data, unknown='EXCLUDE')
-    # print("!!TEST!!")
-    # print(tags)
-    db.session.commit()
+#    # turtle = turtle_schema.load(data, unknown='EXCLUDE')
+#  #   db.session.add(turtle)
+#   #  db.session.flush()
+#    # db.session.commit()
+#     encounter_schema = EncounterSchema()
+#     data['turtle_id'] = 9
+#     print(data)
+
+#     encounterdata = {
+#         'turtle_id': data.get('turtle_id'),
+#         'type': data.get('type')
+#     }
+
+#     encounter = encounter_schema.load(encounterdata, unknown='EXCLUDE')
+#     db.session.add(encounter)
+#     tags = tag_schema.load(data, unknown='EXCLUDE')
+#     # print("!!TEST!!")
+#     # print(tags)
+#     db.session.commit()
 
 
 

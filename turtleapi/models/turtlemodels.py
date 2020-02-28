@@ -1,174 +1,183 @@
 from turtleapi import db, ma
 from flask import jsonify
 from marshmallow import Schema, fields, pre_dump, post_dump
+from sqlathanor import declarative_base, Column, relationship
 
-class Turtle(db.Model):
+BaseModel = declarative_base()
+
+class Turtle(BaseModel):
+	__tablename__ = 'turtle'
 	# Primary key
-	turtle_id = db.Column(db.Integer, primary_key=True)
+	turtle_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
-	# Dependencies
-	tags = db.relationship('Tag', backref='turtle')
-	clutches = db.relationship('Clutch', backref='turtle')
-	morphometrics = db.relationship('Morphometrics', backref='turtle')
-	encounters = db.relationship('Encounter', backref='turtle', lazy='dynamic')	
+	# # Dependencies
+	# tags = relationship('Tag', backref='turtle', supports_dict=True)
+	# clutches = relationship('Clutch', backref='turtle', supports_dict=True)
+	# morphometrics = relationship('Morphometrics', backref='turtle', supports_dict=True)
+	# encounters = relationship('Encounter', backref='turtle', lazy='dynamic', supports_dict=True)	
 
 	# Various fields
-	species = db.Column(db.String(30))
-	old_turtle_id = db.Column(db.Integer)
+	species = Column(db.String(30), supports_dict=True)
+	old_turtle_id = Column(db.Integer, supports_dict=True)
 
-class Tag(db.Model):
+class Tag(BaseModel):
+	__tablename__ = 'tag'
 	# Primary key
-	tag_id = db.Column(db.Integer, primary_key=True)
+	tag_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	turtle_id = db.Column(db.ForeignKey('turtle.turtle_id'), nullable=False)
+	turtle_id = Column(db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Various fields
-	tag_number = db.Column(db.String(30))
-	tag_scars = db.Column(db.Boolean)
-	active = db.Column(db.Boolean)
-	tag_type = db.Column(db.String(30))
-	pit = db.Column(db.Boolean)
-	scanned = db.Column(db.Boolean)
-	scanner_number = db.Column(db.String(30))
+	tag_number = Column(db.String(30), supports_dict=True)
+	tag_scars = Column(db.Boolean, supports_dict=True)
+	active = Column(db.Boolean, supports_dict=True)
+	tag_type = Column(db.String(30), supports_dict=True)
+	pit = Column(db.Boolean, supports_dict=True)
+	scanned = Column(db.Boolean, supports_dict=True)
+	scanner_number = Column(db.String(30), supports_dict=True)
 
-class Clutch(db.Model):
+class Clutch(BaseModel):
+	__tablename__ = 'clutch'
 	# Primary key
-	clutch_id = db.Column(db.Integer, primary_key=True)
+	clutch_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Various fields
-	stake_number = db.Column(db.String(30))
-	clutch_deposited = db.Column(db.Boolean)
-	sand_type = db.Column(db.String(50))
-	placement = db.Column(db.String(50))
-	emergence_date = db.Column(db.Date)
-	inventory_date = db.Column(db.Date)
-	hidden_stake_in_place = db.Column(db.Boolean)
-	obvious_stake_in_place = db.Column(db.Boolean)
-	emergence = db.Column(db.Boolean)
-	s_can_in_place = db.Column(db.Boolean)
-	n_can_in_place = db.Column(db.Boolean)
-	predated = db.Column(db.Boolean)
-	post_hatch = db.Column(db.Boolean)
-	washed_over = db.Column(db.Boolean)
-	inundated = db.Column(db.Boolean)
-	washed_out = db.Column(db.String(20))
-	washed_out_post_hatch = db.Column(db.Boolean)
-	poached = db.Column(db.Boolean)
-	inventoried_by = db.Column(db.String(500))
-	entered_by = db.Column(db.String(40))
-	entered_date = db.Column(db.Date)
-	verified_by = db.Column(db.String(40))
-	verified_date = db.Column(db.Date)
+	stake_number = Column(db.String(30), supports_dict=True)
+	clutch_deposited = Column(db.Boolean, supports_dict=True)
+	sand_type = Column(db.String(50), supports_dict=True)
+	placement = Column(db.String(50), supports_dict=True)
+	emergence_date = Column(db.Date, supports_dict=True)
+	inventory_date = Column(db.Date, supports_dict=True)
+	hidden_stake_in_place = Column(db.Boolean, supports_dict=True)
+	obvious_stake_in_place = Column(db.Boolean, supports_dict=True)
+	emergence = Column(db.Boolean, supports_dict=True)
+	s_can_in_place = Column(db.Boolean, supports_dict=True)
+	n_can_in_place = Column(db.Boolean, supports_dict=True)
+	predated = Column(db.Boolean, supports_dict=True)
+	post_hatch = Column(db.Boolean, supports_dict=True)
+	washed_over = Column(db.Boolean, supports_dict=True)
+	inundated = Column(db.Boolean, supports_dict=True)
+	washed_out = Column(db.String(20), supports_dict=True)
+	washed_out_post_hatch = Column(db.Boolean, supports_dict=True)
+	poached = Column(db.Boolean, supports_dict=True)
+	inventoried_by = Column(db.String(500), supports_dict=True)
+	entered_by = Column(db.String(40), supports_dict=True)
+	entered_date = Column(db.Date, supports_dict=True)
+	verified_by = Column(db.String(40), supports_dict=True)
+	verified_date = Column(db.Date, supports_dict=True)
 	
 	# Hatchlings
-	hatched = db.Column(db.Integer)
-	live_hatchlings = db.Column(db.Integer)
-	dead_hatchlings = db.Column(db.Integer)
-	hatchlings_emerged = db.Column(db.Integer)
-	pipped_live = db.Column(db.Integer)
-	pipped_dead = db.Column(db.Integer)
+	hatched = Column(db.Integer, supports_dict=True)
+	live_hatchlings = Column(db.Integer, supports_dict=True)
+	dead_hatchlings = Column(db.Integer, supports_dict=True)
+	hatchlings_emerged = Column(db.Integer, supports_dict=True)
+	pipped_live = Column(db.Integer, supports_dict=True)
+	pipped_dead = Column(db.Integer, supports_dict=True)
 	
 	# Eggs
-	eggs_addled = db.Column(db.Integer)
-	eggs_undeveloped = db.Column(db.Integer)
-	eggs_sampled_for_sac = db.Column(db.Integer)
-	eggs_embryo_1_4 = db.Column(db.Integer)
-	eggs_embryo_2_4 = db.Column(db.Integer)
-	eggs_embryo_3_4 = db.Column(db.Integer)
-	eggs_embryo_4_4 = db.Column(db.Integer)
-	eggs_damaged_raccoons = db.Column(db.Integer)
-	eggs_damaged_ghost_crabs = db.Column(db.Integer)
-	egg_damaged_plant_roots = db.Column(db.Integer)
-	eggs_damaged_another_turtle = db.Column(db.Integer)
-	eggs_damaged_bobcat = db.Column(db.Integer)
-	eggs_damaged_other = db.Column(db.Integer)
-	eggs_damaged_sea_oats = db.Column(db.Boolean)
-	eggs_damaged_sea_purslane = db.Column(db.Boolean)
-	eggs_damaged_railroad_vine = db.Column(db.Boolean)
-	eggs_damaged_beach_sunflower = db.Column(db.Boolean)
-	eggs_damaged_sea_grape = db.Column(db.Boolean)
-	eggs_broken = db.Column(db.Integer)
-	eggs_washout = db.Column(db.Integer)
-	eggs_other = db.Column(db.Integer)
-	eggs_other_details = db.Column(db.Text)
-	eggs_yolkless_hydrated = db.Column(db.Integer)
-	eggs_yolkless_dehydrated = db.Column(db.Integer)
-	clutch_size = db.Column(db.Integer)
-	substrate = db.Column(db.String(50))
-	notes = db.Column(db.Text)
+	eggs_addled = Column(db.Integer, supports_dict=True)
+	eggs_undeveloped = Column(db.Integer, supports_dict=True)
+	eggs_sampled_for_sac = Column(db.Integer, supports_dict=True)
+	eggs_embryo_1_4 = Column(db.Integer, supports_dict=True)
+	eggs_embryo_2_4 = Column(db.Integer, supports_dict=True)
+	eggs_embryo_3_4 = Column(db.Integer, supports_dict=True)
+	eggs_embryo_4_4 = Column(db.Integer, supports_dict=True)
+	eggs_damaged_raccoons = Column(db.Integer, supports_dict=True)
+	eggs_damaged_ghost_crabs = Column(db.Integer, supports_dict=True)
+	egg_damaged_plant_roots = Column(db.Integer, supports_dict=True)
+	eggs_damaged_another_turtle = Column(db.Integer, supports_dict=True)
+	eggs_damaged_bobcat = Column(db.Integer, supports_dict=True)
+	eggs_damaged_other = Column(db.Integer, supports_dict=True)
+	eggs_damaged_sea_oats = Column(db.Boolean, supports_dict=True)
+	eggs_damaged_sea_purslane = Column(db.Boolean, supports_dict=True)
+	eggs_damaged_railroad_vine = Column(db.Boolean, supports_dict=True)
+	eggs_damaged_beach_sunflower = Column(db.Boolean, supports_dict=True)
+	eggs_damaged_sea_grape = Column(db.Boolean, supports_dict=True)
+	eggs_broken = Column(db.Integer, supports_dict=True)
+	eggs_washout = Column(db.Integer, supports_dict=True)
+	eggs_other = Column(db.Integer, supports_dict=True)
+	eggs_other_details = Column(db.Text, supports_dict=True)
+	eggs_yolkless_hydrated = Column(db.Integer, supports_dict=True)
+	eggs_yolkless_dehydrated = Column(db.Integer, supports_dict=True)
+	clutch_size = Column(db.Integer, supports_dict=True)
+	substrate = Column(db.String(50), supports_dict=True)
+	notes = Column(db.Text, supports_dict=True)
 
-class Morphometrics(db.Model):
+class Morphometrics(BaseModel):
+	__tablename__ = 'morphometrics'
 	# Primary key
-	morphometrics_id = db.Column(db.Integer, primary_key=True)
+	morphometrics_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign keys
-	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Various fields
-	curved_length = db.Column(db.Float(5))
-	straight_length = db.Column(db.Float(5))
-	minimum_length = db.Column(db.Float(5))
-	plastron_length = db.Column(db.Float(5))
-	weight = db.Column(db.Float(5))
-	curved_width = db.Column(db.Float(5))
-	straight_width = db.Column(db.Float(5))
-	tail_length_pl_vent = db.Column(db.Float(5))
-	tail_length_pl_tip = db.Column(db.Float(5))
-	head_width = db.Column(db.Float(5))
-	body_depth = db.Column(db.Float(5))
-	flipper_damage = db.Column(db.Text)
-	carapace_damage = db.Column(db.Text)
+	curved_length = Column(db.Float(5), supports_dict=True)
+	straight_length = Column(db.Float(5), supports_dict=True)
+	minimum_length = Column(db.Float(5), supports_dict=True)
+	plastron_length = Column(db.Float(5), supports_dict=True)
+	weight = Column(db.Float(5), supports_dict=True)
+	curved_width = Column(db.Float(5), supports_dict=True)
+	straight_width = Column(db.Float(5), supports_dict=True)
+	tail_length_pl_vent = Column(db.Float(5), supports_dict=True)
+	tail_length_pl_tip = Column(db.Float(5), supports_dict=True)
+	head_width = Column(db.Float(5), supports_dict=True)
+	body_depth = Column(db.Float(5), supports_dict=True)
+	flipper_damage = Column(db.Text, supports_dict=True)
+	carapace_damage = Column(db.Text, supports_dict=True)
 
-class Metadata(db.Model):
+class Metadata(BaseModel):
+	__tablename__ = 'metadata'
 	# Primary key
-	metadata_id = db.Column(db.Integer, primary_key=True)
+	metadata_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Dependencies
-	encounters = db.relationship('Encounter', backref='metadata')
-	nets = db.relationship('Net', backref='metadata', lazy=True)
-	incidental_captures = db.relationship('IncidentalCapture', backref='metadata')
+	encounters = relationship('Encounter', backref='metadata', supports_dict=True)
+	nets = relationship('Net', backref='metadata', lazy=True, supports_dict=True)
+	incidental_captures = relationship('IncidentalCapture', backref='metadata', supports_dict=True)
 
 	# Polymorphism
-	type = db.Column(db.String(30))
+	type = Column(db.String(30), supports_dict=True)
 	__mapper_args__ = {
 		'polymorphic_identity': 'metadatas',
 		'polymorphic_on': type
 	}
 
 class LagoonMetadata(Metadata):
+	__tablename__ = 'lagoon_metadata'
 	# Foreign key
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'),primary_key=True, nullable=False)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True),primary_key=True, nullable=False, supports_dict=True)
 
 	# Various fields
-	metadata_date = db.Column(db.Date)
-	metadata_location = db.Column(db.Text)
-	metadata_investigators = db.Column(db.Text)
-	number_of_cc_captured = db.Column(db.Integer)
-	number_of_cm_captured = db.Column(db.Integer)
-	number_of_other_captured = db.Column(db.Integer)
+	metadata_date = Column(db.Date, supports_dict=True)
+	metadata_location = Column(db.Text, supports_dict=True)
+	metadata_investigators = Column(db.Text, supports_dict=True)
+	number_of_cc_captured = Column(db.Integer, supports_dict=True)
+	number_of_cm_captured = Column(db.Integer, supports_dict=True)
+	number_of_other_captured = Column(db.Integer, supports_dict=True)
 
 	# Environment
-	water_sample = db.Column(db.Boolean)
-	wind_speed = db.Column(db.Float(5))
-	wind_dir = db.Column(db.String(20))
-	environment_time = db.Column(db.Time)
-	weather = db.Column(db.String(100))
-	air_temp = db.Column(db.Float(5))
-	water_temp_surface = db.Column(db.Float(5))
-	water_temp_1_m = db.Column(db.Float(5))
-	water_temp_2_m = db.Column(db.Float(5))
-	water_temp_6_m = db.Column(db.Float(5))
-	water_temp_bottom = db.Column(db.Float(5))
-	salinity_surface = db.Column(db.Float(5))
-	salinity_1_m = db.Column(db.Float(5))
-	salinity_2_m = db.Column(db.Float(5))
-	salinity_6_m = db.Column(db.Float(5))
-	salinity_bottom = db.Column(db.Float(5))
+	water_sample = Column(db.Boolean, supports_dict=True)
+	wind_speed = Column(db.Float(5), supports_dict=True)
+	wind_dir = Column(db.String(20), supports_dict=True)
+	environment_time = Column(db.Time, supports_dict=True)
+	weather = Column(db.String(100), supports_dict=True)
+	air_temp = Column(db.Float(5), supports_dict=True)
+	water_temp_surface = Column(db.Float(5), supports_dict=True)
+	water_temp_1_m = Column(db.Float(5), supports_dict=True)
+	water_temp_2_m = Column(db.Float(5), supports_dict=True)
+	water_temp_6_m = Column(db.Float(5), supports_dict=True)
+	water_temp_bottom = Column(db.Float(5), supports_dict=True)
+	salinity_surface = Column(db.Float(5), supports_dict=True)
+	salinity_1_m = Column(db.Float(5), supports_dict=True)
+	salinity_2_m = Column(db.Float(5), supports_dict=True)
+	salinity_6_m = Column(db.Float(5), supports_dict=True)
+	salinity_bottom = Column(db.Float(5), supports_dict=True)
 
 	# Polymorphism
 	__mapper_args__ = {
@@ -176,34 +185,35 @@ class LagoonMetadata(Metadata):
 	}
 
 class TridentMetadata(Metadata):
+	__tablename__ = 'trident_metadata'
 	# Foreign key
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
 
 	# Various fields
-	metadata_date = db.Column(db.Date)
-	metadata_location = db.Column(db.Text)
-	metadata_investigators = db.Column(db.Text)
-	number_of_cc_captured = db.Column(db.Integer)
-	number_of_cm_captured = db.Column(db.Integer)
-	number_of_other_captured = db.Column(db.Integer)
+	metadata_date = Column(db.Date, supports_dict=True)
+	metadata_location = Column(db.Text, supports_dict=True)
+	metadata_investigators = Column(db.Text, supports_dict=True)
+	number_of_cc_captured = Column(db.Integer, supports_dict=True)
+	number_of_cm_captured = Column(db.Integer, supports_dict=True)
+	number_of_other_captured = Column(db.Integer, supports_dict=True)
 
 	# Environment
-	water_sample = db.Column(db.Boolean)
-	wind_speed = db.Column(db.Float(5))
-	wind_dir = db.Column(db.String(20))
-	environment_time = db.Column(db.Time)
-	weather = db.Column(db.String(100))
-	air_temp = db.Column(db.Float(5))
-	water_temp_surface = db.Column(db.Float(5))
-	water_temp_1_m = db.Column(db.Float(5))
-	water_temp_2_m = db.Column(db.Float(5))
-	water_temp_6_m = db.Column(db.Float(5))
-	water_temp_bottom = db.Column(db.Float(5))
-	salinity_surface = db.Column(db.Float(5))
-	salinity_1_m = db.Column(db.Float(5))
-	salinity_2_m = db.Column(db.Float(5))
-	salinity_6_m = db.Column(db.Float(5))
-	salinity_bottom = db.Column(db.Float(5))
+	water_sample = Column(db.Boolean, supports_dict=True)
+	wind_speed = Column(db.Float(5), supports_dict=True)
+	wind_dir = Column(db.String(20), supports_dict=True)
+	environment_time = Column(db.Time, supports_dict=True)
+	weather = Column(db.String(100), supports_dict=True)
+	air_temp = Column(db.Float(5), supports_dict=True)
+	water_temp_surface = Column(db.Float(5), supports_dict=True)
+	water_temp_1_m = Column(db.Float(5), supports_dict=True)
+	water_temp_2_m = Column(db.Float(5), supports_dict=True)
+	water_temp_6_m = Column(db.Float(5), supports_dict=True)
+	water_temp_bottom = Column(db.Float(5), supports_dict=True)
+	salinity_surface = Column(db.Float(5), supports_dict=True)
+	salinity_1_m = Column(db.Float(5), supports_dict=True)
+	salinity_2_m = Column(db.Float(5), supports_dict=True)
+	salinity_6_m = Column(db.Float(5), supports_dict=True)
+	salinity_bottom = Column(db.Float(5), supports_dict=True)
 
 	# Polymorphism
 	__mapper_args__ = {
@@ -211,115 +221,119 @@ class TridentMetadata(Metadata):
 	}
 
 class OffshoreMetadata(Metadata):
+	__tablename__ = 'offshore_metadata'
 	# Foreign key
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
 
 	# Capture
-	capture_date = db.Column(db.Date)
-	capture_time = db.Column(db.Time)
-	capture_latitude = db.Column(db.Float(5))
-	capture_longitude = db.Column(db.Float(5))
-	cloud_cover = db.Column(db.Text)
-	seas = db.Column(db.Text)
-	wind = db.Column(db.Text)
-	capture_sargassum_water_temp = db.Column(db.Float(5))
-	capture_open_water_temp = db.Column(db.Float(5))
-	capture_air_temp = db.Column(db.Float(5))
+	capture_date = Column(db.Date, supports_dict=True)
+	capture_time = Column(db.Time, supports_dict=True)
+	capture_latitude = Column(db.Float(5), supports_dict=True)
+	capture_longitude = Column(db.Float(5), supports_dict=True)
+	cloud_cover = Column(db.Text, supports_dict=True)
+	seas = Column(db.Text, supports_dict=True)
+	wind = Column(db.Text, supports_dict=True)
+	capture_sargassum_water_temp = Column(db.Float(5), supports_dict=True)
+	capture_open_water_temp = Column(db.Float(5), supports_dict=True)
+	capture_air_temp = Column(db.Float(5), supports_dict=True)
 
 	# Release
-	release_latitude = db.Column(db.Float(5))
-	release_longitude = db.Column(db.Float(5))
-	release_time = db.Column(db.Time)
-	release_sargassum_water_temp = db.Column(db.Float(5))
-	sargassum_salinity = db.Column(db.Float(5))
-	release_air_temp = db.Column(db.Float(5))
-	release_open_water_temp = db.Column(db.Float(5))
-	open_water_salinity = db.Column(db.Float(5))
-	drifter_released = db.Column(db.Boolean)
-	drifter1_id = db.Column(db.Text)
-	drifter2_id = db.Column(db.Text)
-	drifter1_type = db.Column(db.Text)
-	drifter2_type = db.Column(db.Text)
+	release_latitude = Column(db.Float(5), supports_dict=True)
+	release_longitude = Column(db.Float(5), supports_dict=True)
+	release_time = Column(db.Time, supports_dict=True)
+	release_sargassum_water_temp = Column(db.Float(5), supports_dict=True)
+	sargassum_salinity = Column(db.Float(5), supports_dict=True)
+	release_air_temp = Column(db.Float(5), supports_dict=True)
+	release_open_water_temp = Column(db.Float(5), supports_dict=True)
+	open_water_salinity = Column(db.Float(5), supports_dict=True)
+	drifter_released = Column(db.Boolean, supports_dict=True)
+	drifter1_id = Column(db.Text, supports_dict=True)
+	drifter2_id = Column(db.Text, supports_dict=True)
+	drifter1_type = Column(db.Text, supports_dict=True)
+	drifter2_type = Column(db.Text, supports_dict=True)
 
 	# Polymorphism
 	__mapper_args__ = {
 		'polymorphic_identity': 'offshore'
 	}
 
-class Encounter(db.Model):
+class Encounter(BaseModel):
+	__tablename__ = 'encounter'
 	# Primary key
-	encounter_id = db.Column(db.Integer, primary_key=True)
+	encounter_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign keys
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'))
-	turtle_id = db.Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), supports_dict=True)
+	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Dependencies
-	samples = db.relationship('Sample', backref='encounter')
-	morphometrics = db.relationship('Morphometrics', uselist=False, backref='encounter')
+	samples = relationship('Sample', backref='encounter', supports_dict=True)
+	morphometrics = relationship('Morphometrics', uselist=False, backref='encounter', supports_dict=True)
 
 	# Polymorphism
-	type = db.Column(db.String(30))
+	type = Column(db.String(30), supports_dict=True)
 	__mapper_args__ = {
 		'polymorphic_identity': 'encounters',
 		'polymorphic_on': type
 	}
 
-class Sample(db.Model):
+class Sample(BaseModel):
+	__tablename__ = 'sample'
 	# Primary key
-	sample_id = db.Column(db.Integer, primary_key=True)
+	sample_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Dependencies
-	tracking_entries = db.relationship('SampleTracking', backref='sample', lazy='joined')
+	tracking_entries = relationship('SampleTracking', backref='sample', lazy='joined', supports_dict=True)
 
 	# Various fields
-	skin_1 = db.Column(db.Boolean)
-	skin_1_for = db.Column(db.Text)
-	skin_2 = db.Column(db.Boolean)
-	skin_2_for = db.Column(db.Text)
-	blood = db.Column(db.Boolean)
-	blood_for = db.Column(db.Text)
-	scute = db.Column(db.Boolean)
-	scute_for = db.Column(db.Text)
-	other = db.Column(db.Boolean)
-	other_for = db.Column(db.Text)
+	skin_1 = Column(db.Boolean, supports_dict=True)
+	skin_1_for = Column(db.Text, supports_dict=True)
+	skin_2 = Column(db.Boolean, supports_dict=True)
+	skin_2_for = Column(db.Text, supports_dict=True)
+	blood = Column(db.Boolean, supports_dict=True)
+	blood_for = Column(db.Text, supports_dict=True)
+	scute = Column(db.Boolean, supports_dict=True)
+	scute_for = Column(db.Text, supports_dict=True)
+	other = Column(db.Boolean, supports_dict=True)
+	other_for = Column(db.Text, supports_dict=True)
 
 class TridentEncounter(Encounter):
+	__tablename__ = 'trident_encounter'
 	# Primary key
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
 	
 	# Fields common to all encounter types
-	encounter_date = db.Column(db.Date)
-	encounter_time = db.Column(db.Time)
-	capture_type = db.Column(db.String(40))
-	investigated_by = db.Column(db.String(500))
-	entered_by = db.Column(db.String(30))
-	entered_date = db.Column(db.Date)
-	verified_by = db.Column(db.String(30))
-	verified_date = db.Column(db.Date)
-	notes = db.Column(db.Text)
+	encounter_date = Column(db.Date, supports_dict=True)
+	encounter_time = Column(db.Time, supports_dict=True)
+	capture_type = Column(db.String(40), supports_dict=True)
+	investigated_by = Column(db.String(500), supports_dict=True)
+	entered_by = Column(db.String(30), supports_dict=True)
+	entered_date = Column(db.Date, supports_dict=True)
+	verified_by = Column(db.String(30), supports_dict=True)
+	verified_date = Column(db.Date, supports_dict=True)
+	notes = Column(db.Text, supports_dict=True)
 
 	# Fields unique to trident encounters
-	capture_location = db.Column(db.String(50))
-	capture_method = db.Column(db.String(50))
-	number_on_carapace = db.Column(db.Integer)
-	living_tags = db.Column(db.Boolean)
-	other = db.Column(db.Text)
-	leeches = db.Column(db.Boolean)
-	leeches_where = db.Column(db.Text)
-	leech_eggs = db.Column(db.Boolean)
-	leech_eggs_where = db.Column(db.Text)
-	disposition_of_specimen = db.Column(db.Text)
+	capture_location = Column(db.String(50), supports_dict=True)
+	capture_method = Column(db.String(50), supports_dict=True)
+	number_on_carapace = Column(db.Integer, supports_dict=True)
+	living_tags = Column(db.Boolean, supports_dict=True)
+	other = Column(db.Text, supports_dict=True)
+	leeches = Column(db.Boolean, supports_dict=True)
+	leeches_where = Column(db.Text, supports_dict=True)
+	leech_eggs = Column(db.Boolean, supports_dict=True)
+	leech_eggs_where = Column(db.Text, supports_dict=True)
+	disposition_of_specimen = Column(db.Text, supports_dict=True)
 
 	# Paps
-	paps_present = db.Column(db.Boolean)
-	pap_category = db.Column(db.Integer)
-	paps_regression = db.Column(db.String(40))
-	photos = db.Column(db.Boolean)
-	pap_photos = db.Column(db.Boolean)
+	paps_present = Column(db.Boolean, supports_dict=True)
+	pap_category = Column(db.Integer, supports_dict=True)
+	paps_regression = Column(db.String(40), supports_dict=True)
+	photos = Column(db.Boolean, supports_dict=True)
+	pap_photos = Column(db.Boolean, supports_dict=True)
 
 	# Polymorphism
 	__mapper_args__ = {
@@ -327,34 +341,35 @@ class TridentEncounter(Encounter):
 	}
 
 class LagoonEncounter(Encounter):
+	__tablename__ = 'lagoon_encounter'
 	# Primary key
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
 
 	# Fields common to all encounter types
-	encounter_date = db.Column(db.Date)
-	encounter_time = db.Column(db.Time)
-	capture_type = db.Column(db.String(40))
-	investigated_by = db.Column(db.String(500))
-	entered_by = db.Column(db.String(30))
-	entered_date = db.Column(db.Date)
-	verified_by = db.Column(db.String(30))
-	verified_date = db.Column(db.Date)
-	notes = db.Column(db.Text)
+	encounter_date = Column(db.Date, supports_dict=True)
+	encounter_time = Column(db.Time, supports_dict=True)
+	capture_type = Column(db.String(40), supports_dict=True)
+	investigated_by = Column(db.String(500), supports_dict=True)
+	entered_by = Column(db.String(30), supports_dict=True)
+	entered_date = Column(db.Date, supports_dict=True)
+	verified_by = Column(db.String(30), supports_dict=True)
+	verified_date = Column(db.Date, supports_dict=True)
+	notes = Column(db.Text, supports_dict=True)
 
 	# Paps
-	paps_present = db.Column(db.Boolean)
-	pap_category = db.Column(db.Integer)
-	paps_regression = db.Column(db.String(40))
-	photos = db.Column(db.Boolean)
-	pap_photos = db.Column(db.Boolean)
+	paps_present = Column(db.Boolean, supports_dict=True)
+	pap_category = Column(db.Integer, supports_dict=True)
+	paps_regression = Column(db.String(40), supports_dict=True)
+	photos = Column(db.Boolean, supports_dict=True)
+	pap_photos = Column(db.Boolean, supports_dict=True)
 
 	# Fields unique to lagoon encounters
-	living_tags = db.Column(db.Boolean)
-	other = db.Column(db.Text)
-	leeches = db.Column(db.Boolean)
-	leeches_where = db.Column(db.Text)
-	leech_eggs = db.Column(db.Boolean)
-	leech_eggs_where = db.Column(db.Text)
+	living_tags = Column(db.Boolean, supports_dict=True)
+	other = Column(db.Text, supports_dict=True)
+	leeches = Column(db.Boolean, supports_dict=True)
+	leeches_where = Column(db.Text, supports_dict=True)
+	leech_eggs = Column(db.Boolean, supports_dict=True)
+	leech_eggs_where = Column(db.Text, supports_dict=True)
 
 	# Polymorphism
 	__mapper_args__ = {
@@ -362,316 +377,324 @@ class LagoonEncounter(Encounter):
 	}
 
 class BeachEncounter(Encounter):
+	__tablename__ = 'beach_encounter'
 	# Primary key
-	encounter_id = db.Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id', supports_dict=True), primary_key=True, nullable=False, supports_dict=True)
 
 	# Fields common to all encounter types
-	encounter_date = db.Column(db.Date)
-	encounter_time = db.Column(db.Time)
-	capture_type = db.Column(db.String(40))
-	investigated_by = db.Column(db.String(500))
-	entered_by = db.Column(db.String(30))
-	entered_date = db.Column(db.Date)
-	verified_by = db.Column(db.String(30))
-	verified_date = db.Column(db.Date)
+	encounter_date = Column(db.Date, supports_dict=True)
+	encounter_time = Column(db.Time, supports_dict=True)
+	capture_type = Column(db.String(40), supports_dict=True)
+	investigated_by = Column(db.String(500), supports_dict=True)
+	entered_by = Column(db.String(30), supports_dict=True)
+	entered_date = Column(db.Date, supports_dict=True)
+	verified_by = Column(db.String(30), supports_dict=True)
+	verified_date = Column(db.Date, supports_dict=True)
 
 	# Fields unique to beach encounters
-	prime_tag = db.Column(db.String(30))
-	days_45 = db.Column(db.Date)
-	days_70 = db.Column(db.Date)
-	activity = db.Column(db.String(50))
-	location_detail = db.Column(db.Text)
-	location_NS = db.Column(db.String(1))
-	latitude = db.Column(db.Float(5))
-	longitude = db.Column(db.Float(5))
-	site_description = db.Column(db.Text)
-	notes = db.Column(db.Text)
+	prime_tag = Column(db.String(30), supports_dict=True)
+	days_45 = Column(db.Date, supports_dict=True)
+	days_70 = Column(db.Date, supports_dict=True)
+	activity = Column(db.String(50), supports_dict=True)
+	location_detail = Column(db.Text, supports_dict=True)
+	location_NS = Column(db.String(1), supports_dict=True)
+	latitude = Column(db.Float(5), supports_dict=True)
+	longitude = Column(db.Float(5), supports_dict=True)
+	site_description = Column(db.Text, supports_dict=True)
+	notes = Column(db.Text, supports_dict=True)
 
 	# DC Data
-	outgoing_crawl_width = db.Column(db.Float(5))
-	yolkless_collected = db.Column(db.Boolean)
-	pink_spot_photo_taken = db.Column(db.Boolean)
-	photo_taken_by = db.Column(db.Text)
+	outgoing_crawl_width = Column(db.Float(5), supports_dict=True)
+	yolkless_collected = Column(db.Boolean, supports_dict=True)
+	pink_spot_photo_taken = Column(db.Boolean, supports_dict=True)
+	photo_taken_by = Column(db.Text, supports_dict=True)
 
 	# Nest Markings
-	dist_to_hidden_stake = db.Column(db.Float(5))
-	hidden_stake_planted_in = db.Column(db.Text)
-	dist_to_obvious_stake = db.Column(db.Float(5))
-	obvious_stake_planted_in = db.Column(db.Text)
-	dist_to_dune = db.Column(db.Float(5))
-	dist_to_high_tide = db.Column(db.Float(5))
-	can_buried = db.Column(db.Boolean)
-	can_buried_NS = db.Column(db.String(1))
-	sign_stake_in_place = db.Column(db.Boolean)
-	scarp_over_46_cm = db.Column(db.Boolean)
-	seaward_of_structure = db.Column(db.Boolean)
-	within_1_m_of_structure = db.Column(db.Boolean)
-	structure_description = db.Column(db.Text)
+	dist_to_hidden_stake = Column(db.Float(5), supports_dict=True)
+	hidden_stake_planted_in = Column(db.Text, supports_dict=True)
+	dist_to_obvious_stake = Column(db.Float(5), supports_dict=True)
+	obvious_stake_planted_in = Column(db.Text, supports_dict=True)
+	dist_to_dune = Column(db.Float(5), supports_dict=True)
+	dist_to_high_tide = Column(db.Float(5), supports_dict=True)
+	can_buried = Column(db.Boolean, supports_dict=True)
+	can_buried_NS = Column(db.String(1), supports_dict=True)
+	sign_stake_in_place = Column(db.Boolean, supports_dict=True)
+	scarp_over_46_cm = Column(db.Boolean, supports_dict=True)
+	seaward_of_structure = Column(db.Boolean, supports_dict=True)
+	within_1_m_of_structure = Column(db.Boolean, supports_dict=True)
+	structure_description = Column(db.Text, supports_dict=True)
 
 	# Paps
-	paps_present = db.Column(db.Boolean)
+	paps_present = Column(db.Boolean, supports_dict=True)
 
 	# Polymorphism
 	__mapper_args__ = {
 		'polymorphic_identity': 'beach'
 	}
 
-class Net(db.Model):
+class Net(BaseModel):
+	__tablename__ = 'net'
 	# Primary key
-	net_id = db.Column(db.Integer, primary_key=True)
+	net_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Various fields
-	net_number = db.Column(db.Integer)
-	net_deploy_start_time = db.Column(db.Time)
-	net_deploy_end_time = db.Column(db.Time)
-	net_retrieval_start_time = db.Column(db.Time)
-	net_retrieval_end_time = db.Column(db.Time)
+	net_number = Column(db.Integer, supports_dict=True)
+	net_deploy_start_time = Column(db.Time, supports_dict=True)
+	net_deploy_end_time = Column(db.Time, supports_dict=True)
+	net_retrieval_start_time = Column(db.Time, supports_dict=True)
+	net_retrieval_end_time = Column(db.Time, supports_dict=True)
 
-class IncidentalCapture(db.Model):
+class IncidentalCapture(BaseModel):
+	__tablename__ = 'incidental_capture'
 	# Primary key
-	incidental_capture_id = db.Column(db.Integer, primary_key=True)
+	incidental_capture_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	metadata_id = db.Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False)
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Various fields
-	species = db.Column(db.String(40))
-	capture_time = db.Column(db.Time)
-	measurement = db.Column(db.Text)
-	notes = db.Column(db.Text)
+	species = Column(db.String(40), supports_dict=True)
+	capture_time = Column(db.Time, supports_dict=True)
+	measurement = Column(db.Text, supports_dict=True)
+	notes = Column(db.Text, supports_dict=True)
 
-class SampleTracking(db.Model):
+class SampleTracking(BaseModel):
+	__tablename__ = 'sample_tracking'
 	# Primary key
-	sample_tracking_id = db.Column(db.Integer, primary_key=True)
+	sample_tracking_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	sample_id = db.Column(db.Integer, db.ForeignKey('sample.sample_id'), nullable=False)
+	sample_id = Column(db.Integer, db.ForeignKey('sample.sample_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Fields
-	date = db.Column(db.Date)
-	notes = db.Column(db.Text)
+	date = Column(db.Date, supports_dict=True)
+	notes = Column(db.Text, supports_dict=True)
 
-class NSRefuge(db.Model):
+class NSRefuge(BaseModel):
+	__tablename__ = 'ns_refuge'
 	# Primary key
-	ns_refuge_id = db.Column(db.Integer, primary_key=True)
+	ns_refuge_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Dependencies
-	# encounters = db.relationship('Encounter', backref='metadata')
-	dc_crawls = db.relationship('DcCrawl', backref='ns_refuge')
-	disorientations = db.relationship('Disorientation', backref='ns_refuge')
-	depredations = db.relationship('Depredation', backref='ns_refuge')
+	# encounters = relationship('Encounter', backref='metadata', supports_dict=True)
+	dc_crawls = relationship('DcCrawl', backref='ns_refuge', supports_dict=True)
+	disorientations = relationship('Disorientation', backref='ns_refuge', supports_dict=True)
+	depredations = relationship('Depredation', backref='ns_refuge', supports_dict=True)
 
 	# Fields
-	type = db.Column(db.String(10))
-	date = db.Column(db.Date)
-	initials = db.Column(db.String(30))
-	notes = db.Column(db.Text)
+	type = Column(db.String(10), supports_dict=True)
+	date = Column(db.Date, supports_dict=True)
+	initials = Column(db.String(30), supports_dict=True)
+	notes = Column(db.Text, supports_dict=True)
 
 	# # Km Fields
-	# km_start = db.Column(db.Float(5))
-	# km_end = db.Column(db.Float(5))
-	# cc_nests = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# cc_fc = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# cm_nests = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# cm_fc = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
+	# km_start = Column(db.Float(5), supports_dict=True)
+	# km_end = Column(db.Float(5), supports_dict=True)
+	# cc_nests = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# cc_fc = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# cm_nests = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# cm_fc = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
 
 	# # BTO Fields
-	# enginr = db.Column(db.Float(5))
-	# natural = db.Column(db.Float(5))
-	# enginr_cc_bto = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# enginr_cc_bto_lpac = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# enginr_cm_bto = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# enginr_cm_bto_lpac = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# natural_cc_bto = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# natural_cc_bto_lpac = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# natural_cm_bto = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
-	# natural_cm_bto_lpac = db.Column(postgresql.ARRAY(db.Integer),server_default='[]')
+	# enginr = Column(db.Float(5), supports_dict=True)
+	# natural = Column(db.Float(5), supports_dict=True)
+	# enginr_cc_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# enginr_cc_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# enginr_cm_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# enginr_cm_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# natural_cc_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# natural_cc_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# natural_cm_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
+	# natural_cm_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True),server_default='[]', supports_dict=True)
 
 	# Below HTL
-	below_htl_cc_nest = db.Column(db.Integer)
-	below_htl_cc_fc = db.Column(db.Integer)
-	below_htl_cm_nest = db.Column(db.Integer)
-	below_htl_cm_fc = db.Column(db.Integer)
-	below_htl_dc_nest = db.Column(db.Integer)
-	below_htl_dc_fc = db.Column(db.Integer)
+	below_htl_cc_nest = Column(db.Integer, supports_dict=True)
+	below_htl_cc_fc = Column(db.Integer, supports_dict=True)
+	below_htl_cm_nest = Column(db.Integer, supports_dict=True)
+	below_htl_cm_fc = Column(db.Integer, supports_dict=True)
+	below_htl_dc_nest = Column(db.Integer, supports_dict=True)
+	below_htl_dc_fc = Column(db.Integer, supports_dict=True)
 
 	# Km Fields
-	km_5_155_cc_nests = db.Column(db.Integer)
-	km_5_155_cc_fc = db.Column(db.Integer)
-	km_5_155_cm_nests = db.Column(db.Integer)
-	km_5_155_cm_fc = db.Column(db.Integer)
-	km_55_16_cc_nests = db.Column(db.Integer)
-	km_55_16_cc_fc = db.Column(db.Integer)
-	km_55_16_cm_nests = db.Column(db.Integer)
-	km_55_16_cm_fc = db.Column(db.Integer)
-	km_6_165_cc_nests = db.Column(db.Integer)
-	km_6_165_cc_fc = db.Column(db.Integer)
-	km_6_165_cm_nests = db.Column(db.Integer)
-	km_6_165_cm_fc = db.Column(db.Integer)
-	km_65_17_cc_nests = db.Column(db.Integer)
-	km_65_17_cc_fc = db.Column(db.Integer)
-	km_65_17_cm_nests = db.Column(db.Integer)
-	km_65_17_cm_fc = db.Column(db.Integer)
-	km_7_175_cc_nests = db.Column(db.Integer)
-	km_7_175_cc_fc = db.Column(db.Integer)
-	km_7_175_cm_nests = db.Column(db.Integer)
-	km_7_175_cm_fc = db.Column(db.Integer)
-	km_75_18_cc_nests = db.Column(db.Integer)
-	km_75_18_cc_fc = db.Column(db.Integer)
-	km_75_18_cm_nests = db.Column(db.Integer)
-	km_75_18_cm_fc = db.Column(db.Integer)
-	km_8_185_cc_nests = db.Column(db.Integer)
-	km_8_185_cc_fc = db.Column(db.Integer)
-	km_8_185_cm_nests = db.Column(db.Integer)
-	km_8_185_cm_fc = db.Column(db.Integer)
-	km_85_19_cc_nests = db.Column(db.Integer)
-	km_85_19_cc_fc = db.Column(db.Integer)
-	km_85_19_cm_nests = db.Column(db.Integer)
-	km_85_19_cm_fc = db.Column(db.Integer)
-	km_9_195_cc_nests = db.Column(db.Integer)
-	km_9_195_cc_fc = db.Column(db.Integer)
-	km_9_195_cm_nests = db.Column(db.Integer)
-	km_9_195_cm_fc = db.Column(db.Integer)
-	km_95_20_cc_nests = db.Column(db.Integer)
-	km_95_20_cc_fc = db.Column(db.Integer)
-	km_95_20_cm_nests = db.Column(db.Integer)
-	km_95_20_cm_fc = db.Column(db.Integer)
-	km_10_205_cc_nests = db.Column(db.Integer)
-	km_10_205_cc_fc = db.Column(db.Integer)
-	km_10_205_cm_nests = db.Column(db.Integer)
-	km_10_205_cm_fc = db.Column(db.Integer)
-	km_105_21_cc_nests = db.Column(db.Integer)
-	km_105_21_cc_fc = db.Column(db.Integer)
-	km_105_21_cm_nests = db.Column(db.Integer)
-	km_105_21_cm_fc = db.Column(db.Integer)
-	km_11_215_cc_nests = db.Column(db.Integer)
-	km_11_215_cc_fc = db.Column(db.Integer)
-	km_11_215_cm_nests = db.Column(db.Integer)
-	km_11_215_cm_fc = db.Column(db.Integer)
-	km_115_22_cc_nests = db.Column(db.Integer)
-	km_115_22_cc_fc = db.Column(db.Integer)
-	km_115_22_cm_nests = db.Column(db.Integer)
-	km_115_22_cm_fc = db.Column(db.Integer)
-	km_12_225_cc_nests = db.Column(db.Integer)
-	km_12_225_cc_fc = db.Column(db.Integer)
-	km_12_225_cm_nests = db.Column(db.Integer)
-	km_12_225_cm_fc = db.Column(db.Integer)
-	km_125_23_cc_nests = db.Column(db.Integer)
-	km_125_23_cc_fc = db.Column(db.Integer)
-	km_125_23_cm_nests = db.Column(db.Integer)
-	km_125_23_cm_fc = db.Column(db.Integer)
-	km_13_235_cc_nests = db.Column(db.Integer)
-	km_13_235_cc_fc = db.Column(db.Integer)
-	km_13_235_cm_nests = db.Column(db.Integer)
-	km_13_235_cm_fc = db.Column(db.Integer)
-	km_135_24_cc_nests = db.Column(db.Integer)
-	km_135_24_cc_fc = db.Column(db.Integer)
-	km_135_24_cm_nests = db.Column(db.Integer)
-	km_135_24_cm_fc = db.Column(db.Integer)
-	km_14_245_cc_nests = db.Column(db.Integer)
-	km_14_245_cc_fc = db.Column(db.Integer)
-	km_14_245_cm_nests = db.Column(db.Integer)
-	km_14_245_cm_fc = db.Column(db.Integer)
-	km_145_25_cc_nests = db.Column(db.Integer)
-	km_145_25_cc_fc = db.Column(db.Integer)
-	km_145_25_cm_nests = db.Column(db.Integer)
-	km_145_25_cm_fc = db.Column(db.Integer)
-	km_15_255_cc_nests = db.Column(db.Integer)
-	km_15_255_cc_fc = db.Column(db.Integer)
-	km_15_255_cm_nests = db.Column(db.Integer)
-	km_15_255_cm_fc = db.Column(db.Integer)
+	km_5_155_cc_nests = Column(db.Integer, supports_dict=True)
+	km_5_155_cc_fc = Column(db.Integer, supports_dict=True)
+	km_5_155_cm_nests = Column(db.Integer, supports_dict=True)
+	km_5_155_cm_fc = Column(db.Integer, supports_dict=True)
+	km_55_16_cc_nests = Column(db.Integer, supports_dict=True)
+	km_55_16_cc_fc = Column(db.Integer, supports_dict=True)
+	km_55_16_cm_nests = Column(db.Integer, supports_dict=True)
+	km_55_16_cm_fc = Column(db.Integer, supports_dict=True)
+	km_6_165_cc_nests = Column(db.Integer, supports_dict=True)
+	km_6_165_cc_fc = Column(db.Integer, supports_dict=True)
+	km_6_165_cm_nests = Column(db.Integer, supports_dict=True)
+	km_6_165_cm_fc = Column(db.Integer, supports_dict=True)
+	km_65_17_cc_nests = Column(db.Integer, supports_dict=True)
+	km_65_17_cc_fc = Column(db.Integer, supports_dict=True)
+	km_65_17_cm_nests = Column(db.Integer, supports_dict=True)
+	km_65_17_cm_fc = Column(db.Integer, supports_dict=True)
+	km_7_175_cc_nests = Column(db.Integer, supports_dict=True)
+	km_7_175_cc_fc = Column(db.Integer, supports_dict=True)
+	km_7_175_cm_nests = Column(db.Integer, supports_dict=True)
+	km_7_175_cm_fc = Column(db.Integer, supports_dict=True)
+	km_75_18_cc_nests = Column(db.Integer, supports_dict=True)
+	km_75_18_cc_fc = Column(db.Integer, supports_dict=True)
+	km_75_18_cm_nests = Column(db.Integer, supports_dict=True)
+	km_75_18_cm_fc = Column(db.Integer, supports_dict=True)
+	km_8_185_cc_nests = Column(db.Integer, supports_dict=True)
+	km_8_185_cc_fc = Column(db.Integer, supports_dict=True)
+	km_8_185_cm_nests = Column(db.Integer, supports_dict=True)
+	km_8_185_cm_fc = Column(db.Integer, supports_dict=True)
+	km_85_19_cc_nests = Column(db.Integer, supports_dict=True)
+	km_85_19_cc_fc = Column(db.Integer, supports_dict=True)
+	km_85_19_cm_nests = Column(db.Integer, supports_dict=True)
+	km_85_19_cm_fc = Column(db.Integer, supports_dict=True)
+	km_9_195_cc_nests = Column(db.Integer, supports_dict=True)
+	km_9_195_cc_fc = Column(db.Integer, supports_dict=True)
+	km_9_195_cm_nests = Column(db.Integer, supports_dict=True)
+	km_9_195_cm_fc = Column(db.Integer, supports_dict=True)
+	km_95_20_cc_nests = Column(db.Integer, supports_dict=True)
+	km_95_20_cc_fc = Column(db.Integer, supports_dict=True)
+	km_95_20_cm_nests = Column(db.Integer, supports_dict=True)
+	km_95_20_cm_fc = Column(db.Integer, supports_dict=True)
+	km_10_205_cc_nests = Column(db.Integer, supports_dict=True)
+	km_10_205_cc_fc = Column(db.Integer, supports_dict=True)
+	km_10_205_cm_nests = Column(db.Integer, supports_dict=True)
+	km_10_205_cm_fc = Column(db.Integer, supports_dict=True)
+	km_105_21_cc_nests = Column(db.Integer, supports_dict=True)
+	km_105_21_cc_fc = Column(db.Integer, supports_dict=True)
+	km_105_21_cm_nests = Column(db.Integer, supports_dict=True)
+	km_105_21_cm_fc = Column(db.Integer, supports_dict=True)
+	km_11_215_cc_nests = Column(db.Integer, supports_dict=True)
+	km_11_215_cc_fc = Column(db.Integer, supports_dict=True)
+	km_11_215_cm_nests = Column(db.Integer, supports_dict=True)
+	km_11_215_cm_fc = Column(db.Integer, supports_dict=True)
+	km_115_22_cc_nests = Column(db.Integer, supports_dict=True)
+	km_115_22_cc_fc = Column(db.Integer, supports_dict=True)
+	km_115_22_cm_nests = Column(db.Integer, supports_dict=True)
+	km_115_22_cm_fc = Column(db.Integer, supports_dict=True)
+	km_12_225_cc_nests = Column(db.Integer, supports_dict=True)
+	km_12_225_cc_fc = Column(db.Integer, supports_dict=True)
+	km_12_225_cm_nests = Column(db.Integer, supports_dict=True)
+	km_12_225_cm_fc = Column(db.Integer, supports_dict=True)
+	km_125_23_cc_nests = Column(db.Integer, supports_dict=True)
+	km_125_23_cc_fc = Column(db.Integer, supports_dict=True)
+	km_125_23_cm_nests = Column(db.Integer, supports_dict=True)
+	km_125_23_cm_fc = Column(db.Integer, supports_dict=True)
+	km_13_235_cc_nests = Column(db.Integer, supports_dict=True)
+	km_13_235_cc_fc = Column(db.Integer, supports_dict=True)
+	km_13_235_cm_nests = Column(db.Integer, supports_dict=True)
+	km_13_235_cm_fc = Column(db.Integer, supports_dict=True)
+	km_135_24_cc_nests = Column(db.Integer, supports_dict=True)
+	km_135_24_cc_fc = Column(db.Integer, supports_dict=True)
+	km_135_24_cm_nests = Column(db.Integer, supports_dict=True)
+	km_135_24_cm_fc = Column(db.Integer, supports_dict=True)
+	km_14_245_cc_nests = Column(db.Integer, supports_dict=True)
+	km_14_245_cc_fc = Column(db.Integer, supports_dict=True)
+	km_14_245_cm_nests = Column(db.Integer, supports_dict=True)
+	km_14_245_cm_fc = Column(db.Integer, supports_dict=True)
+	km_145_25_cc_nests = Column(db.Integer, supports_dict=True)
+	km_145_25_cc_fc = Column(db.Integer, supports_dict=True)
+	km_145_25_cm_nests = Column(db.Integer, supports_dict=True)
+	km_145_25_cm_fc = Column(db.Integer, supports_dict=True)
+	km_15_255_cc_nests = Column(db.Integer, supports_dict=True)
+	km_15_255_cc_fc = Column(db.Integer, supports_dict=True)
+	km_15_255_cm_nests = Column(db.Integer, supports_dict=True)
+	km_15_255_cm_fc = Column(db.Integer, supports_dict=True)
 
 	# BTO Fields
-	enginr = db.Column(db.Float(5))
-	enginr_cc_below = db.Column(db.Integer)
-	enginr_cc_tran = db.Column(db.Integer)
-	enginr_cc_on = db.Column(db.Integer)
-	enginr_cc_b_l = db.Column(db.Integer)
-	enginr_cc_b_p = db.Column(db.Integer)
-	enginr_cc_b_ac = db.Column(db.Integer)
-	enginr_cc_t_l = db.Column(db.Integer)
-	enginr_cc_t_p = db.Column(db.Integer)
-	enginr_cc_t_ac = db.Column(db.Integer)
-	enginr_cc_o_l = db.Column(db.Integer)
-	enginr_cc_o_p = db.Column(db.Integer)
-	enginr_cc_o_ac = db.Column(db.Integer)
-	enginr_cm_below = db.Column(db.Integer)
-	enginr_cm_tran = db.Column(db.Integer)
-	enginr_cm_on = db.Column(db.Integer)
-	enginr_cm_b_l = db.Column(db.Integer)
-	enginr_cm_b_p = db.Column(db.Integer)
-	enginr_cm_b_ac = db.Column(db.Integer)
-	enginr_cm_t_l = db.Column(db.Integer)
-	enginr_cm_t_p = db.Column(db.Integer)
-	enginr_cm_t_ac = db.Column(db.Integer)
-	enginr_cm_o_l = db.Column(db.Integer)
-	enginr_cm_o_p = db.Column(db.Integer)
-	enginr_cm_o_ac = db.Column(db.Integer)
-	natural = db.Column(db.Float(5))
-	natural_cc_below = db.Column(db.Integer)
-	natural_cc_tran = db.Column(db.Integer)
-	natural_cc_on = db.Column(db.Integer)
-	natural_cc_b_l = db.Column(db.Integer)
-	natural_cc_b_p = db.Column(db.Integer)
-	natural_cc_b_ac = db.Column(db.Integer)
-	natural_cc_t_l = db.Column(db.Integer)
-	natural_cc_t_p = db.Column(db.Integer)
-	natural_cc_t_ac = db.Column(db.Integer)
-	natural_cc_o_l = db.Column(db.Integer)
-	natural_cc_o_p = db.Column(db.Integer)
-	natural_cc_o_ac = db.Column(db.Integer)
-	natural_cm_below = db.Column(db.Integer)
-	natural_cm_tran = db.Column(db.Integer)
-	natural_cm_on = db.Column(db.Integer)
-	natural_cm_b_l = db.Column(db.Integer)
-	natural_cm_b_p = db.Column(db.Integer)
-	natural_cm_b_ac = db.Column(db.Integer)
-	natural_cm_t_l = db.Column(db.Integer)
-	natural_cm_t_p = db.Column(db.Integer)
-	natural_cm_t_ac = db.Column(db.Integer)
-	natural_cm_o_l = db.Column(db.Integer)
-	natural_cm_o_p = db.Column(db.Integer)
-	natural_cm_o_ac = db.Column(db.Integer)
+	enginr = Column(db.Float(5), supports_dict=True)
+	enginr_cc_below = Column(db.Integer, supports_dict=True)
+	enginr_cc_tran = Column(db.Integer, supports_dict=True)
+	enginr_cc_on = Column(db.Integer, supports_dict=True)
+	enginr_cc_b_l = Column(db.Integer, supports_dict=True)
+	enginr_cc_b_p = Column(db.Integer, supports_dict=True)
+	enginr_cc_b_ac = Column(db.Integer, supports_dict=True)
+	enginr_cc_t_l = Column(db.Integer, supports_dict=True)
+	enginr_cc_t_p = Column(db.Integer, supports_dict=True)
+	enginr_cc_t_ac = Column(db.Integer, supports_dict=True)
+	enginr_cc_o_l = Column(db.Integer, supports_dict=True)
+	enginr_cc_o_p = Column(db.Integer, supports_dict=True)
+	enginr_cc_o_ac = Column(db.Integer, supports_dict=True)
+	enginr_cm_below = Column(db.Integer, supports_dict=True)
+	enginr_cm_tran = Column(db.Integer, supports_dict=True)
+	enginr_cm_on = Column(db.Integer, supports_dict=True)
+	enginr_cm_b_l = Column(db.Integer, supports_dict=True)
+	enginr_cm_b_p = Column(db.Integer, supports_dict=True)
+	enginr_cm_b_ac = Column(db.Integer, supports_dict=True)
+	enginr_cm_t_l = Column(db.Integer, supports_dict=True)
+	enginr_cm_t_p = Column(db.Integer, supports_dict=True)
+	enginr_cm_t_ac = Column(db.Integer, supports_dict=True)
+	enginr_cm_o_l = Column(db.Integer, supports_dict=True)
+	enginr_cm_o_p = Column(db.Integer, supports_dict=True)
+	enginr_cm_o_ac = Column(db.Integer, supports_dict=True)
+	natural = Column(db.Float(5), supports_dict=True)
+	natural_cc_below = Column(db.Integer, supports_dict=True)
+	natural_cc_tran = Column(db.Integer, supports_dict=True)
+	natural_cc_on = Column(db.Integer, supports_dict=True)
+	natural_cc_b_l = Column(db.Integer, supports_dict=True)
+	natural_cc_b_p = Column(db.Integer, supports_dict=True)
+	natural_cc_b_ac = Column(db.Integer, supports_dict=True)
+	natural_cc_t_l = Column(db.Integer, supports_dict=True)
+	natural_cc_t_p = Column(db.Integer, supports_dict=True)
+	natural_cc_t_ac = Column(db.Integer, supports_dict=True)
+	natural_cc_o_l = Column(db.Integer, supports_dict=True)
+	natural_cc_o_p = Column(db.Integer, supports_dict=True)
+	natural_cc_o_ac = Column(db.Integer, supports_dict=True)
+	natural_cm_below = Column(db.Integer, supports_dict=True)
+	natural_cm_tran = Column(db.Integer, supports_dict=True)
+	natural_cm_on = Column(db.Integer, supports_dict=True)
+	natural_cm_b_l = Column(db.Integer, supports_dict=True)
+	natural_cm_b_p = Column(db.Integer, supports_dict=True)
+	natural_cm_b_ac = Column(db.Integer, supports_dict=True)
+	natural_cm_t_l = Column(db.Integer, supports_dict=True)
+	natural_cm_t_p = Column(db.Integer, supports_dict=True)
+	natural_cm_t_ac = Column(db.Integer, supports_dict=True)
+	natural_cm_o_l = Column(db.Integer, supports_dict=True)
+	natural_cm_o_p = Column(db.Integer, supports_dict=True)
+	natural_cm_o_ac = Column(db.Integer, supports_dict=True)
 
-class DcCrawl(db.Model):
+class DcCrawl(BaseModel):
+	__tablename__ = 'dc_crawl'
 	# Primary Key
-	dc_crawl_id = db.Column(db.Integer, primary_key=True)
+	dc_crawl_id = Column(db.Integer, primary_key=True, supports_dict=True)
 	
 	# Foreign key
-	ns_refuge_id = db.Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id'), nullable=False)
+	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Fields
-	km = db.Column(db.Float(5))
-	type = db.Column(db.String(10))
+	km = Column(db.Float(5), supports_dict=True)
+	type = Column(db.String(10), supports_dict=True)
 
-class Disorientation(db.Model):
+class Disorientation(BaseModel):
+	__tablename__ = 'disorientation'
 	# Primary Key
-	disorientation_id = db.Column(db.Integer, primary_key=True)
+	disorientation_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	ns_refuge_id = db.Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id'), nullable=False)
+	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Fields
-	km = db.Column(db.Float(5))
-	adult = db.Column(db.String(10))
-	hatchling = db.Column(db.String(10))
+	km = Column(db.Float(5), supports_dict=True)
+	adult = Column(db.String(10), supports_dict=True)
+	hatchling = Column(db.String(10), supports_dict=True)
 
-class Depredation(db.Model):
+class Depredation(BaseModel):
+	__tablename__ = 'depredation'
 	# Primary Key
-	depredation_id = db.Column(db.Integer, primary_key=True)
+	depredation_id = Column(db.Integer, primary_key=True, supports_dict=True)
 
 	# Foreign key
-	ns_refuge_id = db.Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id'), nullable=False)
+	ns_refuge_id = Column(db.Integer, db.ForeignKey('ns_refuge.ns_refuge_id', supports_dict=True), nullable=False, supports_dict=True)
 
 	# Fields
-	species = db.Column(db.String(30))
-	km = db.Column(db.Float(5))
-	predator = db.Column(db.String(30))
-	eggs_destroyed = db.Column(db.Integer)
-	stake = db.Column(db.Integer)
+	species = Column(db.String(30), supports_dict=True)
+	km = Column(db.Float(5), supports_dict=True)
+	predator = Column(db.String(30), supports_dict=True)
+	eggs_destroyed = Column(db.Integer, supports_dict=True)
+	stake = Column(db.Integer, supports_dict=True)
 
 class TurtleSchema(ma.ModelSchema):
 	class Meta:
@@ -784,42 +807,42 @@ class FullLagoonQuerySchema(ma.Schema):
 	
 	### None of these seem to include tags successfully:
 
-	# tags = ma.Nested(TagSchema, attribute='turtle') 
-	# tags = fields.Nested(TagSchema, data_key='turtle_id')
-	# tags = fields.Nested(TagSchema, many=True)
-	# tags = fields.List(fields.Nested(TagSchema, many=True)) 
+	# tags = ma.Nested(TagSchema, attribute='turtle', supports_dict=True) 
+	# tags = fields.Nested(TagSchema, data_key='turtle_id', supports_dict=True)
+	# tags = fields.Nested(TagSchema, many=True, supports_dict=True)
+	# tags = fields.List(fields.Nested(TagSchema, many=True), supports_dict=True) 
 
 	# # Keys
-	# encounter_id = fields.Int()
-	# lagoon_encounter_id = fields.Int()
-	# metadata_id = fields.Int()
-	# turtle_id = fields.Int()
+	# encounter_id = fields.Int(, supports_dict=True)
+	# lagoon_encounter_id = fields.Int(, supports_dict=True)
+	# metadata_id = fields.Int(, supports_dict=True)
+	# turtle_id = fields.Int(, supports_dict=True)
 
 	# # # Dependencies
-	# # samples = ma.Nested(SampleTrackingSchema)
-	# # morphometrics = ma.Nested(MorphometricsSchema)
+	# # samples = ma.Nested(SampleTrackingSchema, supports_dict=True)
+	# # morphometrics = ma.Nested(MorphometricsSchema, supports_dict=True)
 
 	# # # Fields common to all encounter types
-	# # encounter_date = fields.Date()
-	# # encounter_time = fields.Time()
-	# # investigated_by = fields.Str()
-	# # entered_by = fields.Str()
-	# # entered_date = fields.Date()
-	# # verified_by =  fields.Str()
-	# # verified_date =  fields.Date()
-	# # notes =  fields.Str()
+	# # encounter_date = fields.Date(, supports_dict=True)
+	# # encounter_time = fields.Time(, supports_dict=True)
+	# # investigated_by = fields.Str(, supports_dict=True)
+	# # entered_by = fields.Str(, supports_dict=True)
+	# # entered_date = fields.Date(, supports_dict=True)
+	# # verified_by =  fields.Str(, supports_dict=True)
+	# # verified_date =  fields.Date(, supports_dict=True)
+	# # notes =  fields.Str(, supports_dict=True)
 
 	# # # Paps
-	# # paps_present = fields.Boolean()
-	# # pap_category = fields.Int()
-	# # paps_regression = fields.Str()
-	# # photos = fields.Boolean()
-	# # pap_photos = fields.Boolean()
+	# # paps_present = fields.Boolean(, supports_dict=True)
+	# # pap_category = fields.Int(, supports_dict=True)
+	# # paps_regression = fields.Str(, supports_dict=True)
+	# # photos = fields.Boolean(, supports_dict=True)
+	# # pap_photos = fields.Boolean(, supports_dict=True)
 
 	# # # Fields unique to lagoon encounters
-	# # living_tags = fields.Boolean()
-	# # other = fields.Str()
-	# # leeches = fields.Boolean()
-	# # leeches_where = fields.Str()
-	# # leech_eggs = fields.Boolean()
-	# # leech_eggs_where = fields.Str()
+	# # living_tags = fields.Boolean(, supports_dict=True)
+	# # other = fields.Str(, supports_dict=True)
+	# # leeches = fields.Boolean(, supports_dict=True)
+	# # leeches_where = fields.Str(, supports_dict=True)
+	# # leech_eggs = fields.Boolean(, supports_dict=True)
+	# # leech_eggs_where = fields.Str(, supports_dict=True)
