@@ -690,6 +690,8 @@ class MorphometricsSchema(ma.ModelSchema):
 class EncounterSchema(ma.ModelSchema):
 	class Meta:
 		model = Encounter
+		include_relationships = True
+		load_instance = True
 
 class SampleTrackingSchema(ma.ModelSchema):
 	class Meta:
@@ -707,6 +709,8 @@ class TridentEncounterSchema(ma.ModelSchema):
 class LagoonEncounterSchema(ma.ModelSchema):
 	class Meta:
 		model = LagoonEncounter
+		include_relationships = True
+		load_instance = True
 
 class BeachEncounterSchema(ma.ModelSchema):
 	class Meta:
