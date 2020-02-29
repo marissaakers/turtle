@@ -8,6 +8,8 @@ from sqlalchemy.orm import backref
 BaseModel = declarative_base()
 
 def parse_time(value):
+	if value is None:
+		return value
 	return datetime.strptime(value, '%H:%M:%S')
 
 class Turtle(BaseModel):
