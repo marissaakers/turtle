@@ -37,21 +37,18 @@ def find_turtles_from_tags(tags):
     return None
 
 # For editing, insert any new tags
-# WIP & untested 
-def insert_new_tags(turtle_id, tags):
-    turtle_result = Tag.query.filter(Tag.turtle_id == turtle_id)
+def insert_new_tags(tags):
+    tag_schema = TagSchema()
     
-    if turtle_result is not None:
-        tag_schema = TagSchema()
-        turtle_result_dump = tag_schema.dump(turtle_result, many=True)
-        turtle_tag_list = [d['tag_number'] for d in turtle_result_dump]
-        for t in tags:
-            if t not in turtle_tag_list:
-                new_tag = Tag(
-                turtle=turtle_id,
-                tag_number=t,
-                location="DEBUG",
-                active=tag['active'],
-                tag_type=tag['tag_type'] #grrr
-            )
-        
+    print("HEYO")
+    print(tags)
+    for t in tags:
+        print(t)
+        tag_result = Tag.query.filter(Tag.tag_number==t['tag_number']).first()
+        print(tag_result)
+        if tag_result is None:
+            print(True)
+            tag = tag_schema.load(t, unknown='EXCLUDE')
+            db.session.add(tag)
+
+    db.session.commit()

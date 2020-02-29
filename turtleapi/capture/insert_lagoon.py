@@ -68,4 +68,4 @@ def insert_lagoon(data):
 
     db.session.commit()
 
-    # insert_new_tags(turtle.turtle_id, data_tags)
+    insert_new_tags(data_tags)
