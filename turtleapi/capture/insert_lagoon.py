@@ -28,10 +28,34 @@ def insert_lagoon(data):
     # 8) db.session.add(morphometrics/samples)
     # 9) db.session.commit()
 
-    turtle = Turtle.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
-    print(turtle)
-    print(turtle.species)
-    return {}
+    data2 = {}
+    data2['encounters'] = [data]
+    data2['tags'] = data2['encounters'][0]['tags']
+    del data2['encounters'][0]['tags']
+    data2['species'] = data2['encounters'][0]['species']
+    del data2['encounters'][0]['species']
+    data2['encounters'][0]['morphometrics'] = [data2['encounters'][0]['morphometrics']]
+    encounter = LagoonEncounter.new_from_dict(data2['encounters'][0], error_on_extra_keys=False, drop_extra_keys=True)
+    del data2['encounters']
+    turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
+    turtle.encounters = [encounter]
+    # db.session.add(turtle)
+    # db.session.commit()
+    # print(turtle.encounters[0].type)
+    # print(turtle.encounters[0].morphometrics[0].curved_width)
+
+    # turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
+    # print(turtle.encounters[0].notes)
+
+    # encounter = LagoonEncounter.new_from_dict(data2['encounters'][0], error_on_extra_keys=False, drop_extra_keys=True)
+    # print(encounter.morphometrics.curved_width)
+
+    # print(data2['encounters'][0])
+    # turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
+    # print(turtle.species)
+
+    # print(turtle.tags)
+    # print(turtle.encounters)
     # db.session.add(turtle)
     # db.session.commit()
 

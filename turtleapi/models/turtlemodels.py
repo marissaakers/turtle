@@ -2,8 +2,13 @@ from turtleapi import db, ma
 from flask import jsonify
 from marshmallow import Schema, fields, pre_dump, post_dump
 from sqlathanor import declarative_base, Column, relationship
+from datetime import datetime
+from sqlalchemy.orm import backref
 
 BaseModel = declarative_base()
+
+def parse_time(value):
+	return datetime.strptime(value, '%H:%M:%S')
 
 class Turtle(BaseModel):
 	__tablename__ = 'turtle'
@@ -266,7 +271,7 @@ class Encounter(BaseModel):
 
 	# Dependencies
 	samples = relationship('Sample', backref='encounter', supports_dict=True, supports_json=True)
-	morphometrics = relationship('Morphometrics', uselist=False, backref='encounter', supports_dict=True, supports_json=True)
+	morphometrics = relationship('Morphometrics', backref=backref('encounter', uselist=False), supports_dict=True, supports_json=True)
 
 	# Polymorphism
 	type = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -305,7 +310,7 @@ class TridentEncounter(Encounter):
 	
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
-	encounter_time = Column(db.Time, supports_dict=True, supports_json=True)
+	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -313,6 +318,7 @@ class TridentEncounter(Encounter):
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
 	verified_date = Column(db.Date, supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
+
 
 	# Fields unique to trident encounters
 	capture_location = Column(db.String(50), supports_dict=True, supports_json=True)
@@ -345,7 +351,7 @@ class LagoonEncounter(Encounter):
 
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
-	encounter_time = Column(db.Time, supports_dict=True, supports_json=True)
+	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -353,6 +359,7 @@ class LagoonEncounter(Encounter):
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
 	verified_date = Column(db.Date, supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
+
 
 	# Paps
 	paps_present = Column(db.Boolean, supports_dict=True, supports_json=True)
@@ -381,7 +388,7 @@ class BeachEncounter(Encounter):
 
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
-	encounter_time = Column(db.Time, supports_dict=True, supports_json=True)
+	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
