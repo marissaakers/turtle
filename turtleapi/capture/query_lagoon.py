@@ -23,25 +23,17 @@ def query_lagoon(data):
     queries.append(Encounter.type == "lagoon")
 
     # Grab turtles
-    result = db.session.query(Encounter,Turtle).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
-    print(result)
-    result_encounter = result[0]
-    result_turtle = result[1]
+    result = db.session.query(Encounter, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
 
-    # Make output object
-    # output = result.to_dict(max_nesting=1)
-    output = result_turtle.to_dict(max_nesting=2)
-    #print(output)
-    # output = result.dump_to_dict(max_nesting=4)
-
-    # Grab tags
-    # turtle_id = output['turtle_id']
-    # tag_result = Tag.query.filter_by(turtle_id=turtle_id).all()
-    # output['tags'] = tag_schema.dump(tag_result, many=True)
+    # Add species
+    result_encounter = result[0].to_dict(max_nesting=1)
+    result_encounter['species'] = result[1]
     
-    #resp = Response(response=output, status=200, mimetype="application/json")
-    #return(resp)
-    return jsonify(output)
+    # Grab tags
+    tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['turtle_id']).all()
+    result_encounter['tags'] = [x.to_dict() for x in tags]
+
+    return jsonify(result_encounter)
 
 def mini_query_lagoon(data):
 
@@ -96,19 +88,8 @@ def mini_query_lagoon(data):
 
     queries.append(Encounter.type == "lagoon")
 
-    result = db.session.query(Encounter,Turtle).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all()
-    encounters = [x[0] for x in result]
-    turtles = [x[1] for x in result]
+    result = db.session.query(LagoonEncounter.encounter_id, LagoonEncounter.encounter_date,Turtle.turtle_id, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all()
 
-    output = [x.to_dict() for x in encounters]
-    output2 = [x.to_dict() for x in turtles]
+    # final_result = [x.to_json(serialize_function=my_custom_serializer,  filter_fields = ['turtle_id', 'encounter_id']) for x in encounters]
 
-    loop_length = len(output)
-    for x in range(0,loop_length):
-        output[x].update(output2[x])
-
-    # output = [x.to_dict() for x in result]
-
-    final_encounter = [x.to_json(serialize_function=my_custom_serializer,  filter_fields = ['turtle_id', 'encounter_id']) for x in encounters]
-
-    return jsonify(final_encounter)
+    return jsonify(result)
