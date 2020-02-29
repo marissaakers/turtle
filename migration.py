@@ -480,12 +480,11 @@ def main():
 
 			##### NO METADATA YET, MAKE A NEW ENTRY #####
 			if result is None:
-				metadata_fields = (environment_time, weather, air_temp, water_temp_surface, water_temp_1_m, water_temp_2_m, water_temp_6_m,
-									water_temp_bottom, salinity_surface, salinity_1_m, salinity_2_m, salinity_6_m, salinity_bottom, encounter_date)
-				query = ('''INSERT INTO metadata (environment_time, weather, air_temp, water_temp_surface, water_temp_1_m,
-										water_temp_2_m, water_temp_6_m, water_temp_bottom, salinity_surface, salinity_1_m,
-										salinity_2_m, salinity_6_m, salinity_bottom, metadata_date) VALUES (%s, %s, %s, %s, %s, %s, %s,
-										%s, %s, %s, %s, %s, %s, %s)''')
+				if encounter_type.upper()[0:6] == 'LAGOON':
+					metadata_fields = ('lagoon')
+				elif (encounter_type.upper()[0:7] == 'TRIDENT'):
+					metadata_fields = ('trident')
+				query = ('''INSERT INTO metadata (type) VALUES (%s)''')
 				cursor.execute(query, metadata_fields)
 				conn.commit()
 
@@ -494,16 +493,35 @@ def main():
 				cursor.execute(query)
 				metadata_id = cursor.fetchone()[0]
 
+				##### LAGOON METADATA #####
+				if encounter_type.upper()[0:6] == 'LAGOON':
+					lagoon_metadata_fields = (metadata_id, environment_time, weather, air_temp, water_temp_surface, water_temp_1_m, water_temp_2_m, water_temp_6_m,
+									water_temp_bottom, salinity_surface, salinity_1_m, salinity_2_m, salinity_6_m, salinity_bottom, encounter_date)
+					query = ('''INSERT INTO lagoon_metadata (metadata_id, environment_time, weather, air_temp, water_temp_surface, water_temp_1_m,
+											water_temp_2_m, water_temp_6_m, water_temp_bottom, salinity_surface, salinity_1_m,
+											salinity_2_m, salinity_6_m, salinity_bottom, metadata_date) VALUES (%s, %s, %s, %s, %s, %s, %s,
+											%s, %s, %s, %s, %s, %s, %s)''')
+					cursor.execute(query, lagoon_metadata_fields)
+					conn.commit()
+
+				##### TRIDENT METADATA #####
+				if (encounter_type.upper()[0:7] == 'TRIDENT'):
+					trident_metadata_fields = (metadata_id, environment_time, weather, air_temp, water_temp_surface, water_temp_1_m, water_temp_2_m, water_temp_6_m,
+									water_temp_bottom, salinity_surface, salinity_1_m, salinity_2_m, salinity_6_m, salinity_bottom, encounter_date)
+					query = ('''INSERT INTO trident_metadata (metadata_id, environment_time, weather, air_temp, water_temp_surface, water_temp_1_m,
+											water_temp_2_m, water_temp_6_m, water_temp_bottom, salinity_surface, salinity_1_m,
+											salinity_2_m, salinity_6_m, salinity_bottom, metadata_date) VALUES (%s, %s, %s, %s, %s, %s, %s,
+											%s, %s, %s, %s, %s, %s, %s)''')
+					cursor.execute(query, trident_metadata_fields)
+					conn.commit()
+
 			##### USE EXISTING ENTRY #####
 			else:
 				metadata_id = result[0]
 
 		##### INSERT COMMON ENCOUNTER FIELDS #####
-		encounter_fields = (turtle_info[0], metadata_id, encounter_date, encounter_time, investigated_by, notes, paps, 
-			pap_category, paps_regressed, pap_photo)
-		query = ('''INSERT INTO encounter (turtle_id, metadata_id, encounter_date, encounter_time, investigated_by,
-											notes, paps_present, pap_category, paps_regression, pap_photos) VALUES (%s, %s, %s,
-											%s, %s, %s, %s, %s, %s, %s)''')
+		encounter_fields = (turtle_info[0], metadata_id)
+		query = ('''INSERT INTO encounter (turtle_id, metadata_id) VALUES (%s, %s)''')
 		cursor.execute(query, encounter_fields)
 		conn.commit()
 
@@ -520,11 +538,13 @@ def main():
 			conn.commit()
 
 			##### INSERT BEACH ENCOUNTER FIELDS #####
-			beach_encounter_fields = (capture_type, activity, location_detail, latitude, longitude, distance_to_hidden_stake,
+			beach_encounter_fields = (encounter_date, encounter_time, investigated_by, notes, paps,
+									capture_type, activity, location_detail, latitude, longitude, distance_to_hidden_stake,
 									distance_to_obvious_stake, distance_to_high_tide, distance_to_dune, encounter_id)
-			query = ('''INSERT INTO beach_encounter (capture_type, activity, location_detail, latitude, longitude, dist_to_hidden_stake,
+			query = ('''INSERT INTO beach_encounter (encounter_date, encounter_time, investigated_by, notes, paps_present,
+													capture_type, activity, location_detail, latitude, longitude, dist_to_hidden_stake,
 													dist_to_obvious_stake, dist_to_high_tide, dist_to_dune, encounter_id) VALUES
-													(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''')
+													(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''')
 			cursor.execute(query, beach_encounter_fields)
 			conn.commit()
 
@@ -537,9 +557,11 @@ def main():
 			conn.commit()
 
 			##### INSERT LAGOON ENCOUNTER FIELDS #####
-			lagoon_fields = (encounter_id, leeches, leech_eggs, leech_notes)
-			query = ('''INSERT INTO lagoon_encounter (encounter_id, leeches, leech_eggs, leeches_where) VALUES (%s,
-									%s, %s, %s)''')
+			lagoon_fields = (encounter_date, encounter_time, investigated_by, notes, paps, pap_category, paps_regressed,
+							pap_photo, encounter_id, leeches, leech_eggs, leech_notes)
+			query = ('''INSERT INTO lagoon_encounter (encounter_date, encounter_time, investigated_by, notes, paps_present,
+													pap_category, paps_regression, pap_photos, encounter_id, leeches, leech_eggs, 
+													leeches_where) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''')
 			cursor.execute(query, lagoon_fields)
 			conn.commit()
 
@@ -552,18 +574,22 @@ def main():
 			conn.commit()
 
 			##### INSERT TRIDENT ENCOUNTER FIELDS #####
-			trident_fields = (encounter_id, leeches, leech_eggs, leech_notes)
-			query = ('''INSERT INTO trident_encounter (encounter_id, leeches, leech_eggs, leeches_where) VALUES (%s,
-									%s, %s, %s)''')
+			trident_fields = (encounter_date, encounter_time, investigated_by, notes, paps, pap_category, paps_regressed,
+							pap_photo, encounter_id, leeches, leech_eggs, leech_notes)
+			query = ('''INSERT INTO trident_encounter (encounter_date, encounter_time, investigated_by, notes, paps_present,
+													pap_category, paps_regression, pap_photos, encounter_id, leeches, leech_eggs, 
+													leeches_where) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''')
 			cursor.execute(query, trident_fields)
 			conn.commit()
 
+		##### TODO: ACCOUNT FOR OTHER ENCOUNTER TYPES HERE #####
+
 		##### INSERT MORPHOMETRICS FIELDS #####
 		if morphometrics_id is not None:
-			morphometrics_fields = (turtle_info[0], encounter_id, curved_length, straight_length, minimum_length, curved_width,
+			morphometrics_fields = (encounter_id, curved_length, straight_length, minimum_length, curved_width,
 									straight_width, plastron_length, tail_length_pl_vent, tail_length_pl_tip, head_width,
 									body_depth, weight)
-			query = ('''INSERT INTO morphometrics (turtle_id, encounter_id, curved_length, straight_length, minimum_length, curved_width,
+			query = ('''INSERT INTO morphometrics (encounter_id, curved_length, straight_length, minimum_length, curved_width,
 													straight_width, plastron_length, tail_length_pl_vent, tail_length_pl_tip, head_width,
 													body_depth, weight) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''')
 			cursor.execute(query, morphometrics_fields)
