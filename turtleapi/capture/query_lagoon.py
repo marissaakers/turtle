@@ -26,13 +26,13 @@ def query_lagoon(data):
     result = db.session.query(Encounter, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
 
     # Add species
-    result_encounter = result[0].to_dict(max_nesting=1)
+    result_encounter = result[0].to_dict(max_nesting=2)
     result_encounter['species'] = result[1]
     
     # Grab tags
     tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['turtle_id']).all()
     result_encounter['tags'] = [x.to_dict() for x in tags]
-
+    
     return jsonify(result_encounter)
 
 def mini_query_lagoon(data):
