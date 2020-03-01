@@ -7,7 +7,9 @@ from turtleapi.capture.query_lagoon import query_lagoon, mini_query_lagoon
 from turtleapi.capture.insert_lagoon import insert_lagoon
 from turtleapi.capture.edit_lagoon import edit_lagoon
 from turtleapi.capture.trident import insert_trident
-from turtleapi.capture.metadata import query_metadata, insert_metadata
+from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
+	query_trident_metadata, insert_trident_metadata, query_offshore_metadata, 
+	insert_offshore_metadata)
 from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 	update_tracking_entry, delete_tracking_entry)
 
@@ -26,6 +28,12 @@ class InsertLagoon(Resource):
 		return response, 200
 		# insert_lagoon()
 		# return 200
+
+class InsertLagoonMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = insert_lagoon_metadata(json_data)
+		return response, 200
 
 	# def get(self):
 	# 	clutches = Clutch.query.all()
@@ -59,6 +67,11 @@ class QueryLagoon(Resource):
 		json_data = request.get_json(force=True)
 		return query_lagoon(json_data)
 
+class QueryLagoonMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		return query_lagoon_metadata(json_data)
+
 class EditLagoon(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
@@ -73,17 +86,38 @@ class InsertTrident(Resource):
 		# insert_trident()
 		# return 200
 
-class QueryMetadata(Resource):
+class InsertTridentMetadata(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		response = query_metadata(json_data)
+		response = insert_trident_metadata(json_data)
 		return response, 200
 
-class InsertMetadata(Resource):
+# class MiniQueryTrident(Resource):
+# class QueryTrident(Resource):
+
+class QueryTridentMetadata(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		response = insert_metadata(json_data)
+		return query_trident_metadata(json_data), 200
+
+# class EditTrident(Resource):
+# class InsertOffshore(Resource):
+
+class InsertOffshoreMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = insert_offshore_metadata(json_data)
 		return response, 200
+
+# class MiniQueryOffshore(Resource):
+# class QueryOffshore(Resource):
+
+class QueryOffshoreMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		return query_offshore_metadata(json_data), 200
+
+# class EditOffshore(Resource):
 
 class Sample(Resource):
 	def get(self, sample_id):
@@ -109,12 +143,26 @@ class SampleTracking(Resource):
 		return response, 200
 
 api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
-api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
+api.add_resource(InsertLagoonMetadata, '/api/capture/lagoon/metadata/insert')
 api.add_resource(MiniQueryLagoon, '/api/capture/lagoon/mini_query')
+api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
+api.add_resource(QueryLagoonMetadata, '/api/capture/lagoon/metadata/query')
 api.add_resource(EditLagoon, '/api/capture/lagoon/edit')
+
 api.add_resource(InsertTrident, '/api/capture/trident/insert')
-api.add_resource(QueryMetadata, '/api/capture/metadata/query')
-api.add_resource(InsertMetadata, '/api/capture/metadata/insert')
+api.add_resource(InsertTridentMetadata, '/api/capture/trident/metadata/insert')
+# api.add_resource(MiniQueryTrident, '/api/capture/trident/mini_query')
+# api.add_resource(QueryTrident, '/api/capture/trident/query')
+api.add_resource(QueryTridentMetadata, '/api/capture/trident/metadata/query')
+# api.add_resource(EditTrident, '/api/capture/trident/edit')
+
+# api.add_resource(InsertOffshore, '/api/capture/offshore/insert')
+api.add_resource(InsertOffshoreMetadata, '/api/capture/offshore/metadata/insert')
+# api.add_resource(MiniQueryOffshore, '/api/capture/offshore/mini_query')
+# api.add_resource(QueryOffshore, '/api/capture/offshore/query')
+api.add_resource(QueryOffshoreMetadata, '/api/capture/offshore/metadata/query')
+# api.add_resource(EditOffshore, '/api/capture/offshore/edit')
+
 api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
 api.add_resource(SampleTracking, '/api/capture/sample/tracking',
 								'/api/capture/sample/tracking/<int:sample_tracking_id>')
