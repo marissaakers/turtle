@@ -98,7 +98,7 @@ class InsertTridentMetadata(Resource):
 class QueryTridentMetadata(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		return query_trident_metadata(json_data), 200
+		return query_trident_metadata(json_data)
 
 # class EditTrident(Resource):
 # class InsertOffshore(Resource):
@@ -115,7 +115,7 @@ class InsertOffshoreMetadata(Resource):
 class QueryOffshoreMetadata(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		return query_offshore_metadata(json_data), 200
+		return query_offshore_metadata(json_data)
 
 # class EditOffshore(Resource):
 
