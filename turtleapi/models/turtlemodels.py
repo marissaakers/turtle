@@ -170,7 +170,7 @@ class LagoonMetadata(Metadata):
 	water_sample = Column(db.Boolean, supports_dict=True, supports_json=True)
 	wind_speed = Column(db.Float(5), supports_dict=True, supports_json=True)
 	wind_dir = Column(db.String(20), supports_dict=True, supports_json=True)
-	environment_time = Column(db.Time, supports_dict=True, supports_json=True)
+	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	weather = Column(db.String(100), supports_dict=True, supports_json=True)
 	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -206,7 +206,7 @@ class TridentMetadata(Metadata):
 	water_sample = Column(db.Boolean, supports_dict=True, supports_json=True)
 	wind_speed = Column(db.Float(5), supports_dict=True, supports_json=True)
 	wind_dir = Column(db.String(20), supports_dict=True, supports_json=True)
-	environment_time = Column(db.Time, supports_dict=True, supports_json=True)
+	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	weather = Column(db.String(100), supports_dict=True, supports_json=True)
 	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -232,7 +232,7 @@ class OffshoreMetadata(Metadata):
 
 	# Capture
 	capture_date = Column(db.Date, supports_dict=True, supports_json=True)
-	capture_time = Column(db.Time, supports_dict=True, supports_json=True)
+	capture_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	capture_latitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	capture_longitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	cloud_cover = Column(db.Text, supports_dict=True, supports_json=True)
@@ -245,7 +245,7 @@ class OffshoreMetadata(Metadata):
 	# Release
 	release_latitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	release_longitude = Column(db.Float(5), supports_dict=True, supports_json=True)
-	release_time = Column(db.Time, supports_dict=True, supports_json=True)
+	release_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	release_sargassum_water_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	sargassum_salinity = Column(db.Float(5), supports_dict=True, supports_json=True)
 	release_air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -449,10 +449,19 @@ class Net(BaseModel):
 
 	# Various fields
 	net_number = Column(db.Integer, supports_dict=True, supports_json=True)
-	net_deploy_start_time = Column(db.Time, supports_dict=True, supports_json=True)
-	net_deploy_end_time = Column(db.Time, supports_dict=True, supports_json=True)
-	net_retrieval_start_time = Column(db.Time, supports_dict=True, supports_json=True)
-	net_retrieval_end_time = Column(db.Time, supports_dict=True, supports_json=True)
+	net_deploy_start_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	net_deploy_end_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	net_retrieval_start_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	net_retrieval_end_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	loggerhead_captures = Column(db.Integer, supports_dict=True, supports_json=True)
+	green_captures = Column(db.Integer, supports_dict=True, supports_json=True)
+	entered_by = Column(db.Text, supports_dict=True, supports_json=True)
+	green_cpue = Column(db.Float(5), supports_dict=True, supports_json=True)
+	loggerhead_cpue = Column(db.Float(5), supports_dict=True, supports_json=True)
+	net_kilometers = Column(db.Float(5), supports_dict=True, supports_json=True)
+	net_km_hours = Column(db.Float(5), supports_dict=True, supports_json=True)
+	net_type = Column(db.String(30), supports_dict=True, supports_json=True)
+	soak_time = Column(db.Float(5), supports_dict=True, supports_json=True)
 
 class IncidentalCapture(BaseModel):
 	__tablename__ = 'incidental_capture'
@@ -464,7 +473,7 @@ class IncidentalCapture(BaseModel):
 
 	# Various fields
 	species = Column(db.String(40), supports_dict=True, supports_json=True)
-	capture_time = Column(db.Time, supports_dict=True, supports_json=True)
+	capture_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
 	measurement = Column(db.Text, supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
@@ -701,7 +710,7 @@ class Depredation(BaseModel):
 	km = Column(db.Float(5), supports_dict=True, supports_json=True)
 	predator = Column(db.String(30), supports_dict=True, supports_json=True)
 	eggs_destroyed = Column(db.Integer, supports_dict=True, supports_json=True)
-	stake = Column(db.Integer, supports_dict=True, supports_json=True)
+	stake_number = Column(db.String(30), supports_dict=True, supports_json=True)
 
 class TurtleSchema(ma.ModelSchema):
 	class Meta:
