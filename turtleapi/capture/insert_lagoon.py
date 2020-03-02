@@ -5,7 +5,7 @@ from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, T
                                            EncounterSchema, TagSchema, MorphometricsSchema,
                                            MetadataSchema, LagoonEncounterSchema, SampleSchema,
                                            NetSchema, IncidentalCaptureSchema, FullLagoonQuerySchema)
-import datetime
+from datetime import datetime, timedelta
 import json
 from turtleapi.capture.util import find_turtle_from_tags
 from flask import jsonify
@@ -29,198 +29,58 @@ def insert_lagoon(data):
     # 9) db.session.commit()
 
     data2 = {}
-    data2['encounters'] = [data]
-    data2['tags'] = data2['encounters'][0]['tags']
-    del data2['encounters'][0]['tags']
-    data2['species'] = data2['encounters'][0]['species']
-    del data2['encounters'][0]['species']
-    data2['encounters'][0]['morphometrics'] = [data2['encounters'][0]['morphometrics']]
-    encounter = LagoonEncounter.new_from_dict(data2['encounters'][0], error_on_extra_keys=False, drop_extra_keys=True)
+    data2['encounters'] = data
+    data2['tags'] = data2['encounters']['tags']
+    del data2['encounters']['tags']
+    data2['species'] = data2['encounters']['species']
+    del data2['encounters']['species']
+    data2['encounters']['morphometrics'] = [data2['encounters']['morphometrics']]
+
+    var_list = ('verified_date','entered_date','encounter_date')
+
+    for x in var_list:
+        if data2['encounters'][x] is not None and data2['encounters'][x] != '':
+            try:
+                data2['encounters'][x] = datetime.strptime(data2['encounters'][x], '%m/%d/%Y')
+            except:
+                print("Error:",x,"not in correct format")
+                return {'error': "incorrect date format"}
+
+    encounter = LagoonEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
     del data2['encounters']
-    turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
-    turtle.encounters = [encounter]
-    # db.session.add(turtle)
-    # db.session.commit()
-    # print(turtle.encounters[0].type)
-    # print(turtle.encounters[0].morphometrics[0].curved_width)
 
-    # turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
-    # print(turtle.encounters[0].notes)
+    # handling turtle
+    turtle = find_turtle_from_tags(data2['tags'])
+    if turtle is not None:
+        compare_tags = db.session.query(Tag).filter(Tag.turtle_id==turtle.turtle_id,Tag.active==True)
+        # updating existing tags
+        for c in compare_tags:
+            flag = False
+            for t in data2['tags']:
+                if c.tag_number == t['tag_number']:
+                    setattr(c,'tag_scars',t['tag_scars'])
+                    flag = True
+                    t['keep'] = False
+            if flag == False:
+                setattr(c,'active',False)
+        i = 0
+        # adding new tags
+        while i in range(len(data2['tags'])):
+            data2['tags'][i]['keep'] = data2['tags'][i].get('keep',True)
+            if data2['tags'][i]['keep'] == False:
+                del data2['tags'][i]
+            else:
+                i = i + 1
+        for t in data2['tags']:
+            tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
+            tag.turtle_id = turtle.turtle_id
+            db.session.add(tag)
+    else:
+        turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
 
-    # encounter = LagoonEncounter.new_from_dict(data2['encounters'][0], error_on_extra_keys=False, drop_extra_keys=True)
-    # print(encounter.morphometrics.curved_width)
-
-    # print(data2['encounters'][0])
-    # turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
-    # print(turtle.species)
-
-    # print(turtle.tags)
-    # print(turtle.encounters)
-    # db.session.add(turtle)
-    # db.session.commit()
-
-
-#     # Schemas
-#     turtle_schema = TurtleSchema()
-#     lagoon_encounter_schema = LagoonEncounterSchema()
-#     tag_schema = TagSchema()
-
-#     # Insert
-#     morphometrics = data.get('morphometrics')
-#     # print(morphometrics) # needed? bad list?
-#     del data['morphometrics']
-#     del data['samples']
-#     del data['tags']
-#     # print(data)
-
-#    # turtle = turtle_schema.load(data, unknown='EXCLUDE')
-#  #   db.session.add(turtle)
-#   #  db.session.flush()
-#    # db.session.commit()
-#     encounter_schema = EncounterSchema()
-#     data['turtle_id'] = 9
-#     print(data)
-
-#     encounterdata = {
-#         'turtle_id': data.get('turtle_id'),
-#         'type': data.get('type')
-#     }
-
-#     encounter = encounter_schema.load(encounterdata, unknown='EXCLUDE')
-#     db.session.add(encounter)
-#     tags = tag_schema.load(data, unknown='EXCLUDE')
-#     # print("!!TEST!!")
-#     # print(tags)
-#     db.session.commit()
-
-
-
-    # tags = data['tags']
-    # encounter = data['encounter']
-    # metadata = Metadata.query.filter_by(metadata_id=data['metadata_id']).first()
-    # morphometrics = data['morphometrics']
-    # samples = encounter['samples']
-
-    # # Attempt to find a turtle from the tags
-    # turtle = find_turtle_from_tags(tags)
-    
-    # tag_list = ()
-    # if turtle is None:
-    #     turtle = Turtle(
-    #         species=data['species']
-    #     )
-    #     for tag in tags:
-    #         new_tag = Tag(
-    #             turtle=turtle,
-    #             tag_number=tag['tag_number'],
-    #             tag_scars=tag['tag_scars'],
-    #             active=tag['active'],
-    #             tag_type=tag['tag_type']
-    #         )
-    #         tag_list = tag_list + (new_tag,)
-    # else:
-    #     for tag in tags:
-    #         compare_tag = Tag.query.filter_by(turtle_id=turtle.turtle_id, tag_type=tag['tag_type']).first()
-    #         if compare_tag.tag_number != tag['tag_number']:
-    #             setattr(compare_tag, 'active', False)
-    #             new_tag = Tag(
-    #                 turtle=turtle,
-    #                 tag_number=tag['tag_number'],
-    #                 tag_scars=tag['tag_scars'],
-    #                 active=tag['active'],
-    #                 tag_type=tag['tag_type']
-    #             )
-    #             tag_list = tag_list + (new_tag,)
-
-    # metadata_item = Metadata(
-    #     metadata_date=metadata['metadata_date'],
-    #     metadata_location=metadata['metadata_location'],
-    #     metadata_investigators=metadata['metadata_investigators'],
-    #     number_of_cc_captured=metadata['number_of_cc_captured'],
-    #     number_of_cm_captured=metadata['number_of_cm_captured'],
-    #     number_of_other_captured=metadata['number_of_other_captured'],
-    #     water_sample=metadata['water_sample'],
-    #     wind_speed=metadata['wind_speed'],
-    #     wind_dir=metadata['wind_dir'],
-    #     environment_time=metadata['environment_time'],
-    #     weather=metadata['weather'],
-    #     air_temp=metadata['air_temp'],
-    #     water_temp_surface=metadata['water_temp_surface'],
-    #     water_temp_1_m=metadata['water_temp_1_m'],
-    #     water_temp_2_m=metadata['water_temp_2_m'],
-    #     water_temp_6_m=metadata['water_temp_6_m'],
-    #     water_temp_bottom=metadata['water_temp_bottom'],
-    #     salinity_surface=metadata['salinity_surface'],
-    #     salinity_1_m=metadata['salinity_1_m'],
-    #     salinity_2_m=metadata['salinity_2_m'],
-    #     salinity_6_m=metadata['salinity_6_m'],
-    #     salinity_bottom=metadata['salinity_bottom']
-    # )
-
-    # lagoon_encounter = LagoonEncounter(
-    #     turtle=turtle,
-    #     metadata=metadata,
-    #     encounter_date=encounter['encounter_date'],
-    #     encounter_time=encounter['encounter_time'],
-    #     investigated_by=encounter['investigated_by'],
-    #     entered_by=encounter['entered_by'],
-    #     entered_date=encounter['entered_date'],
-    #     verified_by=encounter['verified_by'],
-    #     verified_date=encounter['verified_date'],
-    #     notes=encounter['notes'],
-    #     living_tags=encounter['living_tags'],
-    #     other=encounter['other'],
-    #     leeches=encounter['leeches'],
-    #     leeches_where=encounter['leeches_where'],
-    #     leech_eggs=encounter['leech_eggs'],
-    #     leech_eggs_where=encounter['leech_eggs_where'],
-    #     paps_present=encounter['paps_present'],
-    #     number_of_paps=encounter['number_of_paps'],
-    #     paps_regression=encounter['paps_regression'],
-    #     photos=encounter['photos'],
-    #     pap_photos=encounter['pap_photos']
-    # )
-
-    # morphometrics_item = Morphometrics(
-    #     turtle=turtle,
-    #     encounter=lagoon_encounter,
-    #     curved_length=morphometrics['curved_length'],
-    #     straight_length=morphometrics['straight_length'],
-    #     minimum_length=morphometrics['minimum_length'],
-    #     plastron_length=morphometrics['plastron_length'],
-    #     weight=morphometrics['weight'],
-    #     curved_width=morphometrics['curved_width'],
-    #     straight_width=morphometrics['straight_width'],
-    #     tail_length_pl_vent=morphometrics['tail_length_pl_vent'],
-    #     tail_length_pl_tip=morphometrics['tail_length_pl_tip'],
-    #     head_width=morphometrics['head_width'],
-    #     body_depth=morphometrics['body_depth'],
-    #     flipper_damage=morphometrics['flipper_damage'],
-    #     carapace_damage=morphometrics['carapace_damage']
-    # )
-
-    # sample_list = ()
-    # for sample in samples:
-    #     new_sample = Sample(
-    #         encounter=lagoon_encounter,
-    #         skin_1=sample['skin_1'],
-    #         skin_1_for=sample['skin_1_for'],
-    #         skin_2=sample['skin_2'],
-    #         skin_2_for=sample['skin_2_for'],
-    #         blood=sample['blood'],
-    #         blood_for=sample['blood_for'],
-    #         scute=sample['scute'],
-    #         scute_for=sample['scute_for'],
-    #         other=sample['other'],
-    #         other_for=sample['other_for']
-    #     )
-    #     sample_list = sample_list + (new_sample,)
-
-    # # db.session.add(tag_list)
-    # db.session.add(lagoon_encounter)
-    # db.session.commit()
-
- ###   return something at some point? Maybe previous turtle encounters as well as error variable
+    encounter.turtle = turtle
+    db.session.add(encounter)
+    db.session.commit()
 
 # ### This is the hard-coded insertion code. It still works if we need to remake db/insert something.
 # def insert_lagoon():
