@@ -2,9 +2,10 @@ from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
 Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture, LagoonMetadata,
 TridentMetadata, OffshoreMetadata)
+from turtleapi.capture.util import date_handler
 from datetime import datetime, timedelta
 import json
-from flask import jsonify
+from flask import Response
 from turtleapi.capture.util import find_turtles_from_tags
 
 def query_lagoon_metadata(data):
@@ -23,88 +24,63 @@ def query_lagoon_metadata(data):
     # Build queries
     queries = []
 
-    queries.append(Metadata.type == "lagoon")
+    # queries.append(Metadata.type == "lagoon")
     if (FILTER_metadata_id != ''):
-        queries.append(Metadata.metadata_id == FILTER_metadata_id)
+        queries.append(LagoonMetadata.metadata_id == FILTER_metadata_id)
     if (FILTER_metadata_date != ''):
-        queries.append(Metadata.metadata_date == FILTER_metadata_date)
+        queries.append(LagoonMetadata.metadata_date == FILTER_metadata_date)
     if (FILTER_metadata_id == FILTER_metadata_date):
         print("Error: Metadata query missing sufficient data")
         return {'error': 'Metadata query missing sufficient data'}
 
     # Grab metadata
-    result = db.session.query(Metadata).filter(*queries).first()
-    result_encounter = result.to_dict(max_nesting=1)
+    result = db.session.query(LagoonMetadata).filter(*queries).first()
+    if result is None:
+        print("Error: Metadata matching criteria not found")
+        return {'error': 'Metadata matching criteria not found'}
 
-    # Grab nets
-    nets = db.session.query(Net).filter(Net.metadata_id==result_encounter['metadata_id']).all()
-    result_encounter['nets'] = [x.to_dict() for x in nets]
-
-    # Grab incidental captures
-    incidental_captures = db.session.query(IncidentalCapture).filter(IncidentalCapture.metadata_id==result_encounter['metadata_id']).all()
-    result_encounter['incidental_captures'] = [x.to_dict() for x in incidental_captures]
-
-    return jsonify(result_encounter)
+    result_encounter = result.to_dict(max_nesting=2)
+    
+    return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def insert_lagoon_metadata(data):
-    # Declare schema instances
-    metadata_schema = MetadataSchema()
-    net_schema = NetSchema()
-    incidental_capture_schema = IncidentalCaptureSchema()
+    if data['metadata_date'] is not None and data['metadata_date'] != '':
+        try:
+            data['metadata_date'] = datetime.strptime(data['metadata_date'], '%m/%d/%Y')
+        except:
+            print("Error: metadata_date not in correct format")
+            return {'error': 'metadata_date not in correct format'}
+    
+    if data['environment_time'] is not None and data['environment_time'] != '':
+        try:
+            data['environment_time'] = datetime.strptime(data['environment_time'], '%H:%M:%S')
+        except:
+            print("Error: environment_time not in correct format")
+            return {'error': 'environment_time not in correct format'}
 
-    nets = data['nets']
-    incidental_captures = data['incidental_captures']
+    var_list = ('net_deploy_start_time','net_deploy_end_time','net_retrieval_start_time','net_retrieval_end_time')
 
-    net_list = ()
-    for net in nets:
-        new_net = Net(
-            metadata=metadata_item,
-            net_number=net['net_number'],
-            net_deploy_start_time=net['net_deploy_start_time'],
-            net_deploy_end_time=net['net_deploy_end_time'],
-            net_retrieval_start_time=net['net_retrieval_start_time'],
-            net_retrieval_end_time=net['net_retrieval_end_time']
-        )
-        net_list = net_list + (new_net,)
+    for x in data['nets']:
+        for y in var_list:
+            if x[y] is not None and x[y] != '':
+                try:
+                    x[y] = datetime.strptime(x[y], '%H:%M:%S')
+                except:
+                    print("Error: in nets,",y,"not in correct format")
+                    return {'error': 'incorrect time format'}
 
-    metadata_item = Metadata(
-        metadata_date=data['metadata_date'],
-        metadata_location=data['metadata_location'],
-        metadata_investigators=data['metadata_investigators'],
-        number_of_cc_captured=data['number_of_cc_captured'],
-        number_of_cm_captured=data['number_of_cm_captured'],
-        number_of_other_captured=data['number_of_other_captured'],
-        water_sample=data['water_sample'],
-        wind_speed=data['wind_speed'],
-        wind_dir=data['wind_dir'],
-        environment_time=data['environment_time'],
-        weather=data['weather'],
-        air_temp=data['air_temp'],
-        water_temp_surface=data['water_temp_surface'],
-        water_temp_1_m=data['water_temp_1_m'],
-        water_temp_2_m=data['water_temp_2_m'],
-        water_temp_6_m=data['water_temp_6_m'],
-        water_temp_bottom=data['water_temp_bottom'],
-        salinity_surface=data['salinity_surface'],
-        salinity_1_m=data['salinity_1_m'],
-        salinity_2_m=data['salinity_2_m'],
-        salinity_6_m=data['salinity_6_m'],
-        salinity_bottom=data['salinity_bottom']
-    )
+    for x in data['incidental_captures']:
+        if x['capture_time'] is not None and x['capture_time'] != '':
+            try:
+                x['capture_time'] = datetime.strptime(x['capture_time'], '%H:%M:%S')
+            except:
+                print("Error: in incidental captures, capture_time not in correct format")
+                return {'error': 'incorrect time format'}
 
-    incidental_capture_list = ()
-    for incidental_capture in incidental_captures:
-        new_incidental_capture = IncidentalCapture(
-            metadata=metadata_item,
-            species=incidental_capture['species'],
-            capture_time=incidental_capture['capture_time'],
-            measurement=incidental_capture['measurement'],
-            notes=incidental_capture['notes']
-        )
-        incidental_capture_list = incidental_capture_list + (new_incidental_capture,)
-
-    db.session.add(metadata_item)
+    metadata = LagoonMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
+    db.session.add(metadata)
     db.session.commit()
+
     return {'message': 'no errors'}
 
 def query_trident_metadata(data):
@@ -123,36 +99,69 @@ def query_trident_metadata(data):
     # Build queries
     queries = []
 
-    queries.append(Metadata.type == "trident")
+    # queries.append(Metadata.type == "lagoon")
     if (FILTER_metadata_id != ''):
-        queries.append(Metadata.metadata_id == FILTER_metadata_id)
+        queries.append(TridentMetadata.metadata_id == FILTER_metadata_id)
     if (FILTER_metadata_date != ''):
-        queries.append(Metadata.metadata_date == FILTER_metadata_date)
+        queries.append(TridentMetadata.metadata_date == FILTER_metadata_date)
     if (FILTER_metadata_id == FILTER_metadata_date):
         print("Error: Metadata query missing sufficient data")
         return {'error': 'Metadata query missing sufficient data'}
 
     # Grab metadata
-    result = db.session.query(Metadata).filter(*queries).first()
-    result_encounter = result.to_dict(max_nesting=1)
+    result = db.session.query(TridentMetadata).filter(*queries).first()
+    if result is None:
+        print("Error: Metadata matching criteria not found")
+        return {'error': 'Metadata matching criteria not found'}
 
-    # Grab nets
-    nets = db.session.query(Net).filter(Net.metadata_id==result_encounter['metadata_id']).all()
-    result_encounter['nets'] = [x.to_dict() for x in nets]
-
-    # Grab incidental captures
-    incidental_captures = db.session.query(IncidentalCapture).filter(IncidentalCapture.metadata_id==result_encounter['metadata_id']).all()
-    result_encounter['incidental_captures'] = [x.to_dict() for x in incidental_captures]
-
-    return jsonify(result_encounter)
+    result_encounter = result.to_dict(max_nesting=2)
+    
+    return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def insert_trident_metadata(data):
+    if data['metadata_date'] is not None and data['metadata_date'] != '':
+        try:
+            data['metadata_date'] = datetime.strptime(data['metadata_date'], '%m/%d/%Y')
+        except:
+            print("Error: metadata_date not in correct format")
+            return {'error': 'metadata_date not in correct format'}
+    
+    if data['environment_time'] is not None and data['environment_time'] != '':
+        try:
+            data['environment_time'] = datetime.strptime(data['environment_time'], '%H:%M:%S')
+        except:
+            print("Error: environment_time not in correct format")
+            return {'error': 'environment_time not in correct format'}
+
+    var_list = ('net_deploy_start_time','net_deploy_end_time','net_retrieval_start_time','net_retrieval_end_time')
+
+    for x in data['nets']:
+        for y in var_list:
+            if x[y] is not None and x[y] != '':
+                try:
+                    x[y] = datetime.strptime(x[y], '%H:%M:%S')
+                except:
+                    print("Error: in nets,",y,"not in correct format")
+                    return {'error': 'incorrect time format'}
+
+    for x in data['incidental_captures']:
+        if x['capture_time'] is not None and x['capture_time'] != '':
+            try:
+                x['capture_time'] = datetime.strptime(x['capture_time'], '%H:%M:%S')
+            except:
+                print("Error: in incidental captures, capture_time not in correct format")
+                return {'error': 'incorrect time format'}
+
+    metadata = TridentMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
+    db.session.add(metadata)
+    db.session.commit()
+
     return {'message': 'no errors'}
 
 def query_offshore_metadata(data):
     ### FILTERS
     FILTER_metadata_id = data.get('metadata_id', '')
-    FILTER_capture_date = data.get('capture_date', '')
+    FILTER_capture_date= data.get('capture_date', '')
     FILTER_metadata_type = "offshore"
     if FILTER_capture_date != '':
         try:
@@ -165,28 +174,45 @@ def query_offshore_metadata(data):
     # Build queries
     queries = []
 
-    queries.append(Metadata.type == "offshore")
+    # queries.append(Metadata.type == "lagoon")
     if (FILTER_metadata_id != ''):
-        queries.append(Metadata.metadata_id == FILTER_metadata_id)
+        queries.append(OffshoreMetadata.metadata_id == FILTER_metadata_id)
     if (FILTER_capture_date != ''):
-        queries.append(Metadata.metadata_date == FILTER_capture_date)
+        queries.append(OffshoreMetadata.capture_date == FILTER_capture_date)
     if (FILTER_metadata_id == FILTER_capture_date):
         print("Error: Metadata query missing sufficient data")
         return {'error': 'Metadata query missing sufficient data'}
 
     # Grab metadata
-    result = db.session.query(Metadata).filter(*queries).first()
-    result_encounter = result.to_dict(max_nesting=1)
+    result = db.session.query(OffshoreMetadata).filter(*queries).first()
+    if result is None:
+        print("Error: Metadata matching criteria not found")
+        return {'error': 'Metadata matching criteria not found'}
 
-    # Grab nets
-    nets = db.session.query(Net).filter(Net.metadata_id==result_encounter['metadata_id']).all()
-    result_encounter['nets'] = [x.to_dict() for x in nets]
-
-    # Grab incidental captures
-    incidental_captures = db.session.query(IncidentalCapture).filter(IncidentalCapture.metadata_id==result_encounter['metadata_id']).all()
-    result_encounter['incidental_captures'] = [x.to_dict() for x in incidental_captures]
-
-    return jsonify(result_encounter)
+    result_encounter = result.to_dict(max_nesting=2)
+    
+    return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def insert_offshore_metadata(data):
+    if data['capture_date'] is not None and data['capture_date'] != '':
+        try:
+            data['capture_date'] = datetime.strptime(data['capture_date'], '%m/%d/%Y')
+        except:
+            print("Error: capture_date not in correct format")
+            return {'error': 'capture_date not in correct format'}
+
+    var_list = ('capture_time', 'release_time')
+
+    for x in var_list:
+        if data[x] is not None and data[x] != '':
+            try:
+                data[x] = datetime.strptime(data[x], '%H:%M:%S')
+            except:
+                print("Error:",x,"not in correct format")
+                return {'error': 'incorrect time format'}
+
+    metadata = OffshoreMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
+    db.session.add(metadata)
+    db.session.commit()
+
     return {'message': 'no errors'}
