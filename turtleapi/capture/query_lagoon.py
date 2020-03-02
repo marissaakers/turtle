@@ -1,9 +1,10 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
 Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture)
+from turtleapi.capture.util import date_handler
 from datetime import datetime, timedelta
 import json
-from flask import jsonify
+from flask import jsonify, Response
 from turtleapi.capture.util import find_turtles_from_tags, my_custom_serializer
 
 def query_lagoon(data):
@@ -32,8 +33,8 @@ def query_lagoon(data):
     # Grab tags
     tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['turtle_id']).all()
     result_encounter['tags'] = [x.to_dict() for x in tags]
-    
-    return jsonify(result_encounter)
+
+    return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def mini_query_lagoon(data):
 
