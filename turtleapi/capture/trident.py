@@ -14,6 +14,55 @@ import random # we can remove this when we're done and don't do the manual test 
 def mini_query_trident(data):
     print(test)
 
+def query_trident_metadata(data):
+    ### FILTERS
+    FILTER_metadata_id = data.get('metadata_id', '')
+    FILTER_metadata_date = data.get('metadata_date', '')
+    FILTER_metadata_type = "trident"
+    if FILTER_metadata_date != '':
+        try:
+            FILTER_metadata_date = datetime.strptime(FILTER_metadata_date, '%m/%d/%Y')
+        except: 
+            print("Error: date not in correct format")
+            FILTER_metadata_date = ''
+    ### END FILTERS
+
+    # Build queries
+    queries = []
+
+    # queries.append(Metadata.type == "lagoon")
+    if (FILTER_metadata_id != ''):
+        queries.append(TridentMetadata.metadata_id == FILTER_metadata_id)
+    if (FILTER_metadata_date != ''):
+        queries.append(TridentMetadata.metadata_date == FILTER_metadata_date)
+    if (FILTER_metadata_id == FILTER_metadata_date):
+        print("Error: Metadata query missing sufficient data")
+        return {'error': 'Metadata query missing sufficient data'}
+
+    # Grab metadata
+    result = db.session.query(TridentMetadata).filter(*queries).first()
+    if result is None:
+        print("Error: Metadata matching criteria not found")
+        return {'error': 'Metadata matching criteria not found'}
+
+    result_encounter = result.to_dict(max_nesting=2)
+    
+    return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
+
+def insert_trident_metadata(data):
+    if data['metadata_date'] is not None and data['metadata_date'] != '':
+        try:
+            data['metadata_date'] = datetime.strptime(data['metadata_date'], '%m/%d/%Y')
+        except:
+            print("Error: metadata_date not in correct format")
+            return {'error': 'metadata_date not in correct format'}
+
+    metadata = TridentMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
+    db.session.add(metadata)
+    db.session.commit()
+
+    return {'message': 'no errors'}
+
 def insert_trident(data):
     data2 = {}
     data2['encounters'] = data
@@ -70,7 +119,7 @@ def insert_trident(data):
     encounter.turtle = turtle
     db.session.add(encounter)
     db.session.commit()
-    
+
 # ### This is the hard-coded insertion code. It still works if we need to remake db/insert something.
 # def insert_trident():
 #     # Make a new turtle
