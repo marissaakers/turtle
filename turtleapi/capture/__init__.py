@@ -6,10 +6,10 @@ import json
 from turtleapi.capture.query_lagoon import query_lagoon, mini_query_lagoon
 from turtleapi.capture.insert_lagoon import insert_lagoon
 from turtleapi.capture.edit_lagoon import edit_lagoon
-from turtleapi.capture.trident import insert_trident
+from turtleapi.capture.trident import (insert_trident, query_trident_metadata,
+	insert_trident_metadata)
 from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
-	query_trident_metadata, insert_trident_metadata, query_offshore_metadata, 
-	insert_offshore_metadata)
+	query_offshore_metadata, insert_offshore_metadata)
 from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 	update_tracking_entry, delete_tracking_entry)
 
