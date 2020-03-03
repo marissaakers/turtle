@@ -17,9 +17,9 @@ def find_turtle_from_tags(tags):
     # return None
 
     for t in tags:
-        res = Tag.query.filter_by(tag_number=t['tag_number']).first()
+        res = db.session.query(Tag).filter(Tag.tag_number==t['tag_number']).first()
         if res is not None:
-            turtle = Turtle.query.filter_by(turtle_id=res.turtle_id).first()
+            turtle = db.session.query(Turtle).filter(Turtle.turtle_id==res.turtle_id).first()
             return turtle
     return None
 
@@ -40,22 +40,22 @@ def find_turtles_from_tags(tags):
 
 # For editing, insert any new tags
 # WIP & untested 
-def insert_new_tags(turtle_id, tags):
-    turtle_result = Tag.query.filter(Tag.turtle_id == turtle_id)
+# def insert_new_tags(turtle_id, tags):
+#     turtle_result = Tag.query.filter(Tag.turtle_id == turtle_id)
     
-    if turtle_result is not None:
-        tag_schema = TagSchema()
-        turtle_result_dump = tag_schema.dump(turtle_result, many=True)
-        turtle_tag_list = [d['tag_number'] for d in turtle_result_dump]
-        for t in tags:
-            if t not in turtle_tag_list:
-                new_tag = Tag(
-                turtle=turtle_id,
-                tag_number=t,
-                location="DEBUG",
-                active=tag['active'],
-                tag_type=tag['tag_type'] #grrr
-            )
+#     if turtle_result is not None:
+#         tag_schema = TagSchema()
+#         turtle_result_dump = tag_schema.dump(turtle_result, many=True)
+#         turtle_tag_list = [d['tag_number'] for d in turtle_result_dump]
+#         for t in tags:
+#             if t not in turtle_tag_list:
+#                 new_tag = Tag(
+#                 turtle=turtle_id,
+#                 tag_number=t,
+#                 location="DEBUG",
+#                 active=tag['active'],
+#                 tag_type=tag['tag_type'] #grrr
+#             )
         
 def my_custom_serializer(value, **kwargs):
     filter_fields = kwargs.pop("filter_fields", None)
@@ -65,3 +65,7 @@ def my_custom_serializer(value, **kwargs):
 
     return result
 #    return json.dumps(result)
+
+def date_handler(obj):
+        if hasattr(obj, 'isoformat'):
+            return obj.isoformat()
