@@ -52,6 +52,7 @@ def insert_lagoon(data):
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
     if turtle is not None:
+        data2['encounters']['capture_type'] = "recap"
         compare_tags = db.session.query(Tag).filter(Tag.turtle_id==turtle.turtle_id,Tag.active==True)
         # updating existing tags
         for c in compare_tags:
@@ -76,11 +77,14 @@ def insert_lagoon(data):
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
     else:
+        data2['encounters']['capture_type'] = "new"
         turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
 
     encounter.turtle = turtle
     db.session.add(encounter)
     db.session.commit()
+
+    return {'message': 'no errors'}
 
 # ### This is the hard-coded insertion code. It still works if we need to remake db/insert something.
 # def insert_lagoon():

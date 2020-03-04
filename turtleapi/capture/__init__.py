@@ -8,6 +8,7 @@ from turtleapi.capture.insert_lagoon import insert_lagoon
 from turtleapi.capture.edit_lagoon import edit_lagoon
 from turtleapi.capture.trident import (insert_trident, query_trident_metadata,
 	insert_trident_metadata)
+from turtleapi.capture.beach import insert_beach
 from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
 	query_offshore_metadata, insert_offshore_metadata)
 from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
@@ -119,6 +120,12 @@ class QueryOffshoreMetadata(Resource):
 
 # class EditOffshore(Resource):
 
+class InsertBeach(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = insert_beach(json_data)
+		return response, 200
+
 class Sample(Resource):
 	def get(self, sample_id):
 		# We get a sample id, and send back sample info including tracking
@@ -162,6 +169,8 @@ api.add_resource(InsertOffshoreMetadata, '/api/capture/offshore/metadata/insert'
 # api.add_resource(QueryOffshore, '/api/capture/offshore/query')
 api.add_resource(QueryOffshoreMetadata, '/api/capture/offshore/metadata/query')
 # api.add_resource(EditOffshore, '/api/capture/offshore/edit')
+
+api.add_resource(InsertBeach, '/api/capture/beach/insert')
 
 api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
 api.add_resource(SampleTracking, '/api/capture/sample/tracking',

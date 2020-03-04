@@ -10,7 +10,7 @@ BaseModel = declarative_base()
 def parse_time(value):
 	if value is None:
 		return value
-	return datetime.strptime(value, '%H:%M:%S')
+	return datetime.strptime(value, '%H:%M')
 
 class Turtle(BaseModel):
 	__tablename__ = 'turtle'
