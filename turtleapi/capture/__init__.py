@@ -132,6 +132,10 @@ class InsertBeach(Resource):
 		response = insert_beach(json_data)
 		return response, 200
 
+# class MiniQueryBeach(Resource):
+# class QueryBeach(Resource):
+# class EditBeach(Resource):
+
 class Sample(Resource):
 	def get(self, sample_id):
 		# We get a sample id, and send back sample info including tracking
@@ -178,6 +182,9 @@ api.add_resource(QueryOffshoreMetadata, '/api/capture/offshore/metadata/query')
 # api.add_resource(EditOffshore, '/api/capture/offshore/edit')
 
 api.add_resource(InsertBeach, '/api/capture/beach/insert')
+# api.add_resource(MiniQueryBeach, '/api/capture/beach/mini_query')
+# api.add_resource(QueryBeach, '/api/capture/beach/query')
+# api.add_resource(EditBeach, '/api/capture/beach/edit')
 
 api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
 api.add_resource(SampleTracking, '/api/capture/sample/tracking',

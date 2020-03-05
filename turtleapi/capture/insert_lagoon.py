@@ -1,10 +1,7 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, Tag,
                                            Morphometrics, Sample, Metadata, Net,
-                                           IncidentalCapture, TurtleSchema,
-                                           EncounterSchema, TagSchema, MorphometricsSchema,
-                                           MetadataSchema, LagoonEncounterSchema, SampleSchema,
-                                           NetSchema, IncidentalCaptureSchema, FullLagoonQuerySchema)
+                                           IncidentalCapture)
 from datetime import datetime, timedelta
 import json
 from turtleapi.capture.util import find_turtle_from_tags
@@ -52,32 +49,35 @@ def insert_lagoon(data):
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
     if turtle is not None:
-        data2['encounters']['capture_type'] = "recap"
+        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+            data2['encounters']['capture_type'] = "recap"
+        encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
+        del data2['encounters']
+
         compare_tags = db.session.query(Tag).filter(Tag.turtle_id==turtle.turtle_id,Tag.active==True)
         # updating existing tags
         for c in compare_tags:
             flag = False
-            for t in data2['tags']:
-                if c.tag_number == t['tag_number']:
-                    setattr(c,'tag_scars',t['tag_scars'])
+            i = 0
+            for i in range(len(data2['tags'])):
+                if c.tag_number == data2['tags'][i]['tag_number']:
+                    setattr(c,'tag_scars',data2['tags'][i]['tag_scars'])
                     flag = True
-                    t['keep'] = False
+                    del data2['tags'][i]
+                    break
+                i = i + 1
             if flag == False:
                 setattr(c,'active',False)
-        i = 0
         # adding new tags
-        while i in range(len(data2['tags'])):
-            data2['tags'][i]['keep'] = data2['tags'][i].get('keep',True)
-            if data2['tags'][i]['keep'] == False:
-                del data2['tags'][i]
-            else:
-                i = i + 1
         for t in data2['tags']:
             tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
     else:
-        data2['encounters']['capture_type'] = "new"
+        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+            data2['encounters']['capture_type'] = "new"
+        encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
+        del data2['encounters']
         turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
 
     encounter.turtle = turtle
