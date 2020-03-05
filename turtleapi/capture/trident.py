@@ -1,7 +1,7 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (TridentEncounter, Encounter, Turtle, Tag,
-                                           Morphometrics, Sample, Metadata, Net,
-                                           IncidentalCapture)
+                                           Morphometrics, Sample, TridentMetadata,
+                                           Metadata, Net, IncidentalCapture)
 from datetime import datetime, timedelta
 import json
 from turtleapi.capture.util import find_turtle_from_tags
@@ -91,6 +91,7 @@ def insert_trident(data):
         metadata_id = data2['encounters']['metadata_id']
         encounter = TridentEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         encounter.metadata_id = metadata_id
+        del data2['encounters']
         turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
 
     encounter.turtle = turtle

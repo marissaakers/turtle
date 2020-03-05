@@ -296,12 +296,12 @@ class Sample(BaseModel):
 	tracking_entries = relationship('SampleTracking', backref='sample', lazy='joined', supports_dict=True, supports_json=True)
 
 	# Various fields
-	sample_type = db.Column(db.Text, supports_dict=True, supports_json=True)
-	received_by = db.Column(db.Text, supports_dict=True, supports_json=True)
-	purpose_of_sample = db.Column(db.Text, supports_dict=True, supports_json=True)
-	notes = db.Column(db.Text, supports_dict=True, supports_json=True)
-	entered_date = db.Column(db.Date, supports_dict=True, supports_json=True)
-	entered_by = db.Column(db.Text, supports_dict=True, supports_json=True)
+	sample_type = Column(db.Text, supports_dict=True, supports_json=True)
+	received_by = Column(db.Text, supports_dict=True, supports_json=True)
+	purpose_of_sample = Column(db.Text, supports_dict=True, supports_json=True)
+	notes = Column(db.Text, supports_dict=True, supports_json=True)
+	entered_date = Column(db.Date, supports_dict=True, supports_json=True)
+	entered_by = Column(db.Text, supports_dict=True, supports_json=True)
 
 class TridentEncounter(Encounter):
 	__tablename__ = 'trident_encounter'
