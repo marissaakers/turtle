@@ -33,15 +33,14 @@ def insert_lagoon(data):
     del data2['encounters']['species']
     data2['encounters']['morphometrics'] = [data2['encounters']['morphometrics']]
 
-    encounter = LagoonEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
-    del data2['encounters']
-
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
     if turtle is not None:
         if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
             data2['encounters']['capture_type'] = "recap"
-        encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
+        metadata_id = data2['encounters']['metadata_id']
+        encounter = LagoonEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
+        encounter.metadata_id = metadata_id
         del data2['encounters']
 
         compare_tags = db.session.query(Tag).filter(Tag.turtle_id==turtle.turtle_id,Tag.active==True)
@@ -66,7 +65,9 @@ def insert_lagoon(data):
     else:
         if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
             data2['encounters']['capture_type'] = "new"
-        encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
+        metadata_id = data2['encounters']['metadata_id']
+        encounter = LagoonEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
+        encounter.metadata_id = metadata_id
         del data2['encounters']
         turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
 
