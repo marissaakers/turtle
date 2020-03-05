@@ -13,12 +13,6 @@ def query_lagoon_metadata(data):
     FILTER_metadata_id = data.get('metadata_id', '')
     FILTER_metadata_date = data.get('metadata_date', '')
     FILTER_metadata_type = "lagoon"
-    if FILTER_metadata_date != '':
-        try:
-            FILTER_metadata_date = datetime.strptime(FILTER_metadata_date, '%m/%d/%Y')
-        except: 
-            print("Error: date not in correct format")
-            FILTER_metadata_date = ''
     ### END FILTERS
 
     # Build queries
@@ -44,13 +38,6 @@ def query_lagoon_metadata(data):
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def insert_lagoon_metadata(data):
-    if data['metadata_date'] is not None and data['metadata_date'] != '':
-        try:
-            data['metadata_date'] = datetime.strptime(data['metadata_date'], '%m/%d/%Y')
-        except:
-            print("Error: metadata_date not in correct format")
-            return {'error': 'metadata_date not in correct format'}
-
     metadata = LagoonMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
     db.session.add(metadata)
     db.session.commit()
@@ -83,12 +70,6 @@ def query_offshore_metadata(data):
     FILTER_metadata_id = data.get('metadata_id', '')
     FILTER_capture_date= data.get('capture_date', '')
     FILTER_metadata_type = "offshore"
-    if FILTER_capture_date != '':
-        try:
-            FILTER_capture_date = datetime.strptime(FILTER_capture_date, '%m/%d/%Y')
-        except: 
-            print("Error: date not in correct format")
-            FILTER_capture_date = ''
     ### END FILTERS
 
     # Build queries
@@ -114,13 +95,6 @@ def query_offshore_metadata(data):
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def insert_offshore_metadata(data):
-    if data['capture_date'] is not None and data['capture_date'] != '':
-        try:
-            data['capture_date'] = datetime.strptime(data['capture_date'], '%m/%d/%Y')
-        except:
-            print("Error: capture_date not in correct format")
-            return {'error': 'capture_date not in correct format'}
-
     metadata = OffshoreMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
     db.session.add(metadata)
     db.session.commit()

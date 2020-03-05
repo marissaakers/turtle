@@ -33,23 +33,13 @@ def insert_lagoon(data):
     del data2['encounters']['species']
     data2['encounters']['morphometrics'] = [data2['encounters']['morphometrics']]
 
-    var_list = ('verified_date','entered_date','encounter_date')
-
-    for x in var_list:
-        if data2['encounters'][x] is not None and data2['encounters'][x] != '':
-            try:
-                data2['encounters'][x] = datetime.strptime(data2['encounters'][x], '%m/%d/%Y')
-            except:
-                print("Error:",x,"not in correct format")
-                return {'error': "incorrect date format"}
-
     encounter = LagoonEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
     del data2['encounters']
 
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
     if turtle is not None:
-        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
             data2['encounters']['capture_type'] = "recap"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']
@@ -74,7 +64,7 @@ def insert_lagoon(data):
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
     else:
-        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
             data2['encounters']['capture_type'] = "new"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']

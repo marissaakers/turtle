@@ -16,12 +16,6 @@ def query_trident_metadata(data):
     FILTER_metadata_id = data.get('metadata_id', '')
     FILTER_metadata_date = data.get('metadata_date', '')
     FILTER_metadata_type = "trident"
-    if FILTER_metadata_date != '':
-        try:
-            FILTER_metadata_date = datetime.strptime(FILTER_metadata_date, '%m/%d/%Y')
-        except: 
-            print("Error: date not in correct format")
-            FILTER_metadata_date = ''
     ### END FILTERS
 
     # Build queries
@@ -47,13 +41,6 @@ def query_trident_metadata(data):
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def insert_trident_metadata(data):
-    if data['metadata_date'] is not None and data['metadata_date'] != '':
-        try:
-            data['metadata_date'] = datetime.strptime(data['metadata_date'], '%m/%d/%Y')
-        except:
-            print("Error: metadata_date not in correct format")
-            return {'error': 'metadata_date not in correct format'}
-
     metadata = TridentMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
     db.session.add(metadata)
     db.session.commit()
@@ -69,25 +56,13 @@ def insert_trident(data):
     del data2['encounters']['species']
     data2['encounters']['morphometrics'] = [data2['encounters']['morphometrics']]
 
-    var_list = ('verified_date','entered_date','encounter_date')
-
-    print(data2['encounters'])
-
-    for x in var_list:
-        if data2['encounters'][x] is not None and data2['encounters'][x] != '':
-            try:
-                data2['encounters'][x] = datetime.strptime(data2['encounters'][x], '%m/%d/%Y')
-            except:
-                print("Error:",x,"not in correct format")
-                return {'error': "incorrect date format"}
-
     encounter = TridentEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
     del data2['encounters']
 
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
     if turtle is not None:
-        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
             data2['encounters']['capture_type'] = "recap"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']
@@ -112,7 +87,7 @@ def insert_trident(data):
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
     else:
-        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
             data2['encounters']['capture_type'] = "new"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']

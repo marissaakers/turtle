@@ -48,20 +48,6 @@ def mini_query_lagoon(data):
     FILTER_encounter_date_start = data.get('encounter_date_start') # Match between FILTER_DATE_START and FILTER_DATE_END
     FILTER_encounter_date_end = data.get('encounter_date_end')
 
-    # Try to parse dates
-    if FILTER_encounter_date_start is not None:
-        try:
-            FILTER_encounter_date_start = datetime.strptime(FILTER_encounter_date_start, '%m/%d/%Y') # .date()
-        except: 
-            print("Error: date not in correct format")
-            FILTER_encounter_date_start = None
-    if FILTER_encounter_date_end is not None:
-        try:
-            FILTER_encounter_date_end = datetime.strptime(FILTER_encounter_date_end, '%m/%d/%Y')
-        except: 
-            print("Error: date not in correct format")
-            FILTER_encounter_date_end = None
-
     FILTER_entered_by = data.get('entered_by')
     FILTER_verified_by = data.get('verified_by')
     FILTER_investigated_by = data.get('investigated_by')
@@ -69,13 +55,7 @@ def mini_query_lagoon(data):
     FILTER_metadata_id = data.get('metadata_id')
     FILTER_metadata_date = data.get('metadata_date')
     if FILTER_metadata_date is not None and FILTER_metadata_id is None: # Overwrite metadata_id only if it doesn't exist and we have a metadata_date asked
-        try:
-            FILTER_metadata_date = datetime.strptime(FILTER_metadata_date, '%m/%d/%Y')
-            FILTER_metadata_id = db.session.query(LagoonMetadata.metadata_id).filter(LagoonMetadata.metadata_date == FILTER_metadata_date).first()[0]
-        except: 
-            print("Error: date not in correct format")
-            FILTER_metadata_date = None
-        
+        FILTER_metadata_id = db.session.query(LagoonMetadata.metadata_id).filter(LagoonMetadata.metadata_date == FILTER_metadata_date).first()[0]
         if FILTER_metadata_id is None:  # If date doesn't match anything, make sure we return no results
             FILTER_metadata_id = -1
     

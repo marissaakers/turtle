@@ -170,7 +170,7 @@ class LagoonMetadata(Metadata):
 	water_sample = Column(db.Boolean, supports_dict=True, supports_json=True)
 	wind_speed = Column(db.Float(5), supports_dict=True, supports_json=True)
 	wind_dir = Column(db.String(20), supports_dict=True, supports_json=True)
-	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	weather = Column(db.String(100), supports_dict=True, supports_json=True)
 	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -206,7 +206,7 @@ class TridentMetadata(Metadata):
 	water_sample = Column(db.Boolean, supports_dict=True, supports_json=True)
 	wind_speed = Column(db.Float(5), supports_dict=True, supports_json=True)
 	wind_dir = Column(db.String(20), supports_dict=True, supports_json=True)
-	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	weather = Column(db.String(100), supports_dict=True, supports_json=True)
 	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -232,7 +232,7 @@ class OffshoreMetadata(Metadata):
 
 	# Capture
 	capture_date = Column(db.Date, supports_dict=True, supports_json=True)
-	capture_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	capture_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_latitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	capture_longitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	cloud_cover = Column(db.Text, supports_dict=True, supports_json=True)
@@ -245,7 +245,7 @@ class OffshoreMetadata(Metadata):
 	# Release
 	release_latitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	release_longitude = Column(db.Float(5), supports_dict=True, supports_json=True)
-	release_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	release_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	release_sargassum_water_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	sargassum_salinity = Column(db.Float(5), supports_dict=True, supports_json=True)
 	release_air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -275,6 +275,9 @@ class Encounter(BaseModel):
 	samples = relationship('Sample', backref='encounter', supports_dict=True, supports_json=True)
 	morphometrics = relationship('Morphometrics', backref=backref('encounter', uselist=False), supports_dict=True, supports_json=True)
 
+	# Fields
+	old_encounter_id = Column(db.Integer, supports_dict=True, supports_json=True)
+	
 	# Polymorphism
 	type = Column(db.String(30), supports_dict=True, supports_json=True)
 	__mapper_args__ = {
@@ -294,16 +297,12 @@ class Sample(BaseModel):
 	tracking_entries = relationship('SampleTracking', backref='sample', lazy='joined', supports_dict=True, supports_json=True)
 
 	# Various fields
-	skin_1 = Column(db.Boolean, supports_dict=True, supports_json=True)
-	skin_1_for = Column(db.Text, supports_dict=True, supports_json=True)
-	skin_2 = Column(db.Boolean, supports_dict=True, supports_json=True)
-	skin_2_for = Column(db.Text, supports_dict=True, supports_json=True)
-	blood = Column(db.Boolean, supports_dict=True, supports_json=True)
-	blood_for = Column(db.Text, supports_dict=True, supports_json=True)
-	scute = Column(db.Boolean, supports_dict=True, supports_json=True)
-	scute_for = Column(db.Text, supports_dict=True, supports_json=True)
-	other = Column(db.Boolean, supports_dict=True, supports_json=True)
-	other_for = Column(db.Text, supports_dict=True, supports_json=True)
+	sample_type = db.Column(db.Text, supports_dict=True, supports_json=True)
+	received_by = db.Column(db.Text, supports_dict=True, supports_json=True)
+    purpose_of_sample = db.Column(db.Text, supports_dict=True, supports_json=True)
+    notes = db.Column(db.Text, supports_dict=True, supports_json=True)
+    entered_date = db.Column(db.Date, supports_dict=True, supports_json=True)
+    entered_by = db.Column(db.Text, supports_dict=True, supports_json=True)
 
 class TridentEncounter(Encounter):
 	__tablename__ = 'trident_encounter'
@@ -312,7 +311,7 @@ class TridentEncounter(Encounter):
 	
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
-	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -352,7 +351,7 @@ class LagoonEncounter(Encounter):
 
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
-	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -389,7 +388,7 @@ class BeachEncounter(Encounter):
 
 	# Fields common to all encounter types
 	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
-	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -462,11 +461,10 @@ class Net(BaseModel):
 	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Various fields
-	net_number = Column(db.Integer, supports_dict=True, supports_json=True)
-	net_deploy_start_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
-	net_deploy_end_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
-	net_retrieval_start_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
-	net_retrieval_end_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	net_deploy_start_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
+	net_deploy_end_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
+	net_retrieval_start_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
+	net_retrieval_end_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	loggerhead_captures = Column(db.Integer, supports_dict=True, supports_json=True)
 	green_captures = Column(db.Integer, supports_dict=True, supports_json=True)
 	entered_by = Column(db.Text, supports_dict=True, supports_json=True)
@@ -487,7 +485,7 @@ class IncidentalCapture(BaseModel):
 
 	# Various fields
 	species = Column(db.String(40), supports_dict=True, supports_json=True)
-	capture_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time)
+	capture_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	measurement = Column(db.Text, supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
@@ -2061,49 +2059,72 @@ class DcCrawl(BaseModel):
 	__tablename__ = 'dc_crawl'
 	# Primary Key
 	dc_crawl_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
-	
-	# Foreign key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Fields
 	km = Column(db.Float(5), supports_dict=True, supports_json=True)
 	type = Column(db.String(10), supports_dict=True, supports_json=True)
+
+class FalseCrawl(BaseModel):
+	__tablename__ = 'false_crawl'
+	# Primary Key
+	false_crawl_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
+
+	# Fields
+	date = Column(db.Date, supports_dict=True, supports_json=True)
+	species = Column(db.String(30), supports_dict=True, supports_json=True)
+	project_area = Column(db.Boolean, supports_dict=True, supports_json=True)
+	hit_scarp_over_18 = Column(db.Boolean, supports_dict=True, supports_json=True)
+	type = Column(db.String(10), supports_dict=True, supports_json=True)
+	distance_to_dune = Column(db.Float(5), supports_dict=True, supports_json=True)
+	distance_to_high_tide = Column(db.Float(5), supports_dict=True, supports_json=True)
+	location = Column(db.Float(5), supports_dict=True, supports_json=True)
+	latitude = Column(db.Float(5), supports_dict=True, supports_json=True)
+	longitude = Column(db.Float(5), supports_dict=True, supports_json=True)
+
+class Scarp(BaseModel):
+	__tablename__ = 'scarp'
+	# Primary Key
+	scarp_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
+
+	# Fields
+	date = Column(db.Date, supports_dict=True, supports_json=True)
+	beginning_location = Column(db.Float(5), supports_dict=True, supports_json=True)
+	end_location = Column(db.Float(5), supports_dict=True, supports_json=True)
+	location = Column(db.String(15), supports_dict=True, supports_json=True)
+	ns = Column(db.String(1), supports_dict=True, supports_json=True)
+	height_of_scarp = Column(db.String(3), supports_dict=True, supports_json=True)
+	length_of_scarp = Column(db.Integer, supports_dict=True, supports_json=True)
+	placement = Column(db.String(15), supports_dict=True, supports_json=True)
 
 class Disorientation(BaseModel):
 	__tablename__ = 'disorientation'
 	# Primary Key
 	disorientation_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
-	# Foreign key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), nullable=False, supports_dict=True, supports_json=True)
-
 	# Fields
 	km = Column(db.Float(5), supports_dict=True, supports_json=True)
-	adult = Column(db.String(10), supports_dict=True, supports_json=True)
-	hatchling = Column(db.String(10), supports_dict=True, supports_json=True)
+	adult = Column(db.Integer, supports_dict=True, supports_json=True)
+	hatchling = Column(db.Integer, supports_dict=True, supports_json=True)
 
 class Depredation(BaseModel):
 	__tablename__ = 'depredation'
 	# Primary Key
 	depredation_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
-	# Foreign key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), nullable=False, supports_dict=True, supports_json=True)
-
 	# Fields
+	date = Column(db.Date, supports_dict=True, supports_json=True)
 	species = Column(db.String(30), supports_dict=True, supports_json=True)
-	km = Column(db.Float(5), supports_dict=True, supports_json=True)
+	location = Column(db.Float(5), supports_dict=True, supports_json=True)
+	ns = Column(db.String(1), supports_dict=True, supports_json=True)
 	predator = Column(db.String(30), supports_dict=True, supports_json=True)
 	eggs_destroyed = Column(db.Integer, supports_dict=True, supports_json=True)
-	stake_number = Column(db.String(30), supports_dict=True, supports_json=True)
+	marked_nest_number = Column(db.String(30), supports_dict=True, supports_json=True)
+	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
 class Emergence(BaseModel):
 	__tablename__ = 'emergence'
 	# Primary Key
 	emergence_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
-
-	# Foreign key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Fields
 	stake_number_1 = Column(db.String(30), supports_dict=True, supports_json=True)

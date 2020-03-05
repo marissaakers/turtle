@@ -18,31 +18,11 @@ def insert_beach(data):
     del data2['encounters']['species']
     data2['encounters']['morphometrics'] = [data2['encounters']['morphometrics']]
 
-    var_list = ('verified_date','entered_date','encounter_date', 'days_45', 'days_70')
-
-    for x in var_list:
-        if data2['encounters'][x] is not None and data2['encounters'][x] != '':
-            try:
-                data2['encounters'][x] = datetime.strptime(data2['encounters'][x], '%m/%d/%Y')
-            except:
-                print("Error: in encounter,",x,"not in correct format")
-                return {'error': "incorrect date format"}
-
-    var_list = ('emergence_date','inventory_date','entered_date', 'verified_date')
-
-    for x in var_list:
-        if data2['clutches'][0][x] is not None and data2['clutches'][0][x] != '':
-            try:
-                data2['clutches'][0][x] = datetime.strptime(data2['clutches'][0][x], '%m/%d/%Y')
-            except:
-                print("Error: in clutches,",x,"not in correct format")
-                return {'error': "incorrect date format"}
-
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
     if turtle is not None:
-        # if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
-        #     data2['encounters']['capture_type'] = "recap"
+        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
+            data2['encounters']['capture_type'] = "recap"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']
 
@@ -69,8 +49,8 @@ def insert_beach(data):
         clutch.turtle_id = turtle.turtle_id
         db.session.add(clutch)
     else:
-        # if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
-        #     data2['encounters']['capture_type'] = "new"
+        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
+            data2['encounters']['capture_type'] = "new"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']
         turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
