@@ -41,8 +41,8 @@ def insert_beach(data):
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
     if turtle is not None:
-        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
-            data2['encounters']['capture_type'] = "recap"
+        # if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+        #     data2['encounters']['capture_type'] = "recap"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']
 
@@ -69,8 +69,8 @@ def insert_beach(data):
         clutch.turtle_id = turtle.turtle_id
         db.session.add(clutch)
     else:
-        if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
-            data2['encounters']['capture_type'] = "new"
+        # if data2['encounters']['capture_type'] != "strange recap" # need to make some check for this
+        #     data2['encounters']['capture_type'] = "new"
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']
         turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
