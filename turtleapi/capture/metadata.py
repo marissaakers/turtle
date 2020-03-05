@@ -6,7 +6,6 @@ from turtleapi.capture.util import date_handler
 from datetime import datetime, timedelta
 import json
 from flask import Response
-from turtleapi.capture.util import find_turtles_from_tags
 
 def query_lagoon_metadata(data):
     ### FILTERS

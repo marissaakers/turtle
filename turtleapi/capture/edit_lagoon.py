@@ -1,12 +1,9 @@
 from turtleapi import db
 from turtleapi.models.turtlemodels import (LagoonEncounter, Encounter, Turtle, 
-Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture,
-TurtleSchema, EncounterSchema, TagSchema, MorphometricsSchema, MetadataSchema,
-LagoonEncounterSchema, SampleSchema, NetSchema, IncidentalCaptureSchema)
+Tag, Morphometrics, Sample, Metadata, Net, IncidentalCapture)
 from datetime import datetime, timedelta
 import json
 from flask import jsonify
-from turtleapi.capture.util import find_turtles_from_tags
 
 def edit_lagoon(data):
     encounter_id = data.get('encounter_id')

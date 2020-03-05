@@ -1,5 +1,5 @@
 from turtleapi import db
-from turtleapi.models.turtlemodels import Turtle, Tag, TurtleSchema, TagSchema
+from turtleapi.models.turtlemodels import Turtle, Tag
 import json
 from flask import jsonify
 
@@ -27,15 +27,12 @@ def find_turtle_from_tags(tags):
 def find_turtles_from_tags(tags):
     #turtle_ids = Tag.query.filter(Tag.tag_number.in_(tags)).all() #.distinct()
     #turtle_ids = Tag.query.filter(Tag.tag_number.in_(tags)).distinct()
-    turtle_ids = Tag.query.distinct(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all()
+    # turtle_ids = Tag.query.distinct(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all()
     #turtle_ids = Tag.query.with_entities(Tag.turtle_id).distinct(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all() # doesn't work?
+    turtle_ids = db.session.query(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all()
 
     if turtle_ids is not None:
-        tag_schema = TagSchema()
-        turtle_ids_dump = tag_schema.dump(turtle_ids, many=True)
-
-        turtle_ids_list = [d['turtle'] for d in turtle_ids_dump]
-        return turtle_ids_list
+        return turtle_ids.to_dict()
     return None
 
 # For editing, insert any new tags

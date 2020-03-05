@@ -1,6 +1,5 @@
 from turtleapi import db, ma
 from flask import jsonify
-from marshmallow import Schema, fields, pre_dump, post_dump
 from sqlathanor import declarative_base, Column, relationship
 from datetime import datetime
 from sqlalchemy.orm import backref
@@ -299,10 +298,10 @@ class Sample(BaseModel):
 	# Various fields
 	sample_type = db.Column(db.Text, supports_dict=True, supports_json=True)
 	received_by = db.Column(db.Text, supports_dict=True, supports_json=True)
-    purpose_of_sample = db.Column(db.Text, supports_dict=True, supports_json=True)
-    notes = db.Column(db.Text, supports_dict=True, supports_json=True)
-    entered_date = db.Column(db.Date, supports_dict=True, supports_json=True)
-    entered_by = db.Column(db.Text, supports_dict=True, supports_json=True)
+	purpose_of_sample = db.Column(db.Text, supports_dict=True, supports_json=True)
+	notes = db.Column(db.Text, supports_dict=True, supports_json=True)
+	entered_date = db.Column(db.Date, supports_dict=True, supports_json=True)
+	entered_by = db.Column(db.Text, supports_dict=True, supports_json=True)
 
 class TridentEncounter(Encounter):
 	__tablename__ = 'trident_encounter'
@@ -501,29 +500,10 @@ class SampleTracking(BaseModel):
 	date = Column(db.Date, supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
-class Survey(BaseModel):
-	__tablename__ = 'survey'
-	# Primary key
-	survey_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
-	
-	# Dependencies
-	dc_crawls = relationship('DcCrawl', backref='survey', supports_dict=True, supports_json=True)
-	disorientations = relationship('Disorientation', backref='survey', supports_dict=True, supports_json=True)
-	depredations = relationship('Depredation', backref='survey', supports_dict=True, supports_json=True)
-	emergences = relationship('Emergence', backref='survey', supports_dict=True, supports_json=True)
-
-	# Polymorphism
-	type = Column(db.String(30), supports_dict=True, supports_json=True)
-	__mapper_args__ = {
-		'polymorphic_identity': 'surveys',
-		'polymorphic_on': type
-	}
-
-
-class NSRefuge(Survey):
+class NSRefuge(BaseModel):
 	__tablename__ = 'ns_refuge'
 	# Primary key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
+	ns_refuge_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
 	type = Column(db.String(1), supports_dict=True, supports_json=True)
@@ -697,15 +677,10 @@ class NSRefuge(Survey):
 	natural_cm_o_p = Column(db.Integer, supports_dict=True, supports_json=True)
 	natural_cm_o_ac = Column(db.Integer, supports_dict=True, supports_json=True)
 
-	# Polymorphism
-	__mapper_args__ = {
-		'polymorphic_identity': 'ns_refuge'
-	}
-
-class PAFB(Survey):
+class PAFB(BaseModel):
 	__tablename__ = 'pafb'
 	# Primary key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
+	pafb_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
 	date = Column(db.Date, supports_dict=True, supports_json=True)
@@ -1060,15 +1035,10 @@ class PAFB(Survey):
 	km_65_on_a_cc_fc = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_65_on_a_cm_fc = Column(db.Integer, supports_dict=True, supports_json=True)
 
-	# Polymorphism
-	__mapper_args__ = {
-		'polymorphic_identity': 'pafb'
-	}
-
-class MidReach(Survey):
+class MidReach(BaseModel):
 	__tablename__ = 'mid_reach'
 	# Primary key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
+	mid_reach_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
 	date = Column(db.Date, supports_dict=True, supports_json=True)
@@ -1663,15 +1633,10 @@ class MidReach(Survey):
 	km_14_on_a_cc_fc = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_14_on_a_cm_fc = Column(db.Integer, supports_dict=True, supports_json=True)
 
-	# Polymorphism
-	__mapper_args__ = {
-		'polymorphic_identity': 'mid_reach'
-	}
-
-class SouthReach(Survey):
+class SouthReach(BaseModel):
 	__tablename__ = 'south_reach'
 	# Primary key
-	survey_id = Column(db.Integer, db.ForeignKey('survey.survey_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
+	south_reach_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
 	date = Column(db.Date, supports_dict=True, supports_json=True)
@@ -2050,11 +2015,6 @@ class SouthReach(Survey):
 	km_2n_on_a_cc_fc = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_2n_on_a_cm_fc = Column(db.Integer, supports_dict=True, supports_json=True)
 
-	# Polymorphism
-	__mapper_args__ = {
-		'polymorphic_identity': 'south_reach'
-	}
-
 class DcCrawl(BaseModel):
 	__tablename__ = 'dc_crawl'
 	# Primary Key
@@ -2129,115 +2089,6 @@ class Emergence(BaseModel):
 	# Fields
 	stake_number_1 = Column(db.String(30), supports_dict=True, supports_json=True)
 	stake_number_2 = Column(db.String(30), supports_dict=True, supports_json=True)
-
-class TurtleSchema(ma.ModelSchema):
-	class Meta:
-		model = Turtle
-
-class TagSchema(ma.ModelSchema):
-	class Meta:
-		model = Tag
-
-class ClutchSchema(ma.ModelSchema):
-	class Meta:
-		model = Clutch
-
-class MorphometricsSchema(ma.ModelSchema):
-	class Meta:
-		model = Morphometrics
-
-class EncounterSchema(ma.ModelSchema):
-	class Meta:
-		model = Encounter
-
-class SampleTrackingSchema(ma.ModelSchema):
-	class Meta:
-		model = SampleTracking
-
-class SampleSchema(ma.ModelSchema):
-	class Meta:
-		model = Sample
-	tracking_entries = ma.Nested(SampleTrackingSchema, many=True)
-
-class TridentEncounterSchema(ma.ModelSchema):
-	class Meta:
-		model = TridentEncounter
-
-class LagoonEncounterSchema(ma.ModelSchema):
-	class Meta:
-		model = LagoonEncounter
-
-class BeachEncounterSchema(ma.ModelSchema):
-	class Meta:
-		model = BeachEncounter
-
-class MetadataSchema(ma.ModelSchema):
-	class Meta:
-		model = Metadata
-
-class NetSchema(ma.ModelSchema):
-	class Meta:
-		model = Net
-
-class IncidentalCaptureSchema(ma.ModelSchema):
-	class Meta:
-		model = IncidentalCapture
-
-class SampleHistorySchema(ma.Schema):
-	class Meta:
-		fields = ("sample_id", "tracking_entries")
-	tracking_entries = ma.Nested(SampleTrackingSchema, many=True)
-
-class NSRefugeSchema(ma.Schema):
-	class Meta:
-		model = NSRefuge
-
-class DcCrawlSchema(ma.Schema):
-	class Meta:
-		model = DcCrawl
-
-class DisorientationSchema(ma.Schema):
-	class Meta:
-		model = Disorientation
-
-class DepredationSchema(ma.Schema):
-	class Meta:
-		model = Depredation
-
-class TurtleQuerySchema(ma.Schema):
-    species = fields.Str()
-
-class EncounterQuerySchema(ma.Schema):
-    encounter_id = fields.Int()
-    turtle_id = fields.Int()
-    encounter_date = fields.Date()
-    type = fields.Str()
-    entered_by = fields.Str()
-
-class LagoonQuerySchema(ma.Schema):
-    encounter_id = fields.Int()
-    turtle_id = fields.Int()
-    encounter_date = fields.Date()
-    type = fields.Str()
-    entered_by = fields.Str()
-    species = fields.Pluck(TurtleSchema, 'species', attribute='turtle')
-    metadata_location = fields.Pluck(MetadataSchema, 'metadata_location', attribute='metadata')
-
-class FullLagoonQuerySchema(ma.Schema):	
-	# def on_bind_field(self, field_name, field_obj):
-	# # Override default missing attribute so
-	# # that missing values deserialize to None
-	# 	if field_obj.missing == missing:
-	# 		field_obj.missing = None
-	# 		field_obj.allow_none = True
-	class Meta:
-		additional = ('encounter_id', 'turtle_id','metadata_id','turtle_id','encounter_date','encounter_time','investigated_by','entered_by','entered_date','verified_by','verified_date','notes','paps_present','pap_category','paps_regression','photos','pap_photos','living_tags','other','leeches','leeches_where','leech_eggs','leech_eggs_where')
-	
-	species = fields.Pluck(TurtleSchema, 'species', attribute='turtle')
-	samples = ma.Nested(SampleTrackingSchema)
-	morphometrics = ma.Nested(MorphometricsSchema)
-	nets = ma.Nested(NetSchema)
-	incidentalcaptures = ma.Nested(IncidentalCaptureSchema)
 	
 	### None of these seem to include tags successfully:
 
