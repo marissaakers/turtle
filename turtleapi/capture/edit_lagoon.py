@@ -12,7 +12,7 @@ def edit_lagoon(data):
     encounter_id = data.get('encounter_id')
 
     if encounter_id is None:
-        return {'error': 'Lagoon edit input is in invalid format'}
+        return {'error': 'LagoonEncounter edit input is in invalid format'}
     
     edit_encounter = db.session.query(LagoonEncounter).filter(LagoonEncounter.encounter_id == encounter_id).first()
 

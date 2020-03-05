@@ -57,6 +57,27 @@ def insert_lagoon_metadata(data):
 
     return {'message': 'no errors'}
 
+def edit_lagoon_metadata(data):
+    metadata_id = data.get('metadata_id')
+
+    if metadata_id is None:
+        return {'error': 'LagoonMetadata edit input is in invalid format'}
+    
+    edit_metadata = db.session.query(LagoonMetadata).filter(LagoonMetadata.metadata_id == metadata_id).first()
+
+    # if edit_metadata is not None:
+    #     new_metadata_values = edit_metadata.to_dict()           # Get current DB values
+    #     new_metadata_values.update(data)                        # Update with any new values from incoming JSON
+    #     edit_metadata.update_from_dict(new_metadata_values)     # Update DB entry
+        
+    #     db.session.commit()                                     # commit changes to DB
+
+    #     return {'message':'Lagoon metadata edited successfully'}
+
+    # return {'message':'No matching lagoon metadatas found'}
+    return edit_metadata.to_json()
+
+
 def query_offshore_metadata(data):
     ### FILTERS
     FILTER_metadata_id = data.get('metadata_id', '')

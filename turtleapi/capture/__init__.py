@@ -10,7 +10,7 @@ from turtleapi.capture.trident import (insert_trident, query_trident_metadata,
 	insert_trident_metadata)
 from turtleapi.capture.beach import insert_beach
 from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
-	query_offshore_metadata, insert_offshore_metadata)
+	query_offshore_metadata, insert_offshore_metadata, edit_lagoon_metadata)
 from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 	update_tracking_entry, delete_tracking_entry)
 
@@ -77,6 +77,12 @@ class EditLagoon(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
 		response = edit_lagoon(json_data)
+		return response, 200
+
+class EditLagoonMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = edit_lagoon_metadata(json_data)
 		return response, 200
 
 class InsertTrident(Resource):
@@ -149,12 +155,13 @@ class SampleTracking(Resource):
 		response = delete_tracking_entry(sample_tracking_id)
 		return response, 200
 
-api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
-api.add_resource(InsertLagoonMetadata, '/api/capture/lagoon/metadata/insert')
 api.add_resource(MiniQueryLagoon, '/api/capture/lagoon/mini_query')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
-api.add_resource(QueryLagoonMetadata, '/api/capture/lagoon/metadata/query')
+api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
 api.add_resource(EditLagoon, '/api/capture/lagoon/edit')
+api.add_resource(InsertLagoonMetadata, '/api/capture/lagoon/metadata/insert')
+api.add_resource(QueryLagoonMetadata, '/api/capture/lagoon/metadata/query')
+api.add_resource(EditLagoonMetadata, '/api/capture/lagoon/metadata/edit')
 
 api.add_resource(InsertTrident, '/api/capture/trident/insert')
 api.add_resource(InsertTridentMetadata, '/api/capture/trident/metadata/insert')
