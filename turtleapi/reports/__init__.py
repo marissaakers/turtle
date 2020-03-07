@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template
 import requests
 import json
 from turtleapi.reports.reports import lagoon_report
-from turtleapi.capture.query_lagoon import query_lagoon
+from turtleapi.capture.lagoon import query_lagoon
 
 reportsbp = Blueprint('reports', __name__, url_prefix='/api/reports')
 

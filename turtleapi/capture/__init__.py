@@ -1,9 +1,7 @@
 from flask import Blueprint, request, jsonify, Response
 from flask_restful import Resource, Api
 import json
-from turtleapi.capture.query_lagoon import query_lagoon, mini_query_lagoon
-from turtleapi.capture.insert_lagoon import insert_lagoon
-from turtleapi.capture.edit_lagoon import edit_lagoon
+from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon
 from turtleapi.capture.trident import (insert_trident, query_trident_metadata,
 	insert_trident_metadata)
 from turtleapi.capture.beach import insert_beach
