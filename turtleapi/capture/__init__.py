@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, Response
 from flask_restful import Resource, Api
 import json
 from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon
-from turtleapi.capture.trident import (insert_trident, query_trident_metadata,
+from turtleapi.capture.trident import (mini_query_trident, insert_trident, query_trident_metadata,
 	insert_trident_metadata)
 from turtleapi.capture.beach import insert_beach
 from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
@@ -95,7 +95,10 @@ class InsertTridentMetadata(Resource):
 		response = insert_trident_metadata(json_data)
 		return response, 200
 
-# class MiniQueryTrident(Resource):
+class MiniQueryTrident(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		return mini_query_trident(json_data)
 # class QueryTrident(Resource):
 
 class QueryTridentMetadata(Resource):
@@ -165,7 +168,7 @@ api.add_resource(EditLagoonMetadata, '/api/capture/lagoon/metadata/edit')
 
 api.add_resource(InsertTrident, '/api/capture/trident/insert')
 api.add_resource(InsertTridentMetadata, '/api/capture/trident/metadata/insert')
-# api.add_resource(MiniQueryTrident, '/api/capture/trident/mini_query')
+api.add_resource(MiniQueryTrident, '/api/capture/trident/mini_query')
 # api.add_resource(QueryTrident, '/api/capture/trident/query')
 api.add_resource(QueryTridentMetadata, '/api/capture/trident/metadata/query')
 # api.add_resource(EditTrident, '/api/capture/trident/edit')

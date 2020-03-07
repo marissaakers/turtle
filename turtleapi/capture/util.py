@@ -1,5 +1,5 @@
 from turtleapi import db
-from turtleapi.models.turtlemodels import Turtle, Tag
+from turtleapi.models.turtlemodels import Turtle, Tag, Encounter
 import json
 from flask import jsonify
 
@@ -66,3 +66,49 @@ def my_custom_serializer(value, **kwargs):
 def date_handler(obj):
         if hasattr(obj, 'isoformat'):
             return obj.isoformat()
+
+def get_miniquery_filters(data):
+
+    filters = {}
+    filters['tags'] = data.get('tags')
+    filters['species'] = data.get('species')    # Only match this species
+
+    filters['encounter_date_start'] = data.get('encounter_date_start')  # Match between FILTER_DATE_START and FILTER_DATE_END
+    filters['encounter_date_end'] = data.get('encounter_date_end')
+
+    filters['entered_by'] = data.get('entered_by')
+    filters['verified_by'] = data.get('verified_by')
+    filters['investigated_by'] = data.get('investigated_by')
+
+    filters['metadata_id'] = data.get('metadata_id')
+    filters['metadata_date'] = data.get('metadata_date')
+    
+    # If tags, find IDs and search by ID
+    filters['turtle_ids'] = None
+    if filters['tags'] is not None:
+        filters['turtle_ids'] = find_turtles_from_tags(filters['tags'])
+
+    return filters
+
+def generate_miniquery_queries(filters):
+
+    queries = []
+
+    if filters['turtle_ids'] is not None:
+        queries.append(Encounter.turtle_id.in_(filters['turtle_ids']))
+    if filters['encounter_date_start'] is not None:
+        queries.append(Encounter.encounter_date >= filters['encounter_date_start'])
+    if filters['encounter_date_end'] is not None:
+        queries.append(Encounter.encounter_date <= filters['encounter_date_end'])
+    if filters['entered_by'] is not None:
+        queries.append(Encounter.entered_by == filters['entered_by'])
+    if filters['verified_by'] is not None:
+        queries.append(Encounter.entered_by == filters['verified_by'])
+    if filters['investigated_by'] is not None:
+        queries.append(Encounter.entered_by == filters['investigated_by'])
+    if filters['species'] is not None:
+        queries.append(Turtle.species == filters['species'])
+    if filters['metadata_id'] is not None:
+        queries.append(Encounter.metadata_id == filters['metadata_id'])
+
+    return queries

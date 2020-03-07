@@ -4,12 +4,28 @@ from turtleapi.models.turtlemodels import (TridentEncounter, Encounter, Turtle, 
                                            Metadata, Net, IncidentalCapture)
 from datetime import datetime, timedelta
 import json
-from turtleapi.capture.util import find_turtle_from_tags
-from flask import jsonify
+from turtleapi.capture.util import find_turtle_from_tags, date_handler, get_miniquery_filters, generate_miniquery_queries
+from flask import jsonify, Response
 import random # we can remove this when we're done and don't do the manual test insertions anymore
 
 def mini_query_trident(data):
-    print(test)
+    filters = get_miniquery_filters(data)
+ 
+    if filters['metadata_date'] is not None and filters['metadata_id'] is None: # Overwrite metadata_id only if it doesn't exist and we have a metadata_date asked
+        filters['metadata_id'] = db.session.query(TridentMetadata.metadata_id).filter(TridentMetadata.metadata_date == filters['metadata_date']).first()
+        if filters['metadata_id'] is None:  # If date doesn't match anything, make sure we return no results
+            filters['metadata_id'] = -1
+        else:                               # If there was a result, get the first element... need to do this after None check
+            filters['metadata_id'] = filters['metadata_id'][0]
+
+    queries = generate_miniquery_queries(filters)
+
+    queries.append(Encounter.type == "trident")
+
+    result = db.session.query(TridentEncounter.encounter_id, TridentEncounter.encounter_date,Turtle.turtle_id, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all() # returns list of result objects
+    final_result = [x._asdict() for x in result] # json.dumps() strips the name of the field... convert to dict and json.dumps() saves it
+
+    return Response(json.dumps(final_result, default = date_handler),mimetype = 'application/json')
 
 def query_trident_metadata(data):
     ### FILTERS
