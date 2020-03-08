@@ -27,6 +27,38 @@ def mini_query_trident(data):
 
     return Response(json.dumps(final_result, default = date_handler),mimetype = 'application/json')
 
+def query_trident(data):
+
+    # Filters
+    FILTER_encounter_id = data.get('encounter_id')
+
+    # Error out if no encounter_id
+    if FILTER_encounter_id is None:
+        print("error: no encounter id provided to full trident query")
+        return {'error': 'no encounter id provided to full trident query'}
+    
+    # Build queries
+    queries = []
+
+    queries.append(Encounter.encounter_id == FILTER_encounter_id)
+    queries.append(Encounter.type == "trident")
+
+    # Grab turtles
+    result = db.session.query(Encounter, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
+
+    if result is None:
+        return {'error': 'No encounter with that ID exists'}
+
+    # Add species
+    result_encounter = result[0].to_dict(max_nesting=2)
+    result_encounter['species'] = result[1]
+    
+    # Grab tags
+    tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['turtle_id']).all()
+    result_encounter['tags'] = [x.to_dict() for x in tags]
+
+    return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
+
 def query_trident_metadata(data):
     ### FILTERS
     FILTER_metadata_id = data.get('metadata_id', '')
@@ -114,153 +146,34 @@ def insert_trident(data):
     db.session.add(encounter)
     db.session.commit()
 
-# ### This is the hard-coded insertion code. It still works if we need to remake db/insert something.
-# def insert_trident():
-#     # Make a new turtle
-#     turtle = Turtle()
-#     # See if the turtle exists (we'll change this to find turtles with the given tags)
-#     query_result = Turtle.query.filter_by(turtle_id=9).first()
-#     # If the turtle is found, we'll use that turtle; otherwise we'll make a new turtle
-#     if query_result is not None:
-#         turtle = query_result
+def delete_trident(data):
+    encounter_id = data.get('encounter_id')
 
-#     names = ['Matt','Adam','Jade','Marissa','Lucia','Gustavo']
-#     tf = [True, False]
-#     letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N']
-#     timenow = datetime.datetime.now() + datetime.timedelta(days=random.randrange(-2000,2000))
-#     method = ['dip net','tangle net']
+    if encounter_id is None:
+        return {'error': 'TridentEncounter delete input is in invalid format'}
+    
+    edit_encounter = db.session.query(TridentEncounter).filter(TridentEncounter.encounter_id == encounter_id).first()
 
-#     turtle = Turtle(
-#         species=random.choice(['Loggerhead', 'Leatherback', 'Green Sea Turtle', 'Hawksbill', 'Olive Ridley']),
-#     )
+    if edit_encounter is not None:
+        db.session.delete(edit_encounter)   # Get current DB values
+        db.session.commit()                 # commit changes to DB
 
-#     metadata = Metadata(
-#         metadata_date=timenow,
-#         metadata_location="My house",
-#         metadata_investigators="The whole team",
-#         number_of_cc_captured=5 + random.randrange(-3,3),
-#         number_of_cm_captured=2 + random.randrange(-2,2),
-#         number_of_other_captured=4 + random.randrange(-3,3),
-#         water_sample=random.choice(tf),
-#         wind_speed=32.6 + round(random.uniform(-3,3), 1),
-#         wind_dir="NNW",
-#         environment_time=timenow,
-#         weather="Partly cloudy",
-#         air_temp=33.8,
-#         water_temp_surface=29.4 + round(random.uniform(-3,3), 1),
-#         water_temp_1_m=41.8 + round(random.uniform(-3,3), 1),
-#         water_temp_2_m=39.9 + round(random.uniform(-3,3), 1),
-#         water_temp_6_m=48.7 + round(random.uniform(-3,3), 1),
-#         water_temp_bottom=51.5 + round(random.uniform(-3,3), 1),
-#         salinity_surface=14.8 + round(random.uniform(-3,3), 1),
-#         salinity_1_m=10.5 + round(random.uniform(-3,3), 1),
-#         salinity_2_m=11.8 + round(random.uniform(-3,3), 1),
-#         salinity_6_m=12.8 + round(random.uniform(-3,3), 1),
-#         salinity_bottom=19.2 + round(random.uniform(-3,3), 1)
-#     )
+        return {'message':'Trident encounter deleted successfully'}
 
-#     trident_encounter = TridentEncounter(
-#         turtle=turtle,
-#         metadata=metadata,
-#         encounter_date=timenow,
-#         encounter_time=timenow,
-#         investigated_by=random.choice(names),
-#         entered_by=random.choice(names),
-#         entered_date=timenow,
-#         verified_by=random.choice(names),
-#         verified_date=timenow,
-#         living_tags=False,
-#         other="Other information goes here",
-#         leeches=False,
-#         leeches_where="",
-#         leech_eggs=True,
-#         leech_eggs_where="Sadly there are leech eggs on this turtle",
-#         paps_present=True,
-#         number_of_paps=5,
-#         paps_regression="They are not regressing",
-#         photos=False,
-#         pap_photos=False,
-#         notes="I did not take a lot of notes on this turtle",
-#         capture_location="yup somewhere",
-#         capture_method=random.choice(method),
-#         number_on_carapace=2,
-#         disposition_of_specimen="it was angry"
-#     )
+    return {'message':'No matching trident encounters found'}
 
-#     tag1 = Tag(
-#         turtle=turtle,
-#         tag_number=random.choice(letters) + random.choice(letters) + str(random.randint(1000,9999)),
-#         tag_scars=False,
-#         active=True,
-#         tag_type="LF"
-#     )
+def delete_trident_metadata(data):
+    metadata_id = data.get('metadata_id')
 
-#     tag2 = Tag(
-#         turtle=turtle,
-#         tag_number=random.choice(letters) + random.choice(letters) + str(random.randint(1000,9999)),
-#         tag_scars=False,
-#         active=True,
-#         tag_type="RF"
-#     )
+    if metadata_id is None:
+        return {'error': 'TridentMetadata delete input is in invalid format'}
+    
+    edit_metadata = db.session.query(TridentMetadata).filter(TridentMetadata.metadata_id == metadata_id).first()
 
-#     tag3 = Tag(
-#         turtle=turtle,
-#         tag_number=random.choice(letters) + random.choice(letters) + str(random.randint(1000,9999)),
-#         tag_scars=False,
-#         active=True,
-#         tag_type="PIT"
-#     )
+    if edit_encounter is not None:
+        db.session.delete(edit_encounter)   # Get current DB values
+        db.session.commit()                 # commit changes to DB
 
-#     tags = (tag1, tag2, tag3)
+        return {'message':'Lagoon metadata deleted successfully'}
 
-#     morphometrics = Morphometrics(
-#         turtle=turtle,
-#         encounter=trident_encounter,
-#         curved_length=14.0 + round(random.uniform(-3,3), 1),
-#         straight_length=23.7 + round(random.uniform(-3,3), 1),
-#         minimum_length=12.5 + round(random.uniform(-3,3), 1),
-#         plastron_length=50.2 + round(random.uniform(-3,3), 1),
-#         weight=132 + round(random.uniform(-3,3), 1),
-#         curved_width=32.0 + round(random.uniform(-3,3), 1),
-#         straight_width=14.5 + round(random.uniform(-3,3), 1),
-#         tail_length_pl_vent=32.0 + round(random.uniform(-3,3), 1),
-#         tail_length_pl_tip=31.9 + round(random.uniform(-3,3), 1),
-#         head_width=7.1 + round(random.uniform(-3,3), 1),
-#         body_depth=14.1 + round(random.uniform(-3,3), 1),
-#         flipper_damage='Something should go here',
-#         carapace_damage='I am out of ideas'
-#     )
-
-#     sample = Sample(
-#         encounter=trident_encounter,
-#         skin_1=True,
-#         skin_1_for="NO IDEA",
-#         skin_2=True,
-#         skin_2_for="Skin text",
-#         blood=False,
-#         blood_for="",
-#         scute=False,
-#         scute_for="",
-#         other=False,
-#         other_for=""
-#     )
-
-#     net = Net(
-#         metadata=metadata,
-#         net_number=3,
-#         net_deploy_start_time=timenow,
-#         net_deploy_end_time=timenow,
-#         net_retrieval_start_time=timenow,
-#         net_retrieval_end_time=timenow
-#     )
-
-#     incidental_capture = IncidentalCapture(
-#         metadata=metadata,
-#         species="Some non-turtle",
-#         capture_time=datetime.datetime.now(),
-#         measurement = "it is a pretty large creature",
-#         notes = "nothing clever to say"
-#     )
-
-#     db.session.add(trident_encounter)
-#     db.session.commit()
+    return {'message':'No matching lagoon metadatas found'}
