@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify, Response
 from flask_restful import Resource, Api
 import json
-from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon, delete_lagoon
+from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon, delete_lagoon, delete_lagoon_metadata
 from turtleapi.capture.trident import (mini_query_trident, query_trident, insert_trident, query_trident_metadata,
-	insert_trident_metadata)
+	insert_trident_metadata, edit_trident, delete_trident, delete_trident_metadata)
 from turtleapi.capture.beach import insert_beach
 from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
 	query_offshore_metadata, insert_offshore_metadata, edit_lagoon_metadata)
@@ -87,6 +87,12 @@ class EditLagoonMetadata(Resource):
 		response = edit_lagoon_metadata(json_data)
 		return response, 200
 
+class DeleteLagoonMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = delete_lagoon_metadata(json_data)
+		return response, 200
+
 class InsertTrident(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
@@ -116,7 +122,30 @@ class QueryTridentMetadata(Resource):
 		json_data = request.get_json(force=True)
 		return query_trident_metadata(json_data)
 
-# class EditTrident(Resource):
+class EditTrident(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = edit_trident(json_data)
+		return response, 200
+
+class DeleteTrident(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = delete_trident(json_data)
+		return response, 200
+
+class EditTridentMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = edit_trident_metadata(json_data)
+		return response, 200
+
+class DeleteTridentMetadata(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = delete_trident_metadata(json_data)
+		return response, 200
+
 # class InsertOffshore(Resource):
 
 class InsertOffshoreMetadata(Resource):
@@ -176,13 +205,17 @@ api.add_resource(DeleteLagoon, '/api/capture/lagoon/delete')
 api.add_resource(InsertLagoonMetadata, '/api/capture/lagoon/metadata/insert')
 api.add_resource(QueryLagoonMetadata, '/api/capture/lagoon/metadata/query')
 api.add_resource(EditLagoonMetadata, '/api/capture/lagoon/metadata/edit')
+api.add_resource(DeleteLagoonMetadata, '/api/capture/lagoon/metadata/delete')
 
-api.add_resource(InsertTrident, '/api/capture/trident/insert')
-api.add_resource(InsertTridentMetadata, '/api/capture/trident/metadata/insert')
 api.add_resource(MiniQueryTrident, '/api/capture/trident/mini_query')
 api.add_resource(QueryTrident, '/api/capture/trident/query')
+api.add_resource(InsertTrident, '/api/capture/trident/insert')
+api.add_resource(EditTrident, '/api/capture/trident/edit')
+api.add_resource(DeleteTrident, '/api/capture/trident/delete')
+api.add_resource(InsertTridentMetadata, '/api/capture/trident/metadata/insert')
 api.add_resource(QueryTridentMetadata, '/api/capture/trident/metadata/query')
-# api.add_resource(EditTrident, '/api/capture/trident/edit')
+api.add_resource(EditTridentMetadata, '/api/capture/trident/metadata/edit')
+api.add_resource(DeleteTridentMetadata, '/api/capture/trident/metadata/delete')
 
 # api.add_resource(InsertOffshore, '/api/capture/offshore/insert')
 api.add_resource(InsertOffshoreMetadata, '/api/capture/offshore/metadata/insert')

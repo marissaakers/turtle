@@ -146,6 +146,44 @@ def insert_trident(data):
     db.session.add(encounter)
     db.session.commit()
 
+def edit_trident(data):
+    encounter_id = data.get('encounter_id')
+
+    if encounter_id is None:
+        return {'error': 'TridentEncounter edit input is in invalid format'}
+    
+    edit_encounter = db.session.query(TridentEncounter).filter(TridentEncounter.encounter_id == encounter_id).first()
+
+    if edit_encounter is not None:
+        new_encounter_values = edit_encounter.to_dict()         # Get current DB values
+        new_encounter_values.update(data)                       # Update with any new values from incoming JSON
+        edit_encounter.update_from_dict(new_encounter_values)   # Update DB entry
+        
+        db.session.commit()                                     # commit changes to DB
+
+        return {'message':'Trident encounter edited successfully'}
+
+    return {'message':'No matching trident encounters found'}
+
+def edit_trident_metadata(data):
+    metadata_id = data.get('metadata_id')
+
+    if metadata_id is None:
+        return {'error': 'TridentMetadata edit input is in invalid format'}
+    
+    edit_metadata = db.session.query(TridentMetadata).filter(TridentMetadata.metadata_id == metadata_id).first()
+
+    if edit_metadata is not None:
+        new_metadata_values = edit_metadata.to_dict()           # Get current DB values
+        new_metadata_values.update(data)                        # Update with any new values from incoming JSON
+        edit_metadata.update_from_dict(new_metadata_values)     # Update DB entry
+        
+        db.session.commit()                                     # commit changes to DB
+
+        return {'message':'Trident metadata edited successfully'}
+
+    return {'message':'No matching trident metadatas found'}
+
 def delete_trident(data):
     encounter_id = data.get('encounter_id')
 
@@ -174,6 +212,6 @@ def delete_trident_metadata(data):
         db.session.delete(edit_encounter)   # Get current DB values
         db.session.commit()                 # commit changes to DB
 
-        return {'message':'Lagoon metadata deleted successfully'}
+        return {'message':'Trident metadata deleted successfully'}
 
-    return {'message':'No matching lagoon metadatas found'}
+    return {'message':'No matching trident metadatas found'}

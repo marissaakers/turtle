@@ -51,17 +51,16 @@ def edit_lagoon_metadata(data):
     
     edit_metadata = db.session.query(LagoonMetadata).filter(LagoonMetadata.metadata_id == metadata_id).first()
 
-    # if edit_metadata is not None:
-    #     new_metadata_values = edit_metadata.to_dict()           # Get current DB values
-    #     new_metadata_values.update(data)                        # Update with any new values from incoming JSON
-    #     edit_metadata.update_from_dict(new_metadata_values)     # Update DB entry
+    if edit_metadata is not None:
+        new_metadata_values = edit_metadata.to_dict()           # Get current DB values
+        new_metadata_values.update(data)                        # Update with any new values from incoming JSON
+        edit_metadata.update_from_dict(new_metadata_values)     # Update DB entry
         
-    #     db.session.commit()                                     # commit changes to DB
+        db.session.commit()                                     # commit changes to DB
 
-    #     return {'message':'Lagoon metadata edited successfully'}
+        return {'message':'Lagoon metadata edited successfully'}
 
-    # return {'message':'No matching lagoon metadatas found'}
-    return edit_metadata.to_json()
+    return {'message':'No matching lagoon metadatas found'}
 
 
 def query_offshore_metadata(data):
