@@ -3,7 +3,7 @@ from flask_restful import Resource, Api
 import json
 from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon, delete_lagoon, delete_lagoon_metadata
 from turtleapi.capture.trident import (mini_query_trident, query_trident, insert_trident, query_trident_metadata,
-	insert_trident_metadata, edit_trident, delete_trident, delete_trident_metadata)
+	insert_trident_metadata, edit_trident, delete_trident, delete_trident_metadata, edit_trident_metadata)
 from turtleapi.capture.beach import insert_beach
 from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
 	query_offshore_metadata, insert_offshore_metadata, edit_lagoon_metadata)
