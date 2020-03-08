@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, Response
 from flask_restful import Resource, Api
 import json
-from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon
+from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon, delete_lagoon
 from turtleapi.capture.trident import (mini_query_trident, insert_trident, query_trident_metadata,
 	insert_trident_metadata)
 from turtleapi.capture.beach import insert_beach
@@ -73,6 +73,12 @@ class EditLagoon(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
 		response = edit_lagoon(json_data)
+		return response, 200
+
+class DeleteLagoon(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = delete_lagoon(json_data)
 		return response, 200
 
 class EditLagoonMetadata(Resource):
@@ -162,6 +168,7 @@ api.add_resource(MiniQueryLagoon, '/api/capture/lagoon/mini_query')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
 api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
 api.add_resource(EditLagoon, '/api/capture/lagoon/edit')
+api.add_resource(DeleteLagoon, '/api/capture/lagoon/delete')
 api.add_resource(InsertLagoonMetadata, '/api/capture/lagoon/metadata/insert')
 api.add_resource(QueryLagoonMetadata, '/api/capture/lagoon/metadata/query')
 api.add_resource(EditLagoonMetadata, '/api/capture/lagoon/metadata/edit')

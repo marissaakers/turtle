@@ -130,3 +130,19 @@ def edit_lagoon(data):
         return {'message':'Lagoon encounter edited successfully'}
 
     return {'message':'No matching lagoon encounters found'}
+
+def delete_lagoon(data):
+    encounter_id = data.get('encounter_id')
+
+    if encounter_id is None:
+        return {'error': 'LagoonEncounter delete input is in invalid format'}
+    
+    edit_encounter = db.session.query(LagoonEncounter).filter(LagoonEncounter.encounter_id == encounter_id).first()
+
+    if edit_encounter is not None:
+        db.session.delete(edit_encounter)   # Get current DB values
+        db.session.commit()                 # commit changes to DB
+
+        return {'message':'Lagoon encounter deleted successfully'}
+
+    return {'message':'No matching lagoon encounters found'}

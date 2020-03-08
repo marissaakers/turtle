@@ -18,9 +18,9 @@ class Turtle(BaseModel):
 	turtle_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Dependencies
-	tags = relationship('Tag', backref='turtle', supports_dict=True, supports_json=True)
-	clutches = relationship('Clutch', backref='turtle', supports_dict=True, supports_json=True)
-	encounters = relationship('Encounter', backref='turtle', lazy='dynamic', supports_dict=True, supports_json=True)	
+	tags = relationship('Tag', backref='turtle', cascade="delete", supports_dict=True, supports_json=True)
+	clutches = relationship('Clutch', backref='turtle', cascade="delete", supports_dict=True, supports_json=True)
+	encounters = relationship('Encounter', backref='turtle', cascade="delete", lazy='dynamic', supports_dict=True, supports_json=True)	
 
 	# Various fields
 	species = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -143,8 +143,8 @@ class Metadata(BaseModel):
 
 	# Dependencies
 	encounters = relationship('Encounter', backref='metadata', supports_dict=True, supports_json=True)
-	nets = relationship('Net', backref='metadata', lazy=True, supports_dict=True, supports_json=True)
-	incidental_captures = relationship('IncidentalCapture', backref='metadata', supports_dict=True, supports_json=True)
+	nets = relationship('Net', backref='metadata', cascade="delete", lazy=True, supports_dict=True, supports_json=True)
+	incidental_captures = relationship('IncidentalCapture', backref='metadata', cascade="delete", supports_dict=True, supports_json=True)
 
 	# Polymorphism
 	type = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -272,8 +272,8 @@ class Encounter(BaseModel):
 	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Dependencies
-	samples = relationship('Sample', backref='encounter', supports_dict=True, supports_json=True)
-	morphometrics = relationship('Morphometrics', backref=backref('encounter', uselist=False), supports_dict=True, supports_json=True)
+	samples = relationship('Sample', backref='encounter', cascade="delete", supports_dict=True, supports_json=True)
+	morphometrics = relationship('Morphometrics', backref=backref('encounter', uselist=False), cascade="delete", supports_dict=True, supports_json=True)
 
 	# Fields
 	old_encounter_id = Column(db.Integer, supports_dict=True, supports_json=True)
@@ -294,7 +294,7 @@ class Sample(BaseModel):
 	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Dependencies
-	tracking_entries = relationship('SampleTracking', backref='sample', lazy='joined', supports_dict=True, supports_json=True)
+	tracking_entries = relationship('SampleTracking', backref='sample', cascade="delete", lazy='joined', supports_dict=True, supports_json=True)
 
 	# Various fields
 	sample_type = Column(db.Text, supports_dict=True, supports_json=True)
