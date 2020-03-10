@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify, Response
 from flask_restful import Resource, Api
 import json
-from turtleapi.capture.lagoon import query_lagoon, mini_query_lagoon, insert_lagoon, edit_lagoon, delete_lagoon, delete_lagoon_metadata
-from turtleapi.capture.trident import (mini_query_trident, query_trident, insert_trident, query_trident_metadata,
-	insert_trident_metadata, edit_trident, delete_trident, delete_trident_metadata, edit_trident_metadata)
-from turtleapi.capture.beach import insert_beach
-from turtleapi.capture.metadata import (query_lagoon_metadata, insert_lagoon_metadata,
-	query_offshore_metadata, insert_offshore_metadata, edit_lagoon_metadata)
+from turtleapi.capture.lagoon import (mini_query_lagoon, query_lagoon, query_lagoon_metadata, insert_lagoon,
+	insert_lagoon_metadata, edit_lagoon, edit_lagoon_metadata, delete_lagoon, delete_lagoon_metadata)
+from turtleapi.capture.trident import (mini_query_trident, query_trident, query_trident_metadata, insert_trident,
+	insert_trident_metadata, edit_trident, edit_trident_metadata, delete_trident, delete_trident_metadata)
+from turtleapi.capture.beach import mini_query_beach, query_beach, insert_beach, edit_beach, delete_beach
+from turtleapi.capture.offshore import (mini_query_offshore, query_offshore, insert_offshore, edit_offshore,
+	delete_offshore)
 # from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 # 	update_tracking_entry, delete_tracking_entry)
 
@@ -146,23 +147,43 @@ class DeleteTridentMetadata(Resource):
 		response = delete_trident_metadata(json_data)
 		return response, 200
 
-# class InsertOffshore(Resource):
-
-class InsertOffshoreMetadata(Resource):
+class InsertOffshore(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		response = insert_offshore_metadata(json_data)
+		response = insert_offshore(json_data)
 		return response, 200
 
-# class MiniQueryOffshore(Resource):
-# class QueryOffshore(Resource):
-
-class QueryOffshoreMetadata(Resource):
+class MiniQueryOffshore(Resource):
 	def post(self):
 		json_data = request.get_json(force=True)
-		return query_offshore_metadata(json_data)
+		return mini_query_offshore(json_data)
 
-# class EditOffshore(Resource):
+class QueryOffshore(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		return query_offshore(json_data)
+
+class EditOffshore(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = edit_offshore(json_data)
+		return response, 200
+
+class DeleteOffshore(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = delete_offshore(json_data)
+		return response, 200
+
+class MiniQueryBeach(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		return mini_query_beach(json_data)
+
+class QueryBeach(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		return query_beach(json_data)
 
 class InsertBeach(Resource):
 	def post(self):
@@ -170,9 +191,17 @@ class InsertBeach(Resource):
 		response = insert_beach(json_data)
 		return response, 200
 
-# class MiniQueryBeach(Resource):
-# class QueryBeach(Resource):
-# class EditBeach(Resource):
+class EditBeach(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = edit_beach(json_data)
+		return response, 200
+
+class DeleteBeach(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = delete_beach(json_data)
+		return response, 200
 
 # class Sample(Resource):
 # 	def get(self, sample_id):
@@ -217,17 +246,17 @@ api.add_resource(QueryTridentMetadata, '/api/capture/trident/metadata/query')
 api.add_resource(EditTridentMetadata, '/api/capture/trident/metadata/edit')
 api.add_resource(DeleteTridentMetadata, '/api/capture/trident/metadata/delete')
 
-# api.add_resource(InsertOffshore, '/api/capture/offshore/insert')
-api.add_resource(InsertOffshoreMetadata, '/api/capture/offshore/metadata/insert')
-# api.add_resource(MiniQueryOffshore, '/api/capture/offshore/mini_query')
-# api.add_resource(QueryOffshore, '/api/capture/offshore/query')
-api.add_resource(QueryOffshoreMetadata, '/api/capture/offshore/metadata/query')
-# api.add_resource(EditOffshore, '/api/capture/offshore/edit')
+api.add_resource(MiniQueryOffshore, '/api/capture/offshore/mini_query')
+api.add_resource(QueryOffshore, '/api/capture/offshore/query')
+api.add_resource(InsertOffshore, '/api/capture/offshore/insert')
+api.add_resource(EditOffshore, '/api/capture/offshore/edit')
+api.add_resource(DeleteOffshore, '/api/capture/offshore/delete')
 
+api.add_resource(MiniQueryBeach, '/api/capture/beach/mini_query')
+api.add_resource(QueryBeach, '/api/capture/beach/query')
 api.add_resource(InsertBeach, '/api/capture/beach/insert')
-# api.add_resource(MiniQueryBeach, '/api/capture/beach/mini_query')
-# api.add_resource(QueryBeach, '/api/capture/beach/query')
-# api.add_resource(EditBeach, '/api/capture/beach/edit')
+api.add_resource(EditBeach, '/api/capture/beach/edit')
+api.add_resource(DeleteBeach, '/api/capture/beach/delete')
 
 # api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
 # api.add_resource(SampleTracking, '/api/capture/sample/tracking',

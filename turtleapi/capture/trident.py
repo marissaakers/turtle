@@ -15,14 +15,12 @@ def mini_query_trident(data):
         filters['metadata_id'] = db.session.query(TridentMetadata.metadata_id).filter(TridentMetadata.metadata_date == filters['metadata_date']).first()
         if filters['metadata_id'] is None:  # If date doesn't match anything, make sure we return no results
             filters['metadata_id'] = -1
-        else:                               # If there was a result, get the first element... need to do this after None check
-            filters['metadata_id'] = filters['metadata_id'][0]
 
     queries = generate_miniquery_queries(filters)
 
     queries.append(Encounter.type == "trident")
 
-    result = db.session.query(TridentEncounter.encounter_id, TridentEncounter.encounter_date,Turtle.turtle_id, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all() # returns list of result objects
+    result = db.session.query(TridentEncounter.encounter_id, TridentEncounter.encounter_date, Turtle.turtle_id, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all() # returns list of result objects
     final_result = [x._asdict() for x in result] # json.dumps() strips the name of the field... convert to dict and json.dumps() saves it
 
     return Response(json.dumps(final_result, default = date_handler),mimetype = 'application/json')
@@ -88,13 +86,6 @@ def query_trident_metadata(data):
     
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
-def insert_trident_metadata(data):
-    metadata = TridentMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
-    db.session.add(metadata)
-    db.session.commit()
-
-    return {'message': 'no errors'}
-
 def insert_trident(data):
     data2 = {}
     data2['encounters'] = data
@@ -135,7 +126,7 @@ def insert_trident(data):
             db.session.add(tag)
     else:
         if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
-            data2['encounters']['capture_type'] = "recap"
+            data2['encounters']['capture_type'] = "new"
         metadata_id = data2['encounters']['metadata_id']
         encounter = TridentEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         encounter.metadata_id = metadata_id
@@ -145,6 +136,13 @@ def insert_trident(data):
     encounter.turtle = turtle
     db.session.add(encounter)
     db.session.commit()
+
+def insert_trident_metadata(data):
+    metadata = TridentMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
+    db.session.add(metadata)
+    db.session.commit()
+
+    return {'message': 'no errors'}
 
 def edit_trident(data):
     encounter_id = data.get('encounter_id')

@@ -10,7 +10,13 @@ def parse_time(value):
 	if isinstance(value, str):   					# strptime expects a str
 		return datetime.strptime(value, '%H:%M')
 	else:                        					# otherwise, try returning it. E.x. datetime, time, None
-		return value
+		return value.strftime('%H:%M')
+
+def parse_date(value):
+	if isinstance(value, str):
+		return datetime.strptime(value, '%Y-%m-%d')
+	else:
+		return value.strftime('%Y-%m-%d')
 
 class Turtle(BaseModel):
 	__tablename__ = 'turtle'
@@ -56,8 +62,8 @@ class Clutch(BaseModel):
 	clutch_deposited = Column(db.Boolean, supports_dict=True, supports_json=True)
 	sand_type = Column(db.String(50), supports_dict=True, supports_json=True)
 	placement = Column(db.String(50), supports_dict=True, supports_json=True)
-	emergence_date = Column(db.Date, supports_dict=True, supports_json=True)
-	inventory_date = Column(db.Date, supports_dict=True, supports_json=True)
+	emergence_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
+	inventory_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	hidden_stake_in_place = Column(db.Boolean, supports_dict=True, supports_json=True)
 	obvious_stake_in_place = Column(db.Boolean, supports_dict=True, supports_json=True)
 	emergence = Column(db.Boolean, supports_dict=True, supports_json=True)
@@ -72,9 +78,9 @@ class Clutch(BaseModel):
 	poached = Column(db.Boolean, supports_dict=True, supports_json=True)
 	inventoried_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(40), supports_dict=True, supports_json=True)
-	entered_date = Column(db.Date, supports_dict=True, supports_json=True)
+	entered_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	verified_by = Column(db.String(40), supports_dict=True, supports_json=True)
-	verified_date = Column(db.Date, supports_dict=True, supports_json=True)
+	verified_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	
 	# Hatchlings
 	hatched = Column(db.Integer, supports_dict=True, supports_json=True)
@@ -159,7 +165,7 @@ class LagoonMetadata(Metadata):
 	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'),primary_key=True, nullable=False, supports_dict=True, supports_json=True)
 
 	# Various fields
-	metadata_date = Column(db.Date, supports_dict=True, supports_json=True)
+	metadata_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	metadata_location = Column(db.Text, supports_dict=True, supports_json=True)
 	metadata_investigators = Column(db.Text, supports_dict=True, supports_json=True)
 	number_of_cc_captured = Column(db.Integer, supports_dict=True, supports_json=True)
@@ -195,7 +201,7 @@ class TridentMetadata(Metadata):
 	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
 
 	# Various fields
-	metadata_date = Column(db.Date, supports_dict=True, supports_json=True)
+	metadata_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	metadata_location = Column(db.Text, supports_dict=True, supports_json=True)
 	metadata_investigators = Column(db.Text, supports_dict=True, supports_json=True)
 	number_of_cc_captured = Column(db.Integer, supports_dict=True, supports_json=True)
@@ -231,7 +237,7 @@ class OffshoreMetadata(Metadata):
 	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
 
 	# Capture
-	capture_date = Column(db.Date, supports_dict=True, supports_json=True)
+	capture_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	capture_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_latitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	capture_longitude = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -301,7 +307,7 @@ class Sample(BaseModel):
 	received_by = Column(db.Text, supports_dict=True, supports_json=True)
 	purpose_of_sample = Column(db.Text, supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
-	entered_date = Column(db.Date, supports_dict=True, supports_json=True)
+	entered_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	entered_by = Column(db.Text, supports_dict=True, supports_json=True)
 
 class TridentEncounter(Encounter):
@@ -310,14 +316,14 @@ class TridentEncounter(Encounter):
 	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
 	
 	# Fields common to all encounter types
-	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
+	encounter_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
-	entered_date = Column(db.Date, supports_dict=True, supports_json=True)
+	entered_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
-	verified_date = Column(db.Date, supports_dict=True, supports_json=True)
+	verified_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
 	# Fields unique to trident encounters
@@ -350,14 +356,14 @@ class LagoonEncounter(Encounter):
 	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
 
 	# Fields common to all encounter types
-	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
+	encounter_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
-	entered_date = Column(db.Date, supports_dict=True, supports_json=True)
+	entered_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
-	verified_date = Column(db.Date, supports_dict=True, supports_json=True)
+	verified_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
 
@@ -387,19 +393,19 @@ class BeachEncounter(Encounter):
 	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
 
 	# Fields common to all encounter types
-	encounter_date = Column(db.Date, supports_dict=True, supports_json=True)
+	encounter_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
-	entered_date = Column(db.Date, supports_dict=True, supports_json=True)
+	entered_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
-	verified_date = Column(db.Date, supports_dict=True, supports_json=True)
+	verified_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 
 	# Fields unique to beach encounters
 	prime_tag = Column(db.String(30), supports_dict=True, supports_json=True)
-	days_45 = Column(db.Date, supports_dict=True, supports_json=True)
-	days_70 = Column(db.Date, supports_dict=True, supports_json=True)
+	days_45 = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
+	days_70 = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	activity = Column(db.String(50), supports_dict=True, supports_json=True)
 	location_detail = Column(db.Text, supports_dict=True, supports_json=True)
 	location_NS = Column(db.String(1), supports_dict=True, supports_json=True)
@@ -498,7 +504,7 @@ class SampleTracking(BaseModel):
 	sample_id = Column(db.Integer, db.ForeignKey('sample.sample_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Fields
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
 class NSRefuge(BaseModel):
@@ -508,7 +514,7 @@ class NSRefuge(BaseModel):
 
 	# Fields
 	type = Column(db.String(1), supports_dict=True, supports_json=True)
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	initials = Column(db.String(30), supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
@@ -684,7 +690,7 @@ class PAFB(BaseModel):
 	pafb_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	initials = Column(db.String(30), supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
@@ -1042,7 +1048,7 @@ class MidReach(BaseModel):
 	mid_reach_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	initials = Column(db.String(30), supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
@@ -1640,7 +1646,7 @@ class SouthReach(BaseModel):
 	south_reach_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	initials = Column(db.String(30), supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 
@@ -2031,7 +2037,7 @@ class FalseCrawl(BaseModel):
 	false_crawl_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	species = Column(db.String(30), supports_dict=True, supports_json=True)
 	project_area = Column(db.Boolean, supports_dict=True, supports_json=True)
 	hit_scarp_over_18 = Column(db.Boolean, supports_dict=True, supports_json=True)
@@ -2048,7 +2054,7 @@ class Scarp(BaseModel):
 	scarp_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	beginning_location = Column(db.Float(5), supports_dict=True, supports_json=True)
 	end_location = Column(db.Float(5), supports_dict=True, supports_json=True)
 	location = Column(db.String(15), supports_dict=True, supports_json=True)
@@ -2073,7 +2079,7 @@ class Depredation(BaseModel):
 	depredation_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
 	# Fields
-	date = Column(db.Date, supports_dict=True, supports_json=True)
+	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	species = Column(db.String(30), supports_dict=True, supports_json=True)
 	location = Column(db.Float(5), supports_dict=True, supports_json=True)
 	ns = Column(db.String(1), supports_dict=True, supports_json=True)

@@ -1,5 +1,6 @@
 from turtleapi import db
-from turtleapi.models.turtlemodels import Turtle, Tag, Encounter
+from sqlalchemy.orm import with_polymorphic
+from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
 import json
 from flask import jsonify
 
@@ -90,25 +91,25 @@ def get_miniquery_filters(data):
 
     return filters
 
-def generate_miniquery_queries(filters):
+def generate_miniquery_queries(filters, enc):
 
     queries = []
 
     if filters['turtle_ids'] is not None:
         queries.append(Encounter.turtle_id.in_(filters['turtle_ids']))
     if filters['encounter_date_start'] is not None:
-        queries.append(Encounter.encounter_date >= filters['encounter_date_start'])
+        queries.append(enc.encounter_date >= filters['encounter_date_start'])
     if filters['encounter_date_end'] is not None:
-        queries.append(Encounter.encounter_date <= filters['encounter_date_end'])
+        queries.append(enc.encounter_date <= filters['encounter_date_end'])
     if filters['entered_by'] is not None:
-        queries.append(Encounter.entered_by == filters['entered_by'])
+        queries.append(enc.entered_by == filters['entered_by'])
     if filters['verified_by'] is not None:
-        queries.append(Encounter.entered_by == filters['verified_by'])
+        queries.append(enc.verified_by == filters['verified_by'])
     if filters['investigated_by'] is not None:
-        queries.append(Encounter.entered_by == filters['investigated_by'])
+        queries.append(enc.investigated_by == filters['investigated_by'])
     if filters['species'] is not None:
         queries.append(Turtle.species == filters['species'])
     if filters['metadata_id'] is not None:
-        queries.append(Encounter.metadata_id == filters['metadata_id'])
+        queries.append(Encounter.metadata_id.in_(filters['metadata_id']))
 
     return queries
