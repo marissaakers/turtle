@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from turtleapi.capture.query_lagoon import query_lagoon
+from turtleapi.capture.lagoon import query_lagoon
 from turtleapi.exports.csv_exports import lagoon_csv_export
 
 exportsbp = Blueprint('exports', __name__, url_prefix='/api/exports')
