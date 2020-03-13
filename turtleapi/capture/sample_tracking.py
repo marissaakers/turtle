@@ -1,5 +1,5 @@
 from turtleapi import db
-from turtleapi.models.turtlemodels import Sample, SampleSchema, SampleTracking, SampleHistorySchema
+from turtleapi.models.turtlemodels import Sample, SampleTracking
 from sqlalchemy.orm import load_only, defer
 
 def add_tracking_entry(data):
@@ -22,9 +22,8 @@ def update_tracking_entry(sample_tracking_id, data):
     return 'Successfully updated tracking entry'
 
 def get_sample(sample_id):
-    schema = SampleHistorySchema()
-    query_result = Sample.query.filter_by(sample_id=sample_id).first()
-    return schema.dump(query_result)
+    query_result = db.session.query(Sample).filter_by(sample_id=sample_id).first()
+    return query_result.to_dict(max_nesting=1)
 
 def delete_tracking_entry(sample_tracking_id):
     print(sample_tracking_id)
