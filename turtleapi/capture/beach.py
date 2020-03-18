@@ -109,7 +109,63 @@ def insert_beach(data):
     return {'message': 'no errors'}
 
 def edit_beach(data):
-    return {'message': 'WIP'}
+    turtle = data.get('turtle')
+    if turtle is not None:
+        turtle_id = turtle.get('turtle_id')
+        if turtle_id is not None:
+            edit_turtle = db.session.query(Turtle).filter(Turtle.turtle_id == turtle_id).first()
+            if edit_turtle is not None:
+                new_turtle_values = edit_turtle.to_dict()       # Get current DB values
+                new_turtle_values.update(turtle)                # Update with any new values from incoming JSON
+                edit_turtle.update_from_dict(new_turtle_values) # Update DB entry
+
+    encounter = data.get('encounter')
+    if encounter is not None:
+        encounter_id = encounter.get('encounter_id')
+        if encounter_id is not None:
+            edit_encounter = db.session.query(BeachEncounter).filter(BeachEncounter.encounter_id == encounter_id).first()
+            # return Response(json.dumps(edit_encounter.to_dict(max_nesting=5), default = date_handler),mimetype = 'application/json')
+
+            if edit_encounter is not None:
+                new_encounter_values = edit_encounter.to_dict()
+                new_encounter_values.update(encounter)
+                edit_encounter.update_from_dict(new_encounter_values)
+
+    morphometrics = data.get('morphometrics')
+    if morphometrics is not None:
+        morphometrics_id = morphometrics.get('morphometrics_id')
+        if morphometrics_id is not None:
+            edit_morphometrics = db.session.query(Morphometrics).filter(Morphometrics.morphometrics_id == morphometrics_id).first()
+            if edit_morphometrics is not None:
+                new_morphometrics_values = edit_morphometrics.to_dict()
+                new_morphometrics_values.update(morphometrics)
+                edit_morphometrics.update_from_dict(new_morphometrics_values)
+
+    tags = data.get('tags')
+    if tags is not None:
+        for t in tags:
+            tag_id = t.get('tag_id')
+            if tag_id is not None:
+                edit_tag = db.session.query(Tag).filter(Tag.tag_id == tag_id).first()
+                if edit_tag is not None:
+                    new_tag_values = edit_tag.to_dict()
+                    new_tag_values.update(t)
+                    edit_tag.update_from_dict(new_tag_values)
+    
+    clutches = data.get('clutches')
+    if clutches is not None:
+        for c in clutches:
+            clutch_id = c.get('clutch_id')
+            if clutch_id is not None:
+                edit_clutch = db.session.query(Clutch).filter(Clutch.clutch_id == clutch_id).first()
+                if edit_clutch is not None:
+                    new_clutch_values = edit_clutch.to_dict()
+                    new_clutch_values.update(c)
+                    edit_clutch.update_from_dict(new_clutch_values)
+
+    db.session.commit()
+
+    return {'message':'Beach encounter edited successfully'}
 
 def delete_beach(data):
     encounter_id = data.get('encounter_id')

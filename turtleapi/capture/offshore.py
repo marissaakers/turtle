@@ -108,33 +108,64 @@ def insert_offshore(data): # includes offshore metadata
 
     return {'message': 'no errors'}
 
-def edit_offshore(data):
-    return {'message': 'WIP'}
-    # encounter_id = data['metadata']['encounters'][0].get('encounter_id')
+def edit_offshore(data):                         # commit changes to DB
+    metadata = data.get('metadata')
+    if metadata is not None:
+        metadata_id = metadata.get('metadata_id')
+        if metadata_id is not None:
+            edit_metadata = db.session.query(OffshoreMetadata).filter(OffshoreMetadata.metadata_id == metadata_id).first()
 
-    # if encounter_id is None:
-    #     return {'error': 'OffshoreEncounter edit input is in invalid format'}
+            if edit_metadata is not None:
+                new_metadata_values = edit_metadata.to_dict()
+                new_metadata_values.update(metadata)
+                edit_metadata.update_from_dict(new_metadata_values)
     
-    # edit_encounter = db.session.query(OffshoreMetadata, Turtle.species, Tag).filter(OffshoreEncounter.encounter_id == encounter_id,
-    #                                                                                 OffshoreMetadata.metadata_id == OffshoreEncounter.metadata_id,
-    #                                                                                 Turtle.turtle_id == OffshoreEncounter.turtle_id,
-    #                                                                                 Tag.turtle_id == Turtle.turtle_id).first()
+    encounter = data.get('encounter')
+    if encounter is not None:
+        encounter_id = encounter.get('encounter_id')
+        if encounter_id is not None:
+            edit_encounter = db.session.query(OffshoreEncounter).filter(OffshoreEncounter.encounter_id == encounter_id).first()
+            # return Response(json.dumps(edit_encounter.to_dict(max_nesting=5), default = date_handler),mimetype = 'application/json')
 
-    # if edit_encounter is not None:
-    #     new_encounter_values = {}
-    #     new_encounter_values['metadata'] = edit_encounter[0].to_dict(max_nesting=5) # Get current DB values
-    #     new_encounter_values['species'] = edit_encounter[1]
-    #     new_encounter_values.update(tags = edit_encounter[2].to_dict())
-    #     # return new_encounter_values
-    #     new_encounter_values.update(data)                       # Update with any new values from incoming JSON
-    #     edit_encounter[0].update_from_dict(new_encounter_values['metadata'], error_on_extra_keys=False, drop_extra_keys=True)   # Update DB entry
-    #     edit_encounter[2].update_from_dict(new_encounter_values['tags'])
-        
-    #     db.session.commit()                                     # commit changes to DB
+            if edit_encounter is not None:
+                new_encounter_values = edit_encounter.to_dict()
+                new_encounter_values.update(encounter)
+                edit_encounter.update_from_dict(new_encounter_values)
 
-    #     return {'message':'Offshore encounter edited successfully'}
+    turtle = data.get('turtle')
+    if turtle is not None:
+        turtle_id = turtle.get('turtle_id')
+        if turtle_id is not None:
+            edit_turtle = db.session.query(Turtle).filter(Turtle.turtle_id == turtle_id).first()
+            if edit_turtle is not None:
+                new_turtle_values = edit_turtle.to_dict()       # Get current DB values
+                new_turtle_values.update(turtle)                # Update with any new values from incoming JSON
+                edit_turtle.update_from_dict(new_turtle_values) # Update DB entry
 
-    # return {'message':'No matching offshore encounters found'}
+    morphometrics = data.get('morphometrics')
+    if morphometrics is not None:
+        morphometrics_id = morphometrics.get('morphometrics_id')
+        if morphometrics_id is not None:
+            edit_morphometrics = db.session.query(Morphometrics).filter(Morphometrics.morphometrics_id == morphometrics_id).first()
+            if edit_morphometrics is not None:
+                new_morphometrics_values = edit_morphometrics.to_dict()
+                new_morphometrics_values.update(morphometrics)
+                edit_morphometrics.update_from_dict(new_morphometrics_values)
+
+    tags = data.get('tags')
+    if tags is not None:
+        for t in tags:
+            tag_id = t.get('tag_id')
+            if tag_id is not None:
+                edit_tag = db.session.query(Tag).filter(Tag.tag_id == tag_id).first()
+                if edit_tag is not None:
+                    new_tag_values = edit_tag.to_dict()
+                    new_tag_values.update(t)
+                    edit_tag.update_from_dict(new_tag_values)
+
+    db.session.commit()
+    
+    return {'message':'Offshore encounter edited successfully'}
 
 def delete_offshore(data):
     metadata_id = data.get('metadata_id')
