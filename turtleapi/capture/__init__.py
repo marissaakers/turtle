@@ -10,6 +10,7 @@ from turtleapi.capture.offshore import (mini_query_offshore, query_offshore, ins
 	delete_offshore)
 # from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 # 	update_tracking_entry, delete_tracking_entry)
+from turtleapi.capture.util import get_pdf # may remove this
 
 capturebp = Blueprint('captureapi', __name__)
 api = Api(capturebp)
@@ -203,6 +204,12 @@ class DeleteBeach(Resource):
 		response = delete_beach(json_data)
 		return response, 200
 
+class GetPDF(Resource):
+	def post(self):
+		json_data = request.get_json(force=True)
+		response = get_pdf(json_data)
+		return response
+
 # class Sample(Resource):
 # 	def get(self, sample_id):
 # 		# We get a sample id, and send back sample info including tracking
@@ -257,6 +264,8 @@ api.add_resource(QueryBeach, '/api/capture/beach/query')
 api.add_resource(InsertBeach, '/api/capture/beach/insert')
 api.add_resource(EditBeach, '/api/capture/beach/edit')
 api.add_resource(DeleteBeach, '/api/capture/beach/delete')
+
+api.add_resource(GetPDF, '/api/capture/pdf/get')
 
 # api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
 # api.add_resource(SampleTracking, '/api/capture/sample/tracking',

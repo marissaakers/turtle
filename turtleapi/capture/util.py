@@ -2,7 +2,8 @@ from turtleapi import db
 from sqlalchemy.orm import with_polymorphic
 from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
 import json
-from flask import jsonify
+from flask import jsonify, make_response
+import requests
 
 # Match one turtle
 def find_turtle_from_tags(tags):
@@ -113,3 +114,21 @@ def generate_miniquery_queries(filters, enc):
         queries.append(Encounter.metadata_id.in_(filters['metadata_id']))
 
     return queries
+
+def get_pdf(data):
+    filename = data.get('filename')
+    
+    if filename is None:
+        return {'error': 'PDF query missing filename input'}
+
+    url = 'https://mtrg-file-bucket.s3.amazonaws.com/' + filename + '.pdf'
+    print(url)
+    
+    pdf = requests.get(url)
+    if pdf.status_code is not 200:
+        return {'error': 'File does not exist'}
+    
+    response = make_response(pdf.content)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
+    return response
