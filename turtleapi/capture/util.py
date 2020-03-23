@@ -2,8 +2,8 @@ from turtleapi import db
 from sqlalchemy.orm import with_polymorphic
 from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
 import json
-from flask import jsonify, make_response
-import requests
+from flask import jsonify, make_response, redirect
+import requests, os, boto3 # could remove this (maybe others?) if i move pdf to its own file?
 
 # Match one turtle
 def find_turtle_from_tags(tags):
@@ -116,19 +116,31 @@ def generate_miniquery_queries(filters, enc):
     return queries
 
 def get_pdf(data):
-    filename = data.get('filename')
-    
-    if filename is None:
-        return {'error': 'PDF query missing filename input'}
+    # filename = data.get('filename')
 
-    url = 'https://mtrg-file-bucket.s3.amazonaws.com/' + filename + '.pdf'
-    print(url)
+    # if filename is None:
+    #     return {'error': 'PDF query missing filename input'}
+
+    # url = 'https://mtrg-files-bucket.s3.amazonaws.com/' + filename + '.pdf'
+    # print(url)
+
+    # pdf = requests.get(url)
+    # if pdf.status_code != 200:
+    #     return {'error': 'File does not exist'}
+
+    # response = make_response(pdf.content)
+    # response.headers['Content-Type'] = 'application/pdf'
+    # response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
+    # return response
+
+    filename = data.get('filename') # os.environ.get not working?
+    # s3 = boto3.client('s3',
+    #                     aws_access_key_id=os.environ.get(ACCESS_KEY_ID),
+    #                     aws_secret_access_key=os.environ.get(SECRET_ACCESS_KEY))
+    s3 = boto3.client('s3',
+                        aws_access_key_id=os.environ.get('AKIAVA5HZOYYIC335DWA'),
+                        aws_secret_access_key=os.environ.get('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'))
+
+    url = s3.generate_presigned_url('get_object', Params = {'Bucket': 'mtrg-files-bucket', 'Key': 'test.pdf'}, ExpiresIn = 100)
     
-    pdf = requests.get(url)
-    if pdf.status_code != 200:
-        return {'error': 'File does not exist'}
-    
-    response = make_response(pdf.content)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
-    return response
+    return redirect(url, code=302)

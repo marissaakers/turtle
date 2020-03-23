@@ -9,7 +9,9 @@
         	"POSTGRES_USER": "MTRG_ADMIN",
         	"POSTGRES_PW": "qR)SMn^w8LKxb4^iq^L2",
         	"POSTGRES_URL": "turtledb2.cryuatlylxd4.us-east-1.rds.amazonaws.com",
-        	"POSTGRES_DB": "turtledb"
+            "POSTGRES_DB": "postgres",
+            "ACCESS_KEY_ID": "AKIAVA5HZOYYIC335DWA",
+            "SECRET_ACCESS_KEY": "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"
         }
     }
 }
