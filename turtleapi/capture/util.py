@@ -125,7 +125,7 @@ def get_pdf(data):
     print(url)
     
     pdf = requests.get(url)
-    if pdf.status_code is not 200:
+    if pdf.status_code != 200:
         return {'error': 'File does not exist'}
     
     response = make_response(pdf.content)
