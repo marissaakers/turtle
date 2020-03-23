@@ -135,6 +135,8 @@ def insert_trident(data):
     db.session.add(encounter)
     db.session.commit()
 
+    return {'message': 'no errors'}
+
 def insert_trident_metadata(data):
     metadata = TridentMetadata.new_from_dict(data, error_on_extra_keys=False, drop_extra_keys=True)
     db.session.add(metadata)
@@ -253,6 +255,10 @@ def delete_trident_metadata(data):
     edit_metadata = db.session.query(TridentMetadata).filter(TridentMetadata.metadata_id == metadata_id).first()
 
     if edit_encounter is not None:
+        encounters = db.session.query(Encounter).filter(Encounter.metadata_id == metadata_id).first()
+        if encounters is not None:
+            return {'error': 'There are trident encounters associated with that metadata id'}
+        
         db.session.delete(edit_encounter)   # Get current DB values
         db.session.commit()                 # commit changes to DB
 

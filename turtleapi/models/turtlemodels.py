@@ -25,7 +25,6 @@ class Turtle(BaseModel):
 
 	# Dependencies
 	tags = relationship('Tag', backref='turtle', cascade="save-update, merge, delete", supports_dict=True, supports_json=True)
-	clutches = relationship('Clutch', backref='turtle', cascade="save-update, merge, delete", supports_dict=True, supports_json=True)
 	encounters = relationship('Encounter', backref='turtle', cascade="save-update, merge, delete", lazy='dynamic', supports_dict=True, supports_json=True)	
 
 	# Various fields
@@ -55,7 +54,6 @@ class Clutch(BaseModel):
 	clutch_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 	
 	# Foreign key
-	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False, supports_dict=True, supports_json=True)
 	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Various fields

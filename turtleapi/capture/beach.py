@@ -14,7 +14,7 @@ def mini_query_beach(data):
 
     queries = generate_miniquery_queries(filters, BeachEncounter)
 
-    result = db.session.query(BeachEncounter.encounter_id, BeachEncounter.encounter_date, Turtle.turtle_id, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).all() # returns list of result objects
+    result = db.session.query(BeachEncounter.encounter_id, BeachEncounter.encounter_date, Turtle.turtle_id, Turtle.species, Clutch.stake_number).filter(*queries, Turtle.turtle_id==Encounter.turtle_id, Clutch.encounter_id==Encounter.encounter_id).all() # returns list of result objects
     final_result = [x._asdict() for x in result] # json.dumps() strips the name of the field... convert to dict and json.dumps() saves it
 
     return Response(json.dumps(final_result, default = date_handler),mimetype = 'application/json')
@@ -48,10 +48,6 @@ def query_beach(data):
     tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['turtle_id']).all()
     result_encounter['tags'] = [x.to_dict() for x in tags]
 
-    # Grab clutches
-    clutches = db.session.query(Clutch).filter(Clutch.turtle_id==result_encounter['turtle_id']).all()
-    result_encounter['clutches'] = [x.to_dict() for x in clutches]
-
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 def insert_beach(data):
@@ -59,11 +55,10 @@ def insert_beach(data):
     data2['encounters'] = data
     data2['tags'] = data2['encounters']['tags']
     del data2['encounters']['tags']
-    data2['clutches'] = [data2['encounters']['clutches']]
-    del data2['encounters']['clutches']
     data2['species'] = data2['encounters']['species']
     del data2['encounters']['species']
     data2['encounters']['morphometrics'] = [data2['encounters']['morphometrics']]
+    data2['encounters']['clutches'] = [data2['encounters']['clutches']]
 
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
@@ -92,9 +87,6 @@ def insert_beach(data):
             tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
-        clutch = Clutch.new_from_dict(data2['clutches'][0], error_on_extra_keys=False, drop_extra_keys=True)
-        clutch.turtle_id = turtle.turtle_id
-        db.session.add(clutch)
     else:
         if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
             data2['encounters']['capture_type'] = "new"

@@ -169,16 +169,29 @@ def edit_offshore(data):                         # commit changes to DB
 
 def delete_offshore(data):
     metadata_id = data.get('metadata_id')
+    encounter_id = data.get('encounter_id')
 
+    if metadata_id is None and encounter_id is None:
+        return {'error': 'Offshore delete input is in invalid format'}
+        
     if metadata_id is None:
-        return {'error': 'OffshoreMetadata delete input is in invalid format'}
-    
+        encounter_query = db.session.query(OffshoreEncounter, OffshoreEncounter.metadata_id).filter(OffshoreEncounter.encounter_id == encounter_id).first()
+        if encounter_query is not None:
+            edit_encounter = encounter_query[0]
+            metadata_id = encounter_query[1]
+        else:
+            return {'message':'No matching offshore data found'}
+    else:
+        edit_encounter = db.session.query(OffshoreEncounter).filter(OffshoreEncounter.metadata_id == metadata_id).first()
+
     edit_metadata = db.session.query(OffshoreMetadata).filter(OffshoreMetadata.metadata_id == metadata_id).first()
 
     if edit_metadata is not None:
         db.session.delete(edit_metadata)   # Get current DB values
+        db.session.delete(edit_encounter)
         db.session.commit()                 # commit changes to DB
+    
+        return {'message':'Offshore deleted successfully'}
 
-        return {'message':'Offshore metadata deleted successfully'}
+    return {'message':'No matching offshore data found'}
 
-    return {'message':'No matching offshore metadata found'}
