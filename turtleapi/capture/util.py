@@ -4,6 +4,9 @@ from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounte
 import json
 from flask import jsonify, make_response, redirect
 import requests, os, boto3 # could remove this (maybe others?) if i move pdf to its own file?
+from turtleapi import app
+import base64
+import io
 
 # Match one turtle
 def find_turtle_from_tags(tags):
@@ -122,7 +125,6 @@ def get_pdf(data):
     #     return {'error': 'PDF query missing filename input'}
 
     # url = 'https://mtrg-files-bucket.s3.amazonaws.com/' + filename + '.pdf'
-    # print(url)
 
     # pdf = requests.get(url)
     # if pdf.status_code != 200:
@@ -134,13 +136,40 @@ def get_pdf(data):
     # return response
 
     filename = data.get('filename') # os.environ.get not working?
-    # s3 = boto3.client('s3',
-    #                     aws_access_key_id=os.environ.get(ACCESS_KEY_ID),
-    #                     aws_secret_access_key=os.environ.get(SECRET_ACCESS_KEY))
     s3 = boto3.client('s3',
-                        aws_access_key_id=os.environ.get('AKIAVA5HZOYYIC335DWA'),
-                        aws_secret_access_key=os.environ.get('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'))
+                        aws_access_key_id=app.config['ACCESS_KEY_ID'],
+                        aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
 
-    url = s3.generate_presigned_url('get_object', Params = {'Bucket': 'mtrg-files-bucket', 'Key': 'test.pdf'}, ExpiresIn = 100)
+    url = s3.generate_presigned_url('get_object', Params = {'Bucket': 'mtrg-files-bucket', 'Key': filename}, ExpiresIn = 100)
     
     return redirect(url, code=302)
+    # pdf = requests.get(url)
+    # response = make_response(pdf.content)
+    # response.headers['Content-Type'] = 'application/pdf'
+    # response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
+    # return pdf.content
+
+def put_pdf(data):
+    file = get_pdf(data)
+    fileobj = io.BytesIO(file)
+    print(file)
+    print("RETURNED PDF!!!!")
+    s3 = boto3.client('s3',
+        aws_access_key_id=app.config['ACCESS_KEY_ID'],
+        aws_secret_access_key=app.config['SECRET_ACCESS_KEY']
+    )
+    try:
+        s3.upload_fileobj(
+            fileobj,
+            'mtrg-files-bucket',
+            'test2.pdf',
+            ExtraArgs={
+                "ContentType": 'pdf'
+            }
+        )
+
+    except Exception as e:
+        print("Something Happened: ", e)
+        return {'error': str(e)}
+
+    return {'message': 'it worked!'}

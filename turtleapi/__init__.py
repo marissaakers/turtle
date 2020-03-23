@@ -9,10 +9,9 @@ from sqlathanor import FlaskBaseModel, initialize_flask_sqlathanor
 db = SQLAlchemy()
 ma = Marshmallow()
 migrate = Migrate()
-#api = Api()
+app = Flask(__name__)
 
 def create_app(config_class=Config):
-	app = Flask(__name__)
 	app.config.from_object(config_class)
 
 	register_blueprints(app)
@@ -21,7 +20,12 @@ def create_app(config_class=Config):
 	db = SQLAlchemy(app, model_class=FlaskBaseModel)
 	db = initialize_flask_sqlathanor(db)
 	migrate.init_app(app, db)
-	#api = Api(app)
+
+
+	app.config.update(
+		ACCESS_KEY_ID='AKIAVA5HZOYYIC335DWA',
+		SECRET_ACCESS_KEY='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'
+	)
 
 	from turtleapi.models import turtlemodels
 
