@@ -135,41 +135,38 @@ def get_pdf(data):
     # response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
     # return response
 
-    filename = data.get('filename') # os.environ.get not working?
+    filename = data.get('filename')
     s3 = boto3.client('s3',
                         aws_access_key_id=app.config['ACCESS_KEY_ID'],
                         aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
 
-    url = s3.generate_presigned_url('get_object', Params = {'Bucket': 'mtrg-files-bucket', 'Key': filename}, ExpiresIn = 100)
+    url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': filename}, ExpiresIn = 100)
     
     return redirect(url, code=302)
-    # pdf = requests.get(url)
-    # response = make_response(pdf.content)
-    # response.headers['Content-Type'] = 'application/pdf'
-    # response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
-    # return pdf.content
 
 def put_pdf(data):
-    file = get_pdf(data)
-    fileobj = io.BytesIO(file)
-    print(file)
-    print("RETURNED PDF!!!!")
-    s3 = boto3.client('s3',
-        aws_access_key_id=app.config['ACCESS_KEY_ID'],
-        aws_secret_access_key=app.config['SECRET_ACCESS_KEY']
-    )
-    try:
-        s3.upload_fileobj(
-            fileobj,
-            'mtrg-files-bucket',
-            'test2.pdf',
-            ExtraArgs={
-                "ContentType": 'pdf'
-            }
+    filename = data.get('filename')
+
+    if (filename is not None) and ('filedata' in data.keys()):
+        fileobj = io.BytesIO(base64.b64decode(data['filedata']))
+
+        s3 = boto3.client('s3',
+            aws_access_key_id=app.config['ACCESS_KEY_ID'],
+            aws_secret_access_key=app.config['SECRET_ACCESS_KEY']
         )
+        try:
+            s3.upload_fileobj(
+                fileobj,
+                app.config['S3_BUCKET'],
+                filename,
+                ExtraArgs={
+                    "ContentType": 'pdf'
+                }
+            )
 
-    except Exception as e:
-        print("Something Happened: ", e)
-        return {'error': str(e)}
+        except Exception as e:
+            return {'error': str(e)}
 
-    return {'message': 'it worked!'}
+        return {'message': 'file posted successfully'}
+    
+    return {'error': 'missing data'}
