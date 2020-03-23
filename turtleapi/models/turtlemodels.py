@@ -56,6 +56,7 @@ class Clutch(BaseModel):
 	
 	# Foreign key
 	turtle_id = Column(db.Integer, db.ForeignKey('turtle.turtle_id'), nullable=False, supports_dict=True, supports_json=True)
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Various fields
 	stake_number = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -280,6 +281,7 @@ class Encounter(BaseModel):
 	# Dependencies
 	samples = relationship('Sample', backref='encounter', cascade="save-update, merge, delete", supports_dict=True, supports_json=True)
 	morphometrics = relationship('Morphometrics', backref=backref('encounter', uselist=False), cascade="save-update, merge, delete", supports_dict=True, supports_json=True)
+	clutches = relationship('Clutch', backref=backref('encounter', uselist=False), cascade="save-update, merge, delete", supports_dict=True, supports_json=True)
 
 	# Fields
 	old_encounter_id = Column(db.Integer, supports_dict=True, supports_json=True)
@@ -517,26 +519,6 @@ class NSRefuge(BaseModel):
 	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	initials = Column(db.String(30), supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
-
-	# # Km Fields
-	# km_start = Column(db.Float(5), supports_dict=True, supports_json=True)
-	# km_end = Column(db.Float(5), supports_dict=True, supports_json=True)
-	# cc_nests = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# cc_fc = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# cm_nests = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# cm_fc = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-
-	# # BTO Fields
-	# enginr = Column(db.Float(5), supports_dict=True, supports_json=True)
-	# natural = Column(db.Float(5), supports_dict=True, supports_json=True)
-	# enginr_cc_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# enginr_cc_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# enginr_cm_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# enginr_cm_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# natural_cc_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# natural_cc_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# natural_cm_bto = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
-	# natural_cm_bto_lpac = Column(postgresql.ARRAY(db.Integer, supports_dict=True, supports_json=True),server_default='[]', supports_dict=True, supports_json=True)
 
 	# Below HTL
 	below_htl_cc_nest = Column(db.Integer, supports_dict=True, supports_json=True)
