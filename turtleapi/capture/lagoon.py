@@ -13,7 +13,7 @@ def mini_query_lagoon(data):
     if filters['metadata_date'] is not None and filters['metadata_id'] is None: # Overwrite metadata_id only if it doesn't exist and we have a metadata_date asked
         filters['metadata_id'] = db.session.query(LagoonMetadata.metadata_id).filter(LagoonMetadata.metadata_date == filters['metadata_date']).first()
         if filters['metadata_id'] is None:  # If date doesn't match anything, make sure we return no results
-            filters['metadata_id'] = -1
+            filters['metadata_id'] = [-1,]
 
     queries = generate_miniquery_queries(filters, LagoonEncounter)
 
