@@ -35,9 +35,13 @@ def find_turtles_from_tags(tags):
     # turtle_ids = Tag.query.distinct(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all()
     #turtle_ids = Tag.query.with_entities(Tag.turtle_id).distinct(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all() # doesn't work?
     turtle_ids = db.session.query(Tag.turtle_id).filter(Tag.tag_number.in_(tags)).all()
-
+    
+    taglist = []
     if turtle_ids is not None:
-        return turtle_ids.to_dict()
+        for x in turtle_ids:
+            for y in x:
+                taglist.append(y)
+        return taglist
     return None
 
 # For editing, insert any new tags
@@ -76,8 +80,10 @@ def get_miniquery_filters(data):
 
     filters = {}
     filters['tags'] = data.get('tags')
+    filters['turtle_id'] = data.get('turtle_id')
     filters['species'] = data.get('species')    # Only match this species
 
+    filters['encounter_id'] = data.get('encounter_id')
     filters['encounter_date_start'] = data.get('encounter_date_start')  # Match between FILTER_DATE_START and FILTER_DATE_END
     filters['encounter_date_end'] = data.get('encounter_date_end')
 
@@ -92,6 +98,8 @@ def get_miniquery_filters(data):
     filters['turtle_ids'] = None
     if filters['tags'] is not None:
         filters['turtle_ids'] = find_turtles_from_tags(filters['tags'])
+    if filters['turtle_id'] is not None:
+            filters['turtle_ids'].append(filters['turtle_id'])
 
     return filters
 
@@ -101,6 +109,8 @@ def generate_miniquery_queries(filters, enc):
 
     if filters['turtle_ids'] is not None:
         queries.append(Encounter.turtle_id.in_(filters['turtle_ids']))
+    if filters['encounter_id'] is not None:
+        queries.append(Encounter.encounter_id == filters['encounter_id'])
     if filters['encounter_date_start'] is not None:
         queries.append(enc.encounter_date >= filters['encounter_date_start'])
     if filters['encounter_date_end'] is not None:

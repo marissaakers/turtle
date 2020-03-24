@@ -251,10 +251,14 @@ def delete_lagoon_metadata(data):
 
     if metadata_id is None:
         return {'error': 'LagoonMetadata delete input is in invalid format'}
-    
+
     edit_metadata = db.session.query(LagoonMetadata).filter(LagoonMetadata.metadata_id == metadata_id).first()
 
     if edit_metadata is not None:
+        encounters = db.session.query(Encounter).filter(Encounter.metadata_id == metadata_id).first()
+        if encounters is not None:
+            return {'error': 'There are lagoon encounters associated with that metadata id'}
+        
         db.session.delete(edit_metadata)   # Get current DB values
         db.session.commit()                 # commit changes to DB
 
