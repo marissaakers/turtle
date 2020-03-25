@@ -99,7 +99,10 @@ def get_miniquery_filters(data):
     if filters['tags'] is not None:
         filters['turtle_ids'] = find_turtles_from_tags(filters['tags'])
     if filters['turtle_id'] is not None:
+        if filters['tags'] is not None:
             filters['turtle_ids'].append(filters['turtle_id'])
+        else:
+            filters['turtle_ids'] = [filters['turtle_id'],]
 
     return filters
 
