@@ -669,6 +669,9 @@ class BigSurvey(BaseModel):
 	# Primary key
 	big_survey_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
 
+	# Dependencies
+	emergences = relationship('Emergence', backref='big_survey', cascade="save-update, merge, delete", supports_dict=True, supports_json=True)
+	
 	# Fields
 	type = Column(db.String(30), supports_dict=True, supports_json=True) # PAFB / mid / south
 	date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
@@ -751,7 +754,7 @@ class BigSurvey(BaseModel):
 	km_75_0n_5_t_cm_nests = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_75_0n_5_o_cm_nests = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_8_05n_55_b_cc_nests = Column(db.Integer, supports_dict=True, supports_json=True)
-	km_8_05n_55__cc_nests = Column(db.Integer, supports_dict=True, supports_json=True)
+	km_8_05n_55_t_cc_nests = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_8_05n_55_o_cc_nests = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_8_05n_55_b_cm_nests = Column(db.Integer, supports_dict=True, supports_json=True)
 	km_8_05n_55_t_cm_nests = Column(db.Integer, supports_dict=True, supports_json=True)
@@ -1333,6 +1336,9 @@ class Emergence(BaseModel):
 	__tablename__ = 'emergence'
 	# Primary Key
 	emergence_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
+
+	# Foreign keys
+	big_survey_id = Column(db.Integer, db.ForeignKey('big_survey.big_survey_id'), nullable=False, supports_dict=True, supports_json=True)
 
 	# Fields
 	stake_number_1 = Column(db.String(30), supports_dict=True, supports_json=True)
