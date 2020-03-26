@@ -132,54 +132,62 @@ def generate_miniquery_queries(filters, enc):
     return queries
 
 def get_pdf(data):
-    # filename = data.get('filename')
+    encounter_id = data.get('encounter_id')
 
-    # if filename is None:
-    #     return {'error': 'PDF query missing filename input'}
+    if encounter_id is None:
+        return {'error': 'No encounter_id was provided to pdf get query'}
 
-    # url = 'https://mtrg-files-bucket.s3.amazonaws.com/' + filename + '.pdf'
+    encounter_result = db.session.query(Encounter).get(encounter_id)
 
-    # pdf = requests.get(url)
-    # if pdf.status_code != 200:
-    #     return {'error': 'File does not exist'}
+    if encounter_result is None:
+        return {'error': 'No such encounter_id exists'}
 
-    # response = make_response(pdf.content)
-    # response.headers['Content-Type'] = 'application/pdf'
-    # response.headers['Content-Disposition'] = 'attachment; filename=report.pdf'
-    # return response
+    if encounter_result.filename is None:
+        return {'message': 'No file attached to this encounter'}
 
-    filename = data.get('filename')
-    s3 = boto3.client('s3',
-                        aws_access_key_id=app.config['ACCESS_KEY_ID'],
-                        aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
+    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
 
-    url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': filename}, ExpiresIn = 100)
+    url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.filename}, ExpiresIn = 100)
     
     return redirect(url, code=302)
 
 def put_pdf(data):
+    encounter_id = data.get('encounter_id')
     filename = data.get('filename')
 
-    if (filename is not None) and ('filedata' in data.keys()):
-        fileobj = io.BytesIO(base64.b64decode(data['filedata']))
+    if encounter_id is None or filename is None:
+        return {'error': 'PDF get query missing encounter_id or filename'}
 
-        s3 = boto3.client('s3',
-            aws_access_key_id=app.config['ACCESS_KEY_ID'],
-            aws_secret_access_key=app.config['SECRET_ACCESS_KEY']
-        )
+    encounter_result = db.session.query(Encounter).get(encounter_id)
+
+    if encounter_result is None:
+        return {'error': 'No such encounter_id exists'}
+
+    conflicting_filename_check = db.session.query(Encounter).filter(Encounter.filename == filename).first()
+
+    if (conflicting_filename_check is not None) and (conflicting_filename_check.encounter_id != encounter_id):
+        return {'error': 'Editing encounter_id ' + str(encounter_id) + ' but encounter_id ' + 
+                str(conflicting_filename_check.encounter_id) + ' has this filename'}
+
+
+    old_filename = encounter_result.filename
+
+    if 'filedata' in data.keys(): # All clear to try putting
+        s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
+
+        if (old_filename is not None) and (old_filename != filename):           # If old file exists, and new file is different name
+            s3.delete_object(Bucket=app.config['S3_BUCKET'], Key=old_filename)  # Delete old file before uploading new file
+
+        fileobj = io.BytesIO(base64.b64decode(data['filedata'])) # Ugly, but avoids copying large PDF data
+
         try:
-            s3.upload_fileobj(
-                fileobj,
-                app.config['S3_BUCKET'],
-                filename,
-                ExtraArgs={
-                    "ContentType": 'pdf'
-                }
-            )
+            s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], filename, ExtraArgs={"ContentType": 'pdf'})
+            encounter_result.filename = filename
+            db.session.commit()
 
         except Exception as e:
             return {'error': str(e)}
 
         return {'message': 'file posted successfully'}
     
-    return {'error': 'missing data'}
+    return {'error': 'Missing filedata'}

@@ -283,6 +283,7 @@ class Encounter(BaseModel):
 
 	# Fields
 	old_encounter_id = Column(db.Integer, supports_dict=True, supports_json=True)
+	filename = Column(db.Text, unique=True, supports_dict=True, supports_json=True)
 	
 	# Polymorphism
 	type = Column(db.String(30), supports_dict=True, supports_json=True)
