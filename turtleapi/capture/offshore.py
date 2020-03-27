@@ -41,7 +41,7 @@ def query_offshore(data):
     queries.append(Encounter.type == "offshore")
 
     # Grab turtles
-    result = db.session.query(OffshoreMetadata, Turtle.species).filter(*queries, Encounter.metadata_id==OffshoreMetadata.metadata_id, Turtle.turtle_id==Encounter.turtle_id).first()
+    result = db.session.query(OffshoreMetadata, Turtle.species, Encounter.metadata_id).filter(*queries, Encounter.metadata_id==OffshoreMetadata.metadata_id, Turtle.turtle_id==Encounter.turtle_id).first()
 
     if result is None:
         return {'error': 'No encounter with that ID exists'}
@@ -53,6 +53,9 @@ def query_offshore(data):
     # Grab tags
     tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['encounters'][0]['turtle_id']).all()
     result_encounter['encounters'][0]['tags'] = [x.to_dict() for x in tags]
+
+    # Add metadata_id
+    result_encounter['metadata_id'] = result[2]
 
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 

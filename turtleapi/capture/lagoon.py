@@ -39,7 +39,7 @@ def query_lagoon(data):
     queries.append(Encounter.type == "lagoon")
 
     # Grab turtles
-    result = db.session.query(Encounter, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
+    result = db.session.query(Encounter, Turtle.species, Encounter.metadata_id).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
 
     if result is None:
         return {'error': 'No encounter with that ID exists'}
@@ -51,6 +51,9 @@ def query_lagoon(data):
     # Grab tags
     tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['turtle_id']).all()
     result_encounter['tags'] = [x.to_dict() for x in tags]
+
+    # Add metadata_id
+    result_encounter['metadata_id'] = result[2]
 
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
