@@ -133,6 +133,17 @@ def edit_beach(data):
                 new_morphometrics_values.update(morphometrics)
                 edit_morphometrics.update_from_dict(new_morphometrics_values)
 
+    samples = data.get('samples')
+    if samples is not None:
+        for s in samples:
+            sample_id = s.get('sample_id')
+            if sample_id is not None:
+                edit_sample = db.session.query(Sample).filter(Sample.sample_id == sample_id).first()
+                if edit_sample is not None:
+                    new_sample_values = edit_sample.to_dict()
+                    new_sample_values.update(s)
+                    edit_sample.update_from_dict(new_sample_values)
+
     tags = data.get('tags')
     if tags is not None:
         for t in tags:

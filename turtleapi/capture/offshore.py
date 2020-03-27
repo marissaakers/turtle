@@ -125,8 +125,6 @@ def edit_offshore(data):                         # commit changes to DB
         encounter_id = encounter.get('encounter_id')
         if encounter_id is not None:
             edit_encounter = db.session.query(OffshoreEncounter).filter(OffshoreEncounter.encounter_id == encounter_id).first()
-            # return Response(json.dumps(edit_encounter.to_dict(max_nesting=5), default = date_handler),mimetype = 'application/json')
-
             if edit_encounter is not None:
                 new_encounter_values = edit_encounter.to_dict()
                 new_encounter_values.update(encounter)
@@ -152,6 +150,17 @@ def edit_offshore(data):                         # commit changes to DB
                 new_morphometrics_values.update(morphometrics)
                 edit_morphometrics.update_from_dict(new_morphometrics_values)
 
+    samples = data.get('samples')
+    if samples is not None:
+        for s in samples:
+            sample_id = s.get('sample_id')
+            if sample_id is not None:
+                edit_sample = db.session.query(Sample).filter(Sample.sample_id == sample_id).first()
+                if edit_sample is not None:
+                    new_sample_values = edit_sample.to_dict()
+                    new_sample_values.update(s)
+                    edit_sample.update_from_dict(new_sample_values)
+    
     tags = data.get('tags')
     if tags is not None:
         for t in tags:
@@ -187,8 +196,8 @@ def delete_offshore(data):
     edit_metadata = db.session.query(OffshoreMetadata).filter(OffshoreMetadata.metadata_id == metadata_id).first()
 
     if edit_metadata is not None:
-        db.session.delete(edit_metadata)   # Get current DB values
-        db.session.delete(edit_encounter)
+        db.session.delete(edit_encounter)   # Get current DB values
+        db.session.delete(edit_metadata)
         db.session.commit()                 # commit changes to DB
     
         return {'message':'Offshore deleted successfully'}
