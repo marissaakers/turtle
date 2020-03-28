@@ -7,7 +7,7 @@ from turtleapi.models.turtlemodels import (LagoonEncounter, TridentEncounter, En
 from turtleapi import db
 from sqlalchemy.orm import load_only
 from sqlalchemy import select
-from datetime import datetime
+import datetime
 
 # from sqlalchemy.orm import with_polymorphic
 # from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
@@ -34,24 +34,40 @@ def parse_query_filter(fieldname, filter, column):
 
     queries = []
 
-    if field_type is int:   # Case: integer
+    if filter is "":    # For any type, this implies no filter AKA return all
+        return queries
+
+    # Case: integer
+    if field_type is int:
         print("it's an int")
-        if filter is "":    # All values
-            print("all values")
-        else:               # Value filtering
-            if "_" in filter:   # Case: int range
-                range = filter.split("_")
-                queries.append(column >= int(range[0])) # range beginning
-                queries.append(column <= int(range[1])) # range end
-            else:   # Case: one int
-                #queries.append(column == int(filter))
-                return column == int(filter)
+        # int range
+        if "_" in filter:
+            range = filter.split("_")
+            queries.append(column >= range[0])
+            queries.append(column <= range[1])
+        # one int
+        else:
+            queries.append(column == filter)
+
+    # Case: date
     elif field_type is datetime.date:
         print("it's a date")
+        if "_" in filter:
+            range = filter.split("_")
+            queries.append(column >= range[0])
+            queries.append(column <= range[1])
+        else:
+            queries.append(column == filter)
+    
+    # Case: string
+    elif field_type is str:
+        print("it's a str")
+        queries.append(column.contains(filter))
+
     else:
         print("currently unhandled")
-
-    #return queries[0]
+    
+    return queries
 
 def csv_export(data):
     string_io = StringIO()
@@ -79,7 +95,7 @@ def csv_export(data):
                 if f in table_columns: # Check if field exists in database
                     query_columns.append(getattr(model_mapping[d], f))
                     # query_filters.append(parse_query_filter(f, fields[f], table_columns[f]))
-                    query_filters.append(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
+                    query_filters.extend(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
                     print(query_filters)
                 else:
                     print("Extra key (field), ignoring")
