@@ -1,8 +1,14 @@
 from flask import request, make_response
 import csv
 from io import StringIO
+from turtleapi.models.turtlemodels import (LagoonEncounter, TridentEncounter, Encounter, Turtle, Tag,
+                                           Morphometrics, Sample, Metadata, LagoonMetadata, Net,
+                                           IncidentalCapture)
+from turtleapi import db
+from sqlalchemy.orm import load_only
+from sqlalchemy import select
+from datetime import datetime
 
-# from turtleapi import db
 # from sqlalchemy.orm import with_polymorphic
 # from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
 # import json
@@ -26,19 +32,32 @@ def parse_query_filter(fieldname, filter, column):
     field_type = column.type.python_type
     print(field_type)
 
-    if field_type is int:
+    queries = []
+
+    if field_type is int:   # Case: integer
         print("it's an int")
-        if filter is not "":
-            range = filter.split("-")
-            range_begin = int(range[0])
-            range_end = int(range[1])
-            
+        if filter is "":    # All values
+            print("all values")
+        else:               # Value filtering
+            if "_" in filter:   # Case: int range
+                range = filter.split("_")
+                queries.append(column >= int(range[0])) # range beginning
+                queries.append(column <= int(range[1])) # range end
+            else:   # Case: one int
+                #queries.append(column == int(filter))
+                return column == int(filter)
+    elif field_type is datetime.date:
+        print("it's a date")
     else:
         print("currently unhandled")
 
-def csv_export(query_data, features):
-    string_io = StringIO()
+    #return queries[0]
 
+def csv_export(data):
+    string_io = StringIO()
+    writer = csv.writer(string_io)
+
+    final_json = []
     queries = []
 
     model_mapping = {
@@ -51,16 +70,70 @@ def csv_export(query_data, features):
         if d not in model_mapping:  # Ignore invalid input (tables)
             print("Extra key (table), ignoring")
         else:
-            columns = model_mapping[d].__table__.c
+            table_columns = model_mapping[d].__table__.c
             fields = data[d]
-            table_query_filters = []
+            query_columns = []    # List of DB columns to query
+            query_filters = []    # List of filters to apply to query
 
             for f in fields:
-                if f in columns: # Check if field exists in database
-                    table_query_filters.append(parse_query_filter(f, fields[f], columns[f]))
+                if f in table_columns: # Check if field exists in database
+                    query_columns.append(getattr(model_mapping[d], f))
+                    # query_filters.append(parse_query_filter(f, fields[f], table_columns[f]))
+                    query_filters.append(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
+                    print(query_filters)
                 else:
                     print("Extra key (field), ignoring")
-            result = db.session.query(model_mapping[d]).all()
+
+            print(query_columns)
+
+            queries.append(LagoonEncounter.encounter_id==7)
+            table_result = db.session.query(*query_columns).filter(*query_filters).all()
+            #table_result = db.session.query(select(from_obj=model_mapping[d], columns=table_query_columns).alias("test")).filter(LagoonEncounter.encounter_id==7).all()
+            print("END!!!")
+            print(query_filters)
+            print(table_result)
+
+
+
+            # getattr()
+            #db.session.query(LagoonEncounter).values('encounter_date').all()
+            #zzz = db.session.query(LagoonEncounter).options(load_only("encounter_id", "encounter_date")).all()
+            #print(zzz[0])
+
+        # q1 = db.session.query(LagoonEncounter).filter()
+        # q2 = db.session.query(Turtle.turtle_id).filter()
+        # result = q1.union(q2)
+
+        #result = db.session.query(LagoonEncounter, Turtle.turtle_id).filter().all()
+        #print(result)
+        return {}        
+        # result = db.session.query(model_mapping[d]).all()
+        # return result.to_dict()
+
+    # # Write header row
+    # writer.writerow([x for x in header_row])
+
+    # # Get the total number of encounters (and thus rows)
+    # rows_count = 0
+    # for x in query_data:
+    #     for y in x['encounters']:
+    #         rows_count += 1
+
+    # # Write data rows
+    # for row in range(0, rows_count):
+    #     row_data = []
+    #     for x in header_row:
+    #         if x in data:
+    #             row_data.append(data[x][row])
+    #     writer.writerow(row_data)
+
+    # # Send the csv back to the user
+    # output = make_response(string_io.getvalue())
+    # output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    # output.headers["Content-type"] = "text/csv"
+    # return output
+
+    #return {}
 
             # print(result)
             # test = data[d]
