@@ -2,8 +2,114 @@ from flask import request, make_response
 import csv
 from io import StringIO
 
-def lagoon_csv_export(query_data, features):
+# from turtleapi import db
+# from sqlalchemy.orm import with_polymorphic
+# from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
+# import json
+# from flask import jsonify, make_response, redirect, current_app
+# import requests, os, boto3 # could remove this (maybe others?) if i move pdf to its own file?
+# from turtleapi import app
+# import base64
+# import io
+# from sqlalchemy import *
+
+def field_lister():
+    print("test")
+    # Put adam's stuff to return list of fields here
+
+def parse_query_filter(fieldname, filter, column):
+    print("FILTER FUNCTION")
+    print(fieldname)
+    print(filter)
+    print(column)
+
+    field_type = column.type.python_type
+    print(field_type)
+
+    if field_type is int:
+        print("it's an int")
+        if filter is not "":
+            range = filter.split("-")
+            range_begin = int(range[0])
+            range_end = int(range[1])
+            
+    else:
+        print("currently unhandled")
+
+def csv_export(query_data, features):
     string_io = StringIO()
+
+    queries = []
+
+    model_mapping = {
+        "LagoonEncounter": LagoonEncounter,
+        "TridentEncounter": TridentEncounter
+    }
+
+    for d in data: # Iterate over JSON
+        print(d)
+        if d not in model_mapping:  # Ignore invalid input (tables)
+            print("Extra key (table), ignoring")
+        else:
+            columns = model_mapping[d].__table__.c
+            fields = data[d]
+            table_query_filters = []
+
+            for f in fields:
+                if f in columns: # Check if field exists in database
+                    table_query_filters.append(parse_query_filter(f, fields[f], columns[f]))
+                else:
+                    print("Extra key (field), ignoring")
+            result = db.session.query(model_mapping[d]).all()
+
+            # print(result)
+            # test = data[d]
+            # for t in test:
+            #     print(t)
+
+
+    # print(model_list)
+
+    # for model in model_list:
+    #     if model is LagoonEncounter:
+    #         table = model.__table__
+    #         for column in table.c:
+    #             print(column)
+
+
+
+
+    # #test = LagoonEncounter.__table__.c + TridentEncounter.__table__.c # works
+    # test = LagoonEncounter.__table__.c # includes table name
+    # #test = [column.key for column in LagoonEncounter.__table__.columns] # just a str
+    # #test = LagoonEncounter.__table__.columns.keys() # same as above, but better
+
+
+
+
+    # print(test)
+    # print("TEST!!!")
+    # print(LagoonEncounter.__table__.name)
+    # for item in test:
+    #     print(item)
+    #     # #print(str(item) + ' db: ' + str(item.type) + ' py: ' + str(item.type.python_type))
+    #     # if item.type.python_type == int:
+    #     #     #print("True")
+    #     #     print(item)
+    #     #     queries.append(item == 5)
+    #     # else:
+    #     #     #print("False")
+    #     #     lol = False
+
+
+
+
+    #result = db.session.query(LagoonEncounter).filter(queries).all()
+    #result = db.session.query(lagoon_encounter).all()
+
+    #print(test['encounter_id'])
+    #print(type(LagoonEncounter.))
+
     # writer = csv.writer(string_io)
 
     # header_row = []
