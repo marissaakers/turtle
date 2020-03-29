@@ -41,7 +41,7 @@ def query_beach(data):
         return {'error': 'No encounter with that ID exists'}
 
     # Add species
-    result_encounter = result[0].to_dict(max_nesting=5)
+    result_encounter = result[0].to_dict(max_nesting=2)
     result_encounter['species'] = result[1]
     
     # Grab tags
