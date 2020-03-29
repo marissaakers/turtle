@@ -66,7 +66,6 @@ def parse_query_filter(fieldname, filter, column):
     
     # Case: string
     if field_type is str:
-        print("it's a str")
         queries.append(column.contains(filter))
 
     # Case: int, float, date, time, etc.
@@ -88,6 +87,7 @@ def csv_export(data):
     writer = csv.writer(string_io)
 
     buildup = {}
+    buildup_valid_columns = {}
 
     ### Iterate over JSON and query for data
     for d in data:
@@ -97,27 +97,30 @@ def csv_export(data):
         else:
             table_columns = model_mapping[d].__table__.c
             fields = data[d]
-            query_columns = []    # List of DB columns to query
-            query_filters = []    # List of filters to apply to query
+            query_columns = []          # List of DB columns to query
+            query_filters = []          # List of filters to apply to query
+            buildup_temp_columns = []   # List of DB columns, string format. Needed to handle an empty query result edge case
 
             for f in fields:
                 # Check if field exists in database
                 if f in table_columns:
                     query_columns.append(getattr(model_mapping[d], f))
+                    buildup_temp_columns.append(f)
                     query_filters.extend(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
                 else:
                     print("Extra key (field), ignoring")
 
             # Skip (very unlikely) empty query, where query_columns is None
             if query_columns:
-                table_result = db.session.query(*query_columns).filter(*query_filters).all()       
+                table_result = db.session.query(*query_columns).filter(*query_filters).all()      
                 buildup[d] = table_result
+                buildup_valid_columns[d] = buildup_temp_columns
 
     ### Create CSV
     # Write the header row
     header_row = []
     for b in buildup:
-        for key in buildup[b][0].keys():
+        for key in buildup_valid_columns[b]:
             header_row.append(b + "." + key)
     
     writer.writerow(header_row)
