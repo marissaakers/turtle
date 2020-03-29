@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from turtleapi.capture.lagoon import query_lagoon
 from turtleapi.exports.csv_exports import csv_export, field_lister
-from turtleapi.exports.filters import save_filters, list_filters
+from turtleapi.exports.filters import save_filters, list_filters, get_filters
 
 exportsbp = Blueprint('exports', __name__, url_prefix='/api/exports')
 
@@ -22,9 +22,14 @@ def get_capture_fields():
     return field_lister()
 
 @exportsbp.route('/filters/get-by-username', methods=['POST'])
-def get_capture_fields_by_username():
+def get_filter_sets_by_username():
     json_data = request.get_json(force=True)
     return list_filters(json_data['username'])
+
+@exportsbp.route('/filters/get', methods=['POST'])
+def get_filter_set_by_id():
+    json_data = request.get_json(force=True)
+    return get_filters(json_data['filter_set_id'])
 
 @exportsbp.route('/filters/save', methods=['POST'])
 def save_filter_set():

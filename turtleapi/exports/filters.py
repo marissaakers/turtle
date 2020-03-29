@@ -10,6 +10,10 @@ def list_filters(username):
     filter_sets = [{"filter_set_id": result[0], "filter_set_name": result[1]} for result in results]
     return Response(json.dumps(filter_sets), mimetype = 'application/json')
 
+def get_filters(filter_set_id):
+    filter_set = db.session.query(FilterSet).filter_by(filter_set_id=filter_set_id).first()
+    return Response(json.dumps(filter_set.to_dict()), mimetype='application/json')
+
 def save_filters(data):
     filter_set = FilterSet(
         filter_set_name=data["filter_set_name"],
