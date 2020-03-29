@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy.orm import backref
 
 BaseModel = declarative_base()
+# BaseModel = db.Model
 
 def parse_time(value):
 	if isinstance(value, str):   					# strptime expects a str
@@ -1344,6 +1345,16 @@ class Emergence(BaseModel):
 	# Fields
 	stake_number_1 = Column(db.String(30), supports_dict=True, supports_json=True)
 	stake_number_2 = Column(db.String(30), supports_dict=True, supports_json=True)
+
+class FilterSet(BaseModel):
+	__tablename__ = 'filter_set'
+	# Primary Key
+	filter_set_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
+
+	# Fields
+	username = Column(db.String(50), supports_dict=True, supports_json=True)
+	filter_set_name = Column(db.String(50), supports_dict=True, supports_json=True)
+	filter_data = Column(db.Text, supports_dict=True, supports_json=True)
 	
 	### None of these seem to include tags successfully:
 
