@@ -19,9 +19,25 @@ import datetime
 # import io
 # from sqlalchemy import *
 
+model_mapping = {
+    "LagoonEncounter": LagoonEncounter,
+    "TridentEncounter": TridentEncounter
+}
+
+
 def field_lister():
-    print("test")
-    # Put adam's stuff to return list of fields here
+    data = {}
+
+    for model in model_mapping:
+        model_data = {}
+        columns = model_mapping[model].__table__.c
+        
+        for c in columns:
+            model_data[c.key] = c.type.python_type.__name__
+
+        data[model] = model_data
+
+    return data
 
 def parse_query_filter(fieldname, filter, column):
     print("FILTER FUNCTION")
@@ -73,13 +89,9 @@ def csv_export(data):
     string_io = StringIO()
     writer = csv.writer(string_io)
 
+    buildup = {}
     final_json = []
     queries = []
-
-    model_mapping = {
-        "LagoonEncounter": LagoonEncounter,
-        "TridentEncounter": TridentEncounter
-    }
 
     for d in data: # Iterate over JSON
         print(d)
@@ -94,35 +106,24 @@ def csv_export(data):
             for f in fields:
                 if f in table_columns: # Check if field exists in database
                     query_columns.append(getattr(model_mapping[d], f))
-                    # query_filters.append(parse_query_filter(f, fields[f], table_columns[f]))
                     query_filters.extend(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
-                    print(query_filters)
                 else:
                     print("Extra key (field), ignoring")
 
-            print(query_columns)
-
-            queries.append(LagoonEncounter.encounter_id==7)
-            table_result = db.session.query(*query_columns).filter(*query_filters).all()
-            #table_result = db.session.query(select(from_obj=model_mapping[d], columns=table_query_columns).alias("test")).filter(LagoonEncounter.encounter_id==7).all()
-            print("END!!!")
-            print(query_filters)
-            print(table_result)
+            if query_columns:   # Handle (very unlikely) empty query
+                table_result = db.session.query(*query_columns).filter(*query_filters).all()            
+                buildup[d] = table_result
 
 
+    print(buildup['LagoonEncounter'])
+    return {}
 
-            # getattr()
-            #db.session.query(LagoonEncounter).values('encounter_date').all()
-            #zzz = db.session.query(LagoonEncounter).options(load_only("encounter_id", "encounter_date")).all()
-            #print(zzz[0])
-
-        # q1 = db.session.query(LagoonEncounter).filter()
-        # q2 = db.session.query(Turtle.turtle_id).filter()
-        # result = q1.union(q2)
+    # for b in buildup:
+    #     print(str(b) + str(buildup[b]))
 
         #result = db.session.query(LagoonEncounter, Turtle.turtle_id).filter().all()
         #print(result)
-        return {}        
+            
         # result = db.session.query(model_mapping[d]).all()
         # return result.to_dict()
 
