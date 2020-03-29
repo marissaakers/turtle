@@ -130,7 +130,7 @@ def csv_export(data):
     for b in buildup:
         for val in buildup[b]:
             writer.writerow(preceding_commas + list(val))
-        for num_keys in buildup[b][0].keys():
+        for num_keys in buildup_valid_columns[b]:
             preceding_commas.append('')
 
     # Send the csv back to the user
