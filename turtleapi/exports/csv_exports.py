@@ -55,48 +55,31 @@ def field_lister():
     return data
 
 def parse_query_filter(fieldname, filter, column):
-    print("FILTER FUNCTION")
-    print(fieldname)
-    print(filter)
-    print(column)
-
     field_type = column.type.python_type
-    print(field_type)
+    # print(field_type)
 
     queries = []
 
-    if filter is "":    # For any type, this implies no filter AKA return all
+    # Filter is blank; no filter / return all values for this column
+    if filter is "":
         return queries
-
-    # Case: integer
-    if field_type is int:
-        print("it's an int")
-        # int range
-        if "_" in filter:
-            range = filter.split("_")
-            queries.append(column >= range[0])
-            queries.append(column <= range[1])
-        # one int
-        else:
-            queries.append(column == filter)
-
-    # Case: date
-    elif field_type is datetime.date:
-        print("it's a date")
-        if "_" in filter:
-            range = filter.split("_")
-            queries.append(column >= range[0])
-            queries.append(column <= range[1])
-        else:
-            queries.append(column == filter)
     
     # Case: string
-    elif field_type is str:
+    if field_type is str:
         print("it's a str")
         queries.append(column.contains(filter))
 
+    # Case: int, float, date, time, etc.
     else:
-        print("currently unhandled")
+        try:
+            if "_" in filter:
+                range = filter.split("_")
+                queries.append(column >= range[0])
+                queries.append(column <= range[1])
+            else:
+                queries.append(column == filter)
+        except:
+            print("ERROR HANDLING INPUT " + fieldname + " WITH GENERIC FILTER")
     
     return queries
 
