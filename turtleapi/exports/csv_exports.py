@@ -3,7 +3,8 @@ import csv
 from io import StringIO
 from turtleapi.models.turtlemodels import (LagoonEncounter, TridentEncounter, Encounter, Turtle, Tag,
                                            Morphometrics, Sample, Metadata, LagoonMetadata, Net,
-                                           IncidentalCapture)
+                                           IncidentalCapture, BeachEncounter, OffshoreEncounter,
+                                           OffshoreMetadata, TridentMetadata, SampleTracking, Clutch)
 from turtleapi import db
 from sqlalchemy.orm import load_only
 from sqlalchemy import select
@@ -21,7 +22,20 @@ import datetime
 
 model_mapping = {
     "LagoonEncounter": LagoonEncounter,
-    "TridentEncounter": TridentEncounter
+    "TridentEncounter": TridentEncounter,
+    "BeachEncounter": BeachEncounter,
+    "OffshoreEncounter": OffshoreEncounter,
+    "LagoonMetadata": LagoonMetadata,
+    "TridentMetadata": TridentMetadata,
+    "OffshoreMetadata": OffshoreMetadata,
+    "Clutch": Clutch,
+    "Turtle": Turtle,
+    "Net": Net,
+    "IncidentalCapture": IncidentalCapture,
+    "Tag": Tag,
+    "Morphometrics": Morphometrics,
+    "Sample": Sample,
+    "SampleTracking": SampleTracking
 }
 
 

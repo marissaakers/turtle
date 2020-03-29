@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 from turtleapi.capture.lagoon import query_lagoon
 from turtleapi.exports.csv_exports import csv_export, field_lister
+from turtleapi.exports.filters import save_filters
 
 exportsbp = Blueprint('exports', __name__, url_prefix='/api/exports')
 
@@ -12,9 +13,15 @@ def post():
     # Return csv of query
     return csv_export(json_data)
 
-def get():
-    # Grab the JSON coming in
-    json_data = request.get_json(force=True)
+@exportsbp.route('/fields/capture', methods=['GET'])
+def get_capture_fields():
+    # # Grab the JSON coming in
+    # json_data = request.get_json(force=True)
 
     # Return list of available tables & fields
     return field_lister()
+
+@exportsbp.route('/filters/save', methods=['POST'])
+def save_filter_set():
+    json_data = request.get_json(force=True)
+    return save_filters(json_data)
