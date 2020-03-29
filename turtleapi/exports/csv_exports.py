@@ -108,7 +108,6 @@ def csv_export(data):
     queries = []
 
     for d in data: # Iterate over JSON
-        print(d)
         if d not in model_mapping:  # Ignore invalid input (tables)
             print("Extra key (table), ignoring")
         else:
@@ -129,7 +128,17 @@ def csv_export(data):
                 buildup[d] = table_result
 
 
-    print(buildup['LagoonEncounter'])
+    #print(buildup['LagoonEncounter'])
+    row_data = []
+    for b in buildup:
+        row_data.append(buildup[b])
+    writer.writerow(row_data)
+
+    # Send the csv back to the user
+    output = make_response(string_io.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
     return {}
 
     # for b in buildup:
