@@ -8,12 +8,18 @@ BaseModel = declarative_base()
 # BaseModel = db.Model
 
 def parse_time(value):
+	if value is None:
+		return None
+
 	if isinstance(value, str):   					# strptime expects a str
 		return datetime.strptime(value, '%H:%M')
 	else:                        					# otherwise, try returning it. E.x. datetime, time, None
 		return value.strftime('%H:%M')
 
 def parse_date(value):
+	if value is None:
+		return None
+		
 	if isinstance(value, str):
 		return datetime.strptime(value, '%Y-%m-%d')
 	else:
