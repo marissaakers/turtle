@@ -48,6 +48,7 @@ class Tag(BaseModel):
 	pit = Column(db.Boolean, supports_dict=True, supports_json=True)
 	scanned = Column(db.Boolean, supports_dict=True, supports_json=True)
 	scanner_number = Column(db.String(30), supports_dict=True, supports_json=True)
+	magnet_off = Column(db.String(30), supports_dict=True, supports_json=True)
 
 class Clutch(BaseModel):
 	__tablename__ = 'clutch'
