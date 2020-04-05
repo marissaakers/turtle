@@ -1362,6 +1362,61 @@ class FilterSet(BaseModel):
 	username = Column(db.String(50), supports_dict=True, supports_json=True)
 	filter_set_name = Column(db.String(50), supports_dict=True, supports_json=True)
 	filter_data = Column(db.Text, supports_dict=True, supports_json=True)
+
+class Legacy(BaseModel):
+	__tablename__ = 'legacy'
+	# Primary Key
+	legacy_id = Column(db.Integer, primary_key=True, supports_dict=True, supports_json=True)
+
+	# Foreign Key
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), nullable=False, supports_dict=True, supports_json=True)
+
+	# Fields
+	recapture_linear_dates = Column(db.Text, supports_dict=True, supports_json=True)
+	pap_mapped = Column(db.Boolean, supports_dict=True, supports_json=True)
+	papilloma_description = Column(db.Text, supports_dict=True, supports_json=True)
+	disposal_of_specimen = Column(db.Text, supports_dict=True, supports_json=True)
+	stake_summary = Column(db.Text, supports_dict=True, supports_json=True)
+	survery_full_location = Column(db.Float(5), supports_dict=True, supports_json=True)
+	clutch_moved = Column(db.Text, supports_dict=True, supports_json=True)
+	clutch_fate = Column(db.Text, supports_dict=True, supports_json=True)
+	eggs_yolked = Column(db.Integer, supports_dict=True, supports_json=True) 
+	eggs_broken = Column(db.Integer, supports_dict=True, supports_json=True)
+	eggs_yolkless = Column(db.Integer, supports_dict=True, supports_json=True)
+	eggs_research = Column(db.Integer, supports_dict=True, supports_json=True)
+	in_place_foil = Column(db.Boolean, supports_dict=True, supports_json=True)
+	in_place_metal = Column(db.Boolean, supports_dict=True, supports_json=True)
+	carap_l_oc_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
+	carap_l_greatest = Column(db.Float(5), supports_dict=True, supports_json=True)
+	carap_w_oc_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
+	plastron_l_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
+	body_depth_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
+	sex = Column(db.Text, supports_dict=True, supports_json=True)
+	cloaca_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
+	interanal_scute = Column(db.Text, supports_dict=True, supports_json=True)
+	date_laid = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
+	c1_embryo = Column(db.Integer, supports_dict=True, supports_json=True)
+	c2_fetus = Column(db.Integer, supports_dict=True, supports_json=True)
+	c6_infertile_eggs = Column(db.Integer, supports_dict=True, supports_json=True)
+	d1_research = Column(db.Integer, supports_dict=True, supports_json=True)
+	d2_poached = Column(db.Integer, supports_dict=True, supports_json=True)
+	e2_washout = Column(db.Integer, supports_dict=True, supports_json=True)
+	e3_inundated = Column(db.Integer, supports_dict=True, supports_json=True)
+	d_nest_disturbed_summary = Column(db.Text, supports_dict=True, supports_json=True)
+	nest_data_collection_problems = Column(db.Text, supports_dict=True, supports_json=True)
+	wind_speed_min_mph = Column(db.Float(5), supports_dict=True, supports_json=True)
+	wind_speed_max_mph = Column(db.Float(5), supports_dict=True, supports_json=True)
+	wind_speed_min_mps = Column(db.Float(5), supports_dict=True, supports_json=True)
+	wind_speed_max_mps = Column(db.Float(5), supports_dict=True, supports_json=True)
+	depth = Column(db.Float(5), supports_dict=True, supports_json=True)
+	length_units = Column(db.Text, supports_dict=True, supports_json=True)
+	water_temp_3 = Column(db.Float(5), supports_dict=True, supports_json=True)
+	salinity_3 = Column(db.Float(5), supports_dict=True, supports_json=True)
+	secchi_depth = Column(db.Float(5), supports_dict=True, supports_json=True)
+	secchi_distance_from_shore = Column(db.Float(5), supports_dict=True, supports_json=True)
+	time_text_high_tide = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
+	time_text_low_tide = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
+	notes_environment = Column(db.Text, supports_dict=True, supports_json=True)
 	
 	### None of these seem to include tags successfully:
 
