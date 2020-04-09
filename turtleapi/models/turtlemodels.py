@@ -467,6 +467,30 @@ class OffshoreEncounter(Encounter):
 		'polymorphic_identity': 'offshore'
 	}
 
+class OtherEncounter(Encounter):
+	__tablename__ = 'other_encounter'
+	# Primary key
+	encounter_id = Column(db.Integer, db.ForeignKey('encounter.encounter_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
+
+	# Fields unique to other encounters
+	name = Column(db.String(30), supports_dict=True, supports_json=True)
+	encounter_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
+	encounter_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
+	investigated_by = Column(db.String(500), supports_dict=True, supports_json=True)
+	notes = Column(db.Text, supports_dict=True, supports_json=True)
+	paps_present = Column(db.Boolean, supports_dict=True, supports_json=True)
+	pap_category = Column(db.Integer, supports_dict=True, supports_json=True)
+	paps_regressed = Column(db.String(40), supports_dict=True, supports_json=True)
+	pap_photo = Column(db.Boolean, supports_dict=True, supports_json=True)
+	leeches = Column(db.Boolean, supports_dict=True, supports_json=True)
+	leeches_where = Column(db.Text, supports_dict=True, supports_json=True)
+	leech_eggs = Column(db.Boolean, supports_dict=True, supports_json=True)
+
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'other'
+	}
+
 class Net(BaseModel):
 	__tablename__ = 'net'
 	# Primary key
