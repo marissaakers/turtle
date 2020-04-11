@@ -36,6 +36,7 @@ class Turtle(BaseModel):
 
 	# Various fields
 	species = Column(db.String(30), supports_dict=True, supports_json=True)
+	sex = Column(db.String(10), supports_dict=True, supports_json=True)
 	old_turtle_id = Column(db.Integer, supports_dict=True, supports_json=True)
 
 class Tag(BaseModel):
@@ -48,13 +49,9 @@ class Tag(BaseModel):
 
 	# Various fields
 	tag_number = Column(db.String(30), supports_dict=True, supports_json=True)
-	tag_scars = Column(db.Boolean, supports_dict=True, supports_json=True)
 	active = Column(db.Boolean, supports_dict=True, supports_json=True)
 	tag_type = Column(db.String(30), supports_dict=True, supports_json=True)
 	pit = Column(db.Boolean, supports_dict=True, supports_json=True)
-	scanned = Column(db.Boolean, supports_dict=True, supports_json=True)
-	scanner_number = Column(db.String(30), supports_dict=True, supports_json=True)
-	magnet_off = Column(db.String(30), supports_dict=True, supports_json=True)
 
 class Clutch(BaseModel):
 	__tablename__ = 'clutch'
@@ -136,16 +133,20 @@ class Morphometrics(BaseModel):
 
 	# Various fields
 	curved_length = Column(db.Float(5), supports_dict=True, supports_json=True)
+	curved_length_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
 	straight_length = Column(db.Float(5), supports_dict=True, supports_json=True)
 	minimum_length = Column(db.Float(5), supports_dict=True, supports_json=True)
 	plastron_length = Column(db.Float(5), supports_dict=True, supports_json=True)
+	plastron_length_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
 	weight = Column(db.Float(5), supports_dict=True, supports_json=True)
 	curved_width = Column(db.Float(5), supports_dict=True, supports_json=True)
+	curved_width_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
 	straight_width = Column(db.Float(5), supports_dict=True, supports_json=True)
 	tail_length_pl_vent = Column(db.Float(5), supports_dict=True, supports_json=True)
 	tail_length_pl_tip = Column(db.Float(5), supports_dict=True, supports_json=True)
 	head_width = Column(db.Float(5), supports_dict=True, supports_json=True)
 	body_depth = Column(db.Float(5), supports_dict=True, supports_json=True)
+	body_depth_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
 	flipper_damage = Column(db.Text, supports_dict=True, supports_json=True)
 	carapace_damage = Column(db.Text, supports_dict=True, supports_json=True)
 
@@ -275,6 +276,32 @@ class OffshoreMetadata(Metadata):
 		'polymorphic_identity': 'offshore'
 	}
 
+class OtherMetadata(Metadata):
+	__tablename__ = 'other_metadata'
+	# Foreign key
+	metadata_id = Column(db.Integer, db.ForeignKey('metadata.metadata_id'), primary_key=True, nullable=False, supports_dict=True, supports_json=True)
+
+	# Various fields
+	metadata_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
+	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
+	weather = Column(db.String(100), supports_dict=True, supports_json=True)
+	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
+	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
+	water_temp_1_m = Column(db.Float(5), supports_dict=True, supports_json=True)
+	water_temp_2_m = Column(db.Float(5), supports_dict=True, supports_json=True)
+	water_temp_6_m = Column(db.Float(5), supports_dict=True, supports_json=True)
+	water_temp_bottom = Column(db.Float(5), supports_dict=True, supports_json=True)
+	salinity_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
+	salinity_1_m = Column(db.Float(5), supports_dict=True, supports_json=True)
+	salinity_2_m = Column(db.Float(5), supports_dict=True, supports_json=True)
+	salinity_6_m = Column(db.Float(5), supports_dict=True, supports_json=True)
+	salinity_bottom = Column(db.Float(5), supports_dict=True, supports_json=True)
+
+	# Polymorphism
+	__mapper_args__ = {
+		'polymorphic_identity': 'other'
+	}
+
 class Encounter(BaseModel):
 	__tablename__ = 'encounter'
 	# Primary key
@@ -334,6 +361,11 @@ class TridentEncounter(Encounter):
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
 	verified_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
+	scanned = Column(db.Boolean, supports_dict=True, supports_json=True)
+	tag_scars = Column(db.String(20), supports_dict=True, supports_json=True)
+	tag1 = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag2 = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag3 = Column(db.String(30), supports_dict=True, supports_json=True)
 
 	# Fields unique to trident encounters
 	capture_location = Column(db.String(50), supports_dict=True, supports_json=True)
@@ -374,7 +406,11 @@ class LagoonEncounter(Encounter):
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
 	verified_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
-
+	scanned = Column(db.Boolean, supports_dict=True, supports_json=True)
+	tag_scars = Column(db.String(20), supports_dict=True, supports_json=True)
+	tag1 = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag2 = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag3 = Column(db.String(30), supports_dict=True, supports_json=True)
 
 	# Paps
 	paps_present = Column(db.Boolean, supports_dict=True, supports_json=True)
@@ -410,6 +446,12 @@ class BeachEncounter(Encounter):
 	entered_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	verified_by = Column(db.String(30), supports_dict=True, supports_json=True)
 	verified_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
+	scanned = Column(db.Boolean, supports_dict=True, supports_json=True)
+	tag_scars = Column(db.String(20), supports_dict=True, supports_json=True)
+	scanner_number = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag1 = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag2 = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag3 = Column(db.String(30), supports_dict=True, supports_json=True)
 
 	# Fields unique to beach encounters
 	prime_tag = Column(db.String(30), supports_dict=True, supports_json=True)
@@ -461,6 +503,10 @@ class OffshoreEncounter(Encounter):
 	trip_number = Column(db.Text, supports_dict=True, supports_json=True)
 	capture_habitat = Column(db.Text, supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
+	scanned = Column(db.Boolean, supports_dict=True, supports_json=True)
+	magnet_off = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag1 = Column(db.String(30), supports_dict=True, supports_json=True)
+	tag2 = Column(db.String(30), supports_dict=True, supports_json=True)
 
 	# Polymorphism
 	__mapper_args__ = {
@@ -1410,12 +1456,7 @@ class Legacy(BaseModel):
 	eggs_research = Column(db.Integer, supports_dict=True, supports_json=True)
 	in_place_foil = Column(db.Boolean, supports_dict=True, supports_json=True)
 	in_place_metal = Column(db.Boolean, supports_dict=True, supports_json=True)
-	carap_l_oc_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
 	carap_l_greatest = Column(db.Float(5), supports_dict=True, supports_json=True)
-	carap_w_oc_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
-	plastron_l_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
-	body_depth_over_barnacles = Column(db.Boolean, supports_dict=True, supports_json=True)
-	sex = Column(db.Text, supports_dict=True, supports_json=True)
 	cloaca_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	interanal_scute = Column(db.Text, supports_dict=True, supports_json=True)
 	date_laid = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
