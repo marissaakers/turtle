@@ -8,6 +8,7 @@ from turtleapi.capture.util import find_turtle_from_tags, date_handler, get_mini
 from flask import jsonify, Response
 import random # we can remove this when we're done and don't do the manual test insertions anymore
 
+# returns metadata_id, encounter_id, turtle_id, and species assoc. w/offshore encounter
 def mini_query_offshore(data):
     filters = get_miniquery_filters(data)
  
@@ -24,6 +25,7 @@ def mini_query_offshore(data):
 
     return Response(json.dumps(final_result, default = date_handler),mimetype = 'application/json')
 
+# returns a complete offshore metadata/encounter (w/morphometrics, turtle information, tags, samples)
 def query_offshore(data):
 
     # Filters
@@ -41,7 +43,7 @@ def query_offshore(data):
     queries.append(Encounter.type == "offshore")
 
     # Grab turtles
-    result = db.session.query(OffshoreMetadata, Turtle.species, Encounter.metadata_id).filter(*queries, Encounter.metadata_id==OffshoreMetadata.metadata_id, Turtle.turtle_id==Encounter.turtle_id).first()
+    result = db.session.query(OffshoreMetadata, Turtle.species, Turtle.sex, Encounter.metadata_id).filter(*queries, Encounter.metadata_id==OffshoreMetadata.metadata_id, Turtle.turtle_id==Encounter.turtle_id).first()
 
     if result is None:
         return {'error': 'No encounter with that ID exists'}
@@ -49,17 +51,20 @@ def query_offshore(data):
     # Add species
     result_encounter = result[0].to_dict(max_nesting=4)
     result_encounter['species'] = result[1]
+    result_encounter['sex'] = result[2]
     
     # Grab tags
-    tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['encounters'][0]['turtle_id']).all()
+    taglist = [result_encounter['encounters'][0]['tag1'], result_encounter['encounters'][0]['tag2']]
+    tags = db.session.query(Tag).filter(Tag.tag_number.in_(taglist)).all()
     result_encounter['encounters'][0]['tags'] = [x.to_dict() for x in tags]
 
     # Add metadata_id
-    result_encounter['metadata_id'] = result[2]
+    result_encounter['metadata_id'] = result[3]
 
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
-def insert_offshore(data): # includes offshore metadata
+# inserts offshore metadata/encounter (1-1 relation, not 1-many)
+def insert_offshore(data):
     data2 = {}
     data2['metadata'] = data
     data2['turtle'] = {}
@@ -67,12 +72,23 @@ def insert_offshore(data): # includes offshore metadata
     del data2['metadata']['encounters']['tags']
     data2['turtle']['species'] = data2['metadata']['encounters']['species']
     del data2['metadata']['encounters']['species']
+    data2['turtle']['sex'] = data2['metadata']['encounters']['sex']
+    del data2['metadata']['encounters']['sex']
     data2['metadata']['encounters']['morphometrics'] = [data2['metadata']['encounters']['morphometrics']]
+
+    # handling tag references in encounter
+    j = 0
+    tagfield = ['tag1', 'tag2']
+    for t in data2['turtle']['tags']:
+        data2['metadata']['encounters'][tagfield[j]] = t['tag_number']
+        j = j + 1
 
     # handling turtle
     turtle = find_turtle_from_tags(data2['turtle']['tags'])
+    # turtle is a recapture
     if turtle is not None:
-        data2['metadata']['encounters']['capture_type'] = "recap"
+        if data2['metadata']['encounters']['capture_type'] != "strange recap":
+            data2['metadata']['encounters']['capture_type'] = "recap"
 
         compare_tags = db.session.query(Tag).filter(Tag.turtle_id==turtle.turtle_id,Tag.active==True)
         # updating existing tags
@@ -85,19 +101,29 @@ def insert_offshore(data): # includes offshore metadata
                     flag = True
                     del data2['turtle']['tags'][i]
                     break
-                i = i + 1
             if flag == False:
                 setattr(c,'active',False)
         # adding new tags
         for t in data2['turtle']['tags']:
+            # handling strange tags
+            if t['new'] == False:
+                data2['metadata']['encounters']['capture_type'] = "strange recap"
             tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
         del data2['turtle']
+    # turtle is a new capture
     else:
+        if data2['metadata']['encounters']['capture_type'] != "strange recap":
+            data2['metadata']['encounters']['capture_type'] = "new"
+
+        # handling strange tags
+        for t in data2['turtle']['tags']:
+            if t['new'] == False:
+                data2['metadata']['encounters']['capture_type'] = "strange recap"
+
         turtle = Turtle.new_from_dict(data2['turtle'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['turtle']
-        data2['metadata']['encounters']['capture_type'] = "new"
     
     encounter = OffshoreEncounter.new_from_dict(data2['metadata']['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
     del data2['metadata']['encounters']
@@ -111,7 +137,9 @@ def insert_offshore(data): # includes offshore metadata
 
     return {'message': 'no errors'}
 
-def edit_offshore(data):                         # commit changes to DB
+# editing offshore metadata/encounter (along w/assoc. tables)
+def edit_offshore(data):
+    # editing actual metadata instance
     metadata = data.get('metadata')
     if metadata is not None:
         metadata_id = metadata.get('metadata_id')
@@ -123,6 +151,7 @@ def edit_offshore(data):                         # commit changes to DB
                 new_metadata_values.update(metadata)
                 edit_metadata.update_from_dict(new_metadata_values)
     
+    # editing actual encounter instance
     encounter = data.get('encounter')
     if encounter is not None:
         encounter_id = encounter.get('encounter_id')
@@ -133,6 +162,7 @@ def edit_offshore(data):                         # commit changes to DB
                 new_encounter_values.update(encounter)
                 edit_encounter.update_from_dict(new_encounter_values)
 
+    # editing turtle
     turtle = data.get('turtle')
     if turtle is not None:
         turtle_id = turtle.get('turtle_id')
@@ -143,6 +173,7 @@ def edit_offshore(data):                         # commit changes to DB
                 new_turtle_values.update(turtle)                # Update with any new values from incoming JSON
                 edit_turtle.update_from_dict(new_turtle_values) # Update DB entry
 
+    # editing morphometrics
     morphometrics = data.get('morphometrics')
     if morphometrics is not None:
         morphometrics_id = morphometrics.get('morphometrics_id')
@@ -153,6 +184,7 @@ def edit_offshore(data):                         # commit changes to DB
                 new_morphometrics_values.update(morphometrics)
                 edit_morphometrics.update_from_dict(new_morphometrics_values)
 
+    # editing samples
     samples = data.get('samples')
     if samples is not None:
         for s in samples:
@@ -164,21 +196,37 @@ def edit_offshore(data):                         # commit changes to DB
                     new_sample_values.update(s)
                     edit_sample.update_from_dict(new_sample_values)
     
+    # editing tags
     tags = data.get('tags')
     if tags is not None:
+        encounter_id = tags[0]['encounter_id']
+        edit_encounter = db.session.query(OffshoreEncounter).filter(OffshoreEncounter.encounter_id == encounter_id).first()
         for t in tags:
             tag_id = t.get('tag_id')
             if tag_id is not None:
                 edit_tag = db.session.query(Tag).filter(Tag.tag_id == tag_id).first()
                 if edit_tag is not None:
+                    old_tag_number = edit_tag.tag_number
+                    new_tag_number = t.get('tag_number')
+                    # case handling to update tags assoc. w/encounter (as opposed to all tags assoc. w/turtle)
+                    if new_tag_number is not None and old_tag_number != new_tag_number:
+                        j = 0
+                        old_tag = edit_encounter.tag1
+                        if old_tag == old_tag_number:
+                            setattr(edit_encounter,'tag1',new_tag_number)
+                        else:
+                            old_tag = edit_encounter.tag2
+                            if old_tag == old_tag_number:
+                                setattr(edit_encounter,'tag2',new_tag_number)
                     new_tag_values = edit_tag.to_dict()
                     new_tag_values.update(t)
-                    edit_tag.update_from_dict(new_tag_values)
+                    edit_tag.update_from_dict(new_tag_values, error_on_extra_keys=False, drop_extra_keys=True)
 
     db.session.commit()
     
     return {'message':'Offshore encounter edited successfully'}
 
+# deleting offshore metadata/encounter + casacdes thru all assoc. tables
 def delete_offshore(data):
     metadata_id = data.get('metadata_id')
     encounter_id = data.get('encounter_id')

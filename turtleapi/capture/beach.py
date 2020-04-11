@@ -7,6 +7,7 @@ from turtleapi.capture.util import find_turtle_from_tags, date_handler, get_mini
 from flask import jsonify, Response
 import random # we can remove this when we're done and don't do the manual test insertions anymore
 
+# returns encounter_id, encounter_date, turtle_id, species, and stake_number assoc. w/beach encounter
 def mini_query_beach(data):
     filters = get_miniquery_filters(data)
 
@@ -19,6 +20,7 @@ def mini_query_beach(data):
 
     return Response(json.dumps(final_result, default = date_handler),mimetype = 'application/json')
 
+# returns a complete beach encounter (w/clutch, morphometrics, turtle information, tags, samples)
 def query_beach(data):
     # Filters
     FILTER_encounter_id = data.get('encounter_id')
@@ -35,7 +37,7 @@ def query_beach(data):
     queries.append(Encounter.type == "beach")
 
     # Grab turtles
-    result = db.session.query(Encounter, Turtle.species).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
+    result = db.session.query(Encounter, Turtle.species, Turtle.sex).filter(*queries, Turtle.turtle_id==Encounter.turtle_id).first()
 
     if result is None:
         return {'error': 'No encounter with that ID exists'}
@@ -43,13 +45,16 @@ def query_beach(data):
     # Add species
     result_encounter = result[0].to_dict(max_nesting=2)
     result_encounter['species'] = result[1]
+    result_encounter['sex'] = result[2]
     
     # Grab tags
-    tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['turtle_id']).all()
+    taglist = [result_encounter['tag1'], result_encounter['tag2'], result_encounter['tag3']]
+    tags = db.session.query(Tag).filter(Tag.tag_number.in_(taglist)).all()
     result_encounter['tags'] = [x.to_dict() for x in tags]
 
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
+# inserts all info assoc. w/beach encounter
 def insert_beach(data):
     data2 = {}
     data2['encounters'] = data
@@ -57,16 +62,24 @@ def insert_beach(data):
     del data2['encounters']['tags']
     data2['species'] = data2['encounters']['species']
     del data2['encounters']['species']
+    data2['sex'] = data2['encounters']['sex']
+    del data2['encounters']['sex']
     data2['encounters']['morphometrics'] = [data2['encounters']['morphometrics']]
     data2['encounters']['clutches'] = [data2['encounters']['clutches']]
 
+    # handling tag references in encounter
+    j = 0
+    tagfield = ['tag1', 'tag2', 'tag3']
+    for t in data2['tags']:
+        data2['encounters'][tagfield[j]] = t['tag_number']
+        j = j + 1
+
     # handling turtle
     turtle = find_turtle_from_tags(data2['tags'])
+    # turtle is a recapture
     if turtle is not None:
-        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
+        if data2['encounters']['capture_type'] != "strange recap":
             data2['encounters']['capture_type'] = "recap"
-        encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
-        del data2['encounters']
 
         compare_tags = db.session.query(Tag).filter(Tag.turtle_id==turtle.turtle_id,Tag.active==True)
         # updating existing tags
@@ -75,23 +88,34 @@ def insert_beach(data):
             i = 0
             for i in range(len(data2['tags'])):
                 if c.tag_number == data2['tags'][i]['tag_number']:
-                    setattr(c,'tag_scars',data2['tags'][i]['tag_scars'])
                     flag = True
                     del data2['tags'][i]
                     break
-                i = i + 1
             if flag == False:
                 setattr(c,'active',False)
         # adding new tags
         for t in data2['tags']:
+            # handling strange tags
+            if t['new'] == False:
+                data2['encounters']['capture_type'] = "strange recap"
             tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
+        
+        encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
+    # turtle is a new capture
     else:
-        if data2['encounters']['capture_type'] != "strange recap": # need to make some check for this
+        if data2['encounters']['capture_type'] != "strange recap":
             data2['encounters']['capture_type'] = "new"
+
+        # handling strange tags
+        for t in data2['tags']:
+            if t['new'] == False:
+                data2['encounters']['capture_type'] = "strange recap"
+        
         encounter = BeachEncounter.new_from_dict(data2['encounters'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['encounters']
+
         turtle = Turtle.new_from_dict(data2, error_on_extra_keys=False, drop_extra_keys=True)
 
     encounter.turtle = turtle
@@ -100,7 +124,9 @@ def insert_beach(data):
 
     return {'message': 'no errors'}
 
+# editing a beach encounter and all assoc. tables
 def edit_beach(data):
+    # editing turtle
     turtle = data.get('turtle')
     if turtle is not None:
         turtle_id = turtle.get('turtle_id')
@@ -111,6 +137,7 @@ def edit_beach(data):
                 new_turtle_values.update(turtle)                # Update with any new values from incoming JSON
                 edit_turtle.update_from_dict(new_turtle_values) # Update DB entry
 
+    # editing actual encounter instance
     encounter = data.get('encounter')
     if encounter is not None:
         encounter_id = encounter.get('encounter_id')
@@ -123,6 +150,7 @@ def edit_beach(data):
                 new_encounter_values.update(encounter)
                 edit_encounter.update_from_dict(new_encounter_values)
 
+    # editing morphometrics
     morphometrics = data.get('morphometrics')
     if morphometrics is not None:
         morphometrics_id = morphometrics.get('morphometrics_id')
@@ -133,6 +161,7 @@ def edit_beach(data):
                 new_morphometrics_values.update(morphometrics)
                 edit_morphometrics.update_from_dict(new_morphometrics_values)
 
+    # editing samples
     samples = data.get('samples')
     if samples is not None:
         for s in samples:
@@ -144,17 +173,37 @@ def edit_beach(data):
                     new_sample_values.update(s)
                     edit_sample.update_from_dict(new_sample_values)
 
+    # editing tags
     tags = data.get('tags')
     if tags is not None:
+        encounter_id = tags[0]['encounter_id']
+        edit_encounter = db.session.query(BeachEncounter).filter(BeachEncounter.encounter_id == encounter_id).first()
         for t in tags:
             tag_id = t.get('tag_id')
             if tag_id is not None:
                 edit_tag = db.session.query(Tag).filter(Tag.tag_id == tag_id).first()
                 if edit_tag is not None:
+                    old_tag_number = edit_tag.tag_number
+                    new_tag_number = t.get('tag_number')
+                    # case handling to update tags assoc. w/encounter (as opposed to all tags assoc. w/turtle)
+                    if new_tag_number is not None and old_tag_number != new_tag_number:
+                        j = 0
+                        old_tag = edit_encounter.tag1
+                        if old_tag == old_tag_number:
+                            setattr(edit_encounter,'tag1',new_tag_number)
+                        else:
+                            old_tag = edit_encounter.tag2
+                            if old_tag == old_tag_number:
+                                setattr(edit_encounter,'tag2',new_tag_number)
+                            else:
+                                old_tag = edit_encounter.tag3
+                                if old_tag == old_tag_number:
+                                    setattr(edit_encounter,'tag3',new_tag_number)
                     new_tag_values = edit_tag.to_dict()
                     new_tag_values.update(t)
-                    edit_tag.update_from_dict(new_tag_values)
+                    edit_tag.update_from_dict(new_tag_values, error_on_extra_keys=False, drop_extra_keys=True)
     
+    # editing clutch
     clutches = data.get('clutches')
     if clutches is not None:
         for c in clutches:
@@ -170,6 +219,7 @@ def edit_beach(data):
 
     return {'message':'Beach encounter edited successfully'}
 
+# deleting a beach encounter + casacdes thru all assoc. tables
 def delete_beach(data):
     encounter_id = data.get('encounter_id')
 
