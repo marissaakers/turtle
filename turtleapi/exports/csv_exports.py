@@ -10,16 +10,9 @@ from sqlalchemy.orm import load_only
 from sqlalchemy import select
 import datetime
 from collections import OrderedDict
-
-# from sqlalchemy.orm import with_polymorphic
-# from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
-# import json
-# from flask import jsonify, make_response, redirect, current_app
-# import requests, os, boto3 # could remove this (maybe others?) if i move pdf to its own file?
-# from turtleapi import app
-# import base64
-# import io
-# from sqlalchemy import *
+from sqlalchemy.inspection import inspect
+#from sqlalchemy_utils import get_referencing_foreign_keys
+import itertools
 
 model_mapping = {
     "LagoonEncounter": LagoonEncounter,
@@ -37,6 +30,13 @@ model_mapping = {
     "Morphometrics": Morphometrics,
     "Sample": Sample,
     "SampleTracking": SampleTracking
+}
+
+related_model_mapping = {
+    LagoonEncounter: []
+
+
+
 }
 
 
@@ -82,12 +82,88 @@ def parse_query_filter(fieldname, filter, column):
     
     return queries
 
+# Return name of column if two models have a relationship. Else, return None
+def get_key_connecting_models(model1, model2):
+    rels = inspect(model1).relationships
+    for rel in rels:
+        clss = rel.mapper.class_
+        if clss is model2:
+            try:
+                name = inspect(model1).primary_key[0].name
+                getattr(model1, name)
+                getattr(model2, name)
+                return name
+            except:
+                return inspect(model2).primary_key[0].name
+    
+    return None
+
 def csv_export(data):
+
+
+    modelList = []
+    rels = inspect(LagoonEncounter).relationships
+    clss = [rel.mapper.class_ for rel in rels]
+    #print(clss)
+
+
+    #print(modelList)
+    # print(Sample)
+    #print(rels)
+
+    turtle_id = 24
+
+
+
+    # for rel in inspect(LagoonEncounter).relationships:
+    #     print(rel)
+
+
+    # Small brain iterator
+    # keepLooping = False
+    # for model in clss:
+    #     #print(model)
+    #     if model not in modelList:
+    #         modelList.append(model)
+    #         keepLooping = True
+    #     if model is Turtle:
+    #         print("Turtle!")
+
+
+
+
+    #return 'test'
+
     string_io = StringIO()
     writer = csv.writer(string_io)
 
     buildup = {}
     buildup_valid_columns = {}
+    query_columns = []          # List of DB columns to query
+    query_filters = []          # List of filters to apply to query
+    
+    for d in data:
+        if d not in model_mapping:
+            print("Extra key (table), ignoring")
+        else:
+            modelList.append(model_mapping[d])
+
+    #print(modelList)
+
+    # Iterate over all unique combinations of models
+    for pair in itertools.combinations(modelList, 2):
+        coll = get_key_connecting_models(pair[0], pair[1])
+
+        # If the models have a relationship, match them with a query so they get joined
+        if coll is not None:
+            query_filters.append(getattr(pair[0], coll) == getattr(pair[1], coll))
+
+    #return {}
+
+    #print(get_referencing_foreign_keys(Turtle))
+
+    # table_connections = [LagoonEncounter.turtle_id == Turtle.turtle_id]
+    # query_filters.append(table_connections)
 
     ### Iterate over JSON and query for data
     for d in data:
@@ -97,8 +173,6 @@ def csv_export(data):
         else:
             table_columns = model_mapping[d].__table__.c
             fields = data[d]
-            query_columns = []          # List of DB columns to query
-            query_filters = []          # List of filters to apply to query
             buildup_temp_columns = []   # List of DB columns, string format. Needed to handle an empty query result edge case
 
             for f in fields:
@@ -109,19 +183,17 @@ def csv_export(data):
                     query_filters.extend(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
                 else:
                     print("Extra key (field), ignoring")
-
-            # Skip (very unlikely) empty query, where query_columns is None
-            if query_columns:
-                table_result = db.session.query(*query_columns).filter(*query_filters).all()      
-                buildup[d] = table_result
                 buildup_valid_columns[d] = buildup_temp_columns
+
+    table_result = db.session.query(*query_columns).filter(*query_filters).all()
+    buildup[d] = table_result
 
     ### Create CSV
     # Write the header row
     header_row = []
-    for b in buildup:
-        for key in buildup_valid_columns[b]:
-            header_row.append(b + "." + key)
+    for table in buildup_valid_columns:
+        for column in buildup_valid_columns[table]:
+            header_row.append(table + '.' + column)
     
     writer.writerow(header_row)
     
