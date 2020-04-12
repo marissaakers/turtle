@@ -9,11 +9,10 @@ from turtleapi import db
 from sqlalchemy.orm import load_only
 from sqlalchemy import select
 import datetime
-from collections import OrderedDict
 from sqlalchemy.inspection import inspect
-#from sqlalchemy_utils import get_referencing_foreign_keys
 import itertools
 
+# Easy way to convert incoming JSON string to database model / table
 model_mapping = {
     "LagoonEncounter": LagoonEncounter,
     "TridentEncounter": TridentEncounter,
@@ -32,16 +31,11 @@ model_mapping = {
     "SampleTracking": SampleTracking
 }
 
-related_model_mapping = {
-    LagoonEncounter: []
-
-
-
-}
-
+# No SQLAlchemy built-in to see if relationship is one-to-one or one-to-many
+# List tables with one-to-many relationships here
 many_to_one_models = [Tag]
 
-
+# Return list of tables and fields for the frontend to display
 def field_lister():
     data = {}
 
@@ -56,9 +50,9 @@ def field_lister():
 
     return data
 
+# Generate a filter we can query on, depending on column type
 def parse_query_filter(fieldname, filter, column):
     field_type = column.type.python_type
-    # print(field_type)
 
     queries = []
 
@@ -100,64 +94,37 @@ def get_key_connecting_models(model1, model2):
     
     return None
 
+# Query and return CSV file
 def csv_export(data):
-
-
     modelList = []
     many_to_one_dict = {}
-    rels = inspect(LagoonEncounter).relationships
-    clss = [rel.mapper.class_ for rel in rels]
-
-    turtle_id = 24
-
-
     string_io = StringIO()
     writer = csv.writer(string_io)
-
-    buildup = {}
-    buildup_valid_columns = {}
     query_columns = []          # List of DB columns to query
     query_filters = []          # List of filters to apply to query
     
+    ### Groundwork for one-to-many relationship handling
+    # Make a list of requested models
     for d in data:
         if d not in model_mapping:
             print("Extra key (table), ignoring")
         else:
             modelList.append(model_mapping[d])
 
-    many_to_one_col_list = []
-
-    #print(modelList)
-
     # Iterate over all unique combinations of models
     for pair in itertools.combinations(modelList, 2):
         coll = get_key_connecting_models(pair[0], pair[1])
 
-        # If the models have a relationship, match them with a query so they get joined
+        # If the models have a one-to-many relationship, note this for later
         if coll is not None:
-            #print(pair[0])
-            #print(pair[1])
             if pair[0] in many_to_one_models:
-                print("Test1")
                 many_to_one_dict[pair[0]] = (pair[1], coll)
             if pair[1] in many_to_one_models:
-                print("Test2")
                 many_to_one_dict[pair[1]] = (pair[0], coll)
             else:
-                print("one-to-one")
+                # Normal one-to-one case; just add a filter to JOIN the tables
                 query_filters.append(getattr(pair[0], coll) == getattr(pair[1], coll))
 
-            #if pair[0]._sa_class_manager[getattr(pair[0], coll)]:
-            # mmm = getattr(LagoonEncounter, 'encounter_id')
-            # if LagoonEncounter._sa_class_manager[mmm].property.uselist:
-            #     print("True")
-
-    #return {}
-
-    #print(get_referencing_foreign_keys(Turtle))
-
-    # table_connections = [LagoonEncounter.turtle_id == Turtle.turtle_id]
-    # query_filters.append(table_connections)
     tables_to_revisit_later = {}
     filters_to_revisit_later = {}
     fields_to_revisit_later = {}
@@ -167,8 +134,8 @@ def csv_export(data):
         # Ignore invalid input (tables)
         if d not in model_mapping:
             print("Extra key (table), ignoring")
+        # Gather data for handling one-to-many later
         elif model_mapping[d] in many_to_one_dict:
-            print("skipping to query later")
             table_columns = model_mapping[d].__table__.c
             fields = data[d]
             field_list = []
@@ -184,155 +151,89 @@ def csv_export(data):
             tables_to_revisit_later[model_mapping[d]] = column_list
             filters_to_revisit_later[model_mapping[d]] = filter_list
             fields_to_revisit_later[model_mapping[d]] = field_list
+        # Handle regular tables
         else:
             table_columns = model_mapping[d].__table__.c
             fields = data[d]
-            #buildup_temp_columns = []   # List of DB columns, string format. Needed to handle an empty query result edge case
 
             for f in fields:
                 # Check if field exists in database
                 if f in table_columns:
                     query_columns.append(getattr(model_mapping[d], f))
-                    #buildup_temp_columns.append(f)
                     query_filters.extend(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
                 else:
                     print("Extra key (field), ignoring")
-                #buildup_valid_columns[d] = buildup_temp_columns
 
+    # Query for normal tables
     table_result = db.session.query(*query_columns).filter(*query_filters).all()
-    #print(type(table_result))
-    #print(type(table_result[0]))
-    buildup[d] = table_result
 
+    ### Handle one-to-many relationships
     more_dict = {}
     header_dict = {}
     max_num_dict = {}
 
-    print("TEST")
-
+    # Generate string for header row of CSV
     for t in tables_to_revisit_later:
         max_num_dict[t] = 0
-        #test_str = t.__tablename__ + str(result[0].keys()) # Inefficient, generated x times
         test_str = t.__name__  + ' ['
         first = True
+
         for f in fields_to_revisit_later[t]:
             if first:
                 test_str += f
                 first = False
             else:
                 test_str += ', ' + f
+        
         test_str += ']'
-        header_dict[t] = str(test_str)
+        header_dict[t] = test_str
 
+    # For each result, query any table(s) needed and store the result
     for r in table_result:
         test_model = Tag
-        #print(r.encounter_id)
         more_table_result_list = []
 
+        # Iterate over tables
         for t in tables_to_revisit_later:
-            #print(tables_to_revisit_later.keys())
-            #print(tables_to_revisit_later.values())
-            # print(many_to_one_dict[t][1])
-            # zzzzz = many_to_one_dict[t][1]
-            #print(r.turtle_id)
-            #print(getattr(r, many_to_one_dict[t][1]))
-
             result = db.session.query(*tables_to_revisit_later[t]).filter(getattr(t, many_to_one_dict[t][1]) == getattr(r, many_to_one_dict[t][1]))
             num = result.count()
+
+            # Need to track maximum number of results so the header is generated correctly
             if num > max_num_dict[t]:
                 max_num_dict[t] = num
 
             result = result.all()
-            #print(result)
             more_table_result_list.append(result)
 
-            #result = db.session.query(tables_to_revisit_later[t])
-            #print(result)
-        result = db.session.query(test_model.tag_number, test_model.turtle_id).filter(test_model.turtle_id == r.turtle_id).all()
-        #print(type(result))
-        #print(type(result[0]))
         more_dict[r] = more_table_result_list
 
-
-
-    # for r in more_dict:
-    #     print(more_dict[r])
-    
-    
-    # ### Many-to-one querying
-    # for d in data:
-    #     if d in model_mapping and model_mapping[d] in many_to_one_dict:
-    #         query_columns.clear()
-    #         query_filters.clear()
-    #         model = model_mapping[d]
-    #         table_columns = model.__table__.c
-    #         fields = data[d]
-    #         buildup_temp_columns2 = []   # List of DB columns, string format. Needed to handle an empty query result edge case
-    #         query_filters.append(getattr(model, many_to_one_dict[model][1]) == getattr(many_to_one_dict[model][0], many_to_one_dict[model][1]))
-
-    #         for f in fields:
-    #             # Check if field exists in database
-    #             if f in table_columns:
-    #                 query_columns.append(getattr(model_mapping[d], f))
-    #                 buildup_temp_columns2.append(f)
-    #                 query_filters.extend(parse_query_filter(f, fields[f], getattr(model_mapping[d], f)))
-    #             else:
-    #                 print("Extra key (field), ignoring")
-    #             #buildup_valid_columns[d] = buildup_temp_columns2
-    #         table_result = db.session.query(*query_columns).filter(*query_filters).all()
-    #         print(len(table_result))
-
     ### Create CSV
-    # Write the header row
+    # Write most of the header row
     header_row = []
     try:
         for r in table_result[0].keys():
             header_row.append(r)
     except:
         print("error, empty results")
-    # try:
-    #     for t in tables_to_revisit_later:
-    #         for n in max_num_dict[t]:
-    #             header_row.append(header_dict[t])
-    # except:
-    #     print("error, major fuckup")
-    for t in tables_to_revisit_later:
-        for i in range(max_num_dict[t]):
-            header_row.append(header_dict[t])
+        return {'error': 'Result was empty'}
 
+    # Write dynamic, one-to-many portion of the header row
+    try:
+        for t in tables_to_revisit_later:
+            for i in range(max_num_dict[t]):
+                header_row.append(header_dict[t])
+    except:
+        print("error adding dynamic header")
+        return {'error': 'Problem generating one-to-many output'}
 
-
-
-    # try:
-    #     for h in header_dict:
-    #         header_row.append(header_dict[h])
-    # except:
-    #     print("woops")
-    
-    # for table in buildup_valid_columns:
-    #     for column in buildup_valid_columns[table]:
-    #         header_row.append(table + '.' + column)
-    
     writer.writerow(header_row)
     
     # Write the body
-    for b in buildup:
-        for val in buildup[b]:
-            new_list = list(val)
-            #new_list.extend(more_dict[val])
-            for item in more_dict[val]:
-                new_list.extend(item)
-            # for more in more_dict[val]:
-            #     new_list.append(more)
-            writer.writerow(new_list)
-            # writer.writerow(list(val) + list(more_dict[val][0]))
-
-    # preceding_commas = []
-    # for b in buildup:
-    #     for val in buildup[b]:
-    #         writer.writerow(preceding_commas + list(val))
-    #     for num_keys in buildup_valid_columns[b]:
-    #         preceding_commas.append('')
+    for r in table_result:
+        new_list = list(r)
+        for item in more_dict[r]:
+            new_list.extend(item)
+        writer.writerow(new_list)
 
     # Send the csv back to the user
     output = make_response(string_io.getvalue())
