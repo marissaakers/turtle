@@ -33,7 +33,7 @@ model_mapping = {
 
 # No SQLAlchemy built-in to see if relationship is one-to-one or one-to-many
 # List tables with one-to-many relationships here
-many_to_one_models = [Tag]
+many_to_one_models = [Tag, Net]
 
 # Return list of tables and fields for the frontend to display
 def field_lister():
