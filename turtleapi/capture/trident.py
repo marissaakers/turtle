@@ -124,7 +124,6 @@ def insert_trident(data):
             i = 0
             for i in range(len(data2['tags'])):
                 if c.tag_number == data2['tags'][i]['tag_number']:
-                    setattr(c,'tag_scars',data2['tags'][i]['tag_scars'])
                     flag = True
                     del data2['tags'][i]
                     break

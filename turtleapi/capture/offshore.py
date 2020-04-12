@@ -97,7 +97,6 @@ def insert_offshore(data):
             i = 0
             for i in range(len(data2['turtle']['tags'])):
                 if c.tag_number == data2['turtle']['tags'][i]['tag_number']:
-                    setattr(c,'tag_scars',data2['turtle']['tags'][i]['tag_scars'])
                     flag = True
                     del data2['turtle']['tags'][i]
                     break

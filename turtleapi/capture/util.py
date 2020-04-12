@@ -91,7 +91,7 @@ def get_miniquery_filters(data):
     filters['verified_by'] = data.get('verified_by')
     filters['investigated_by'] = data.get('investigated_by')
 
-    filters['metadata_id'] = data.get('metadata_id')
+    filters['metadata_id'] = [data.get('metadata_id'),]
     filters['metadata_date'] = data.get('metadata_date')
     
     # If tags, find IDs and search by ID
