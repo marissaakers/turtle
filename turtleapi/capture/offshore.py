@@ -54,9 +54,13 @@ def query_offshore(data):
     result_encounter['sex'] = result[2]
     
     # Grab tags
-    taglist = [result_encounter['encounters'][0]['tag1'], result_encounter['encounters'][0]['tag2']]
-    tags = db.session.query(Tag).filter(Tag.tag_number.in_(taglist)).all()
-    result_encounter['encounters'][0]['tags'] = [x.to_dict() for x in tags]
+    if (result_encounter['encounters'][0]['tag1'] == result_encounter['encounters'][0]['tag2']):
+        tags = db.session.query(Tag).filter(Tag.turtle_id==result_encounter['encounters'][0]['turtle_id']).all()
+        result_encounter['encounters'][0]['tags'] = [x.to_dict() for x in tags]
+    else:
+        taglist = [result_encounter['encounters'][0]['tag1'], result_encounter['encounters'][0]['tag2']]
+        tags = db.session.query(Tag).filter(Tag.tag_number.in_(taglist)).all()
+        result_encounter['encounters'][0]['tags'] = [x.to_dict() for x in tags]
 
     # Add metadata_id
     result_encounter['metadata_id'] = result[3]
