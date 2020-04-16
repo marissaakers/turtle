@@ -109,7 +109,7 @@ def insert_offshore(data):
         # adding new tags
         for t in data2['turtle']['tags']:
             # handling strange tags
-            if t['new'] == False:
+            if t['isNew'] == False:
                 data2['metadata']['encounters']['capture_type'] = "strange recap"
             tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
             tag.turtle_id = turtle.turtle_id
@@ -122,7 +122,7 @@ def insert_offshore(data):
 
         # handling strange tags
         for t in data2['turtle']['tags']:
-            if t['new'] == False:
+            if t['isNew'] == False:
                 data2['metadata']['encounters']['capture_type'] = "strange recap"
 
         turtle = Turtle.new_from_dict(data2['turtle'], error_on_extra_keys=False, drop_extra_keys=True)

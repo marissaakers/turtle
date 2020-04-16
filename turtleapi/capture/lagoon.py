@@ -137,7 +137,7 @@ def insert_lagoon(data):
         # adding new tags
         for t in data2['tags']:
             # handling strange tags
-            if t['new'] == False:
+            if t['isNew'] == False:
                 data2['encounters']['capture_type'] = "strange recap"
             tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
             tag.turtle_id = turtle.turtle_id
@@ -153,7 +153,7 @@ def insert_lagoon(data):
         
         # handling strange tags
         for t in data2['tags']:
-            if t['new'] == False:
+            if t['isNew'] == False:
                 data2['encounters']['capture_type'] = "strange recap"
 
         metadata_id = data2['encounters']['metadata_id']
