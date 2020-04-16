@@ -18,8 +18,6 @@ def mini_query_offshore(data):
         if filters['metadata_ids'] is None:  # If date doesn't match anything, make sure we return no results
             filters['metadata_ids'] = [-1,]
 
-    print(filters)
-
     queries = generate_miniquery_queries(filters, OffshoreEncounter)
 
     result = db.session.query(Metadata.metadata_id, OffshoreEncounter.encounter_id, Turtle.turtle_id, Turtle.species).filter(*queries, Encounter.metadata_id==Metadata.metadata_id, Turtle.turtle_id==Encounter.turtle_id).all() # returns list of result objects
