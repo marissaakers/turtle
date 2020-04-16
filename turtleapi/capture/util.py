@@ -92,6 +92,7 @@ def get_miniquery_filters(data):
     filters['investigated_by'] = data.get('investigated_by')
 
     filters['metadata_id'] = data.get('metadata_id')
+    filters['metadata_ids'] = data.get('metadata_ids')
     filters['metadata_date'] = data.get('metadata_date')
     filters['capture_date'] = data.get('capture_date')
     
@@ -129,6 +130,8 @@ def generate_miniquery_queries(filters, enc):
         queries.append(Turtle.species == filters['species'])
     if filters['metadata_id'] is not None:
         queries.append(Encounter.metadata_id == filters['metadata_id'])
+    if filters['metadata_ids'] is not None:
+        queries.append(Encounter.metadata_id.in_(filters['metadata_ids']))
 
     return queries
 
