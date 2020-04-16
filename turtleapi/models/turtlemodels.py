@@ -36,7 +36,7 @@ class Turtle(BaseModel):
 
 	# Various fields
 	species = Column(db.String(30), supports_dict=True, supports_json=True)
-	sex = Column(db.String(10), supports_dict=True, supports_json=True)
+	sex = Column(db.Text, supports_dict=True, supports_json=True)
 	old_turtle_id = Column(db.Integer, supports_dict=True, supports_json=True)
 
 class Tag(BaseModel):
@@ -221,7 +221,7 @@ class TridentMetadata(Metadata):
 	wind_speed = Column(db.Float(5), supports_dict=True, supports_json=True)
 	wind_dir = Column(db.String(20), supports_dict=True, supports_json=True)
 	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
-	weather = Column(db.String(100), supports_dict=True, supports_json=True)
+	weather = Column(db.Text, supports_dict=True, supports_json=True)
 	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_1_m = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -1432,6 +1432,7 @@ class FilterSet(BaseModel):
 	username = Column(db.String(50), supports_dict=True, supports_json=True)
 	filter_set_name = Column(db.String(50), supports_dict=True, supports_json=True)
 	filter_data = Column(db.Text, supports_dict=True, supports_json=True)
+	survey_filter_set = Column(db.String(1), supports_dict=True, supports_json=True)
 
 class Legacy(BaseModel):
 	__tablename__ = 'legacy'

@@ -1,7 +1,9 @@
 from flask import Blueprint, request
 from turtleapi.capture.lagoon import query_lagoon
 from turtleapi.exports.csv_exports import csv_export, field_lister
+from turtleapi.exports.survey_csv_exports import survey_csv_export, survey_field_lister
 from turtleapi.exports.filters import save_filters, list_filters, get_filters
+from turtleapi.exports.survey_filters import save_survey_filters, list_survey_filters, get_survey_filters
 
 exportsbp = Blueprint('exports', __name__, url_prefix='/api/exports')
 
@@ -35,3 +37,34 @@ def get_filter_set_by_id():
 def save_filter_set():
     json_data = request.get_json(force=True)
     return save_filters(json_data)
+
+@exportsbp.route('/csv/survey', methods=['GET', 'POST'])
+def postsurvey():
+    # Grab the JSON coming in
+    json_data = request.get_json(force=True)
+
+    # Return csv of query
+    return survey_csv_export(json_data)
+
+@exportsbp.route('/fields/survey', methods=['GET'])
+def get_survey_fields():
+    # # Grab the JSON coming in
+    # json_data = request.get_json(force=True)
+
+    # Return list of available tables & fields
+    return survey_field_lister()
+
+@exportsbp.route('/surveyfilters/get-by-username', methods=['POST'])
+def get_survey_filter_sets_by_username():
+    json_data = request.get_json(force=True)
+    return list_survey_filters(json_data['username'])
+
+@exportsbp.route('/surveyfilters/get', methods=['POST'])
+def get_survey_filter_set_by_id():
+    json_data = request.get_json(force=True)
+    return get_survey_filters(json_data['filter_set_id'])
+
+@exportsbp.route('/surveyfilters/save', methods=['POST'])
+def save_survey_filter_set():
+    json_data = request.get_json(force=True)
+    return save_survey_filters(json_data)

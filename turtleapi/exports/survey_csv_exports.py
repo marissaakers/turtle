@@ -1,10 +1,8 @@
 from flask import request, make_response
 import csv
 from io import StringIO
-from turtleapi.models.turtlemodels import (LagoonEncounter, TridentEncounter, Encounter, Turtle, Tag,
-                                           Morphometrics, Sample, Metadata, LagoonMetadata, Net,
-                                           IncidentalCapture, BeachEncounter, OffshoreEncounter,
-                                           OffshoreMetadata, TridentMetadata, SampleTracking, Clutch)
+from turtleapi.models.turtlemodels import (Emergence, Depredation, Disorientation, Scarp,
+    FalseCrawl, DcCrawl, BigSurvey, NSRefuge)
 from turtleapi import db
 from sqlalchemy.orm import load_only
 from sqlalchemy import select
@@ -14,29 +12,22 @@ import itertools
 
 # Easy way to convert incoming JSON string to database model / table
 model_mapping = {
-    "LagoonEncounter": LagoonEncounter,
-    "TridentEncounter": TridentEncounter,
-    "BeachEncounter": BeachEncounter,
-    "OffshoreEncounter": OffshoreEncounter,
-    "LagoonMetadata": LagoonMetadata,
-    "TridentMetadata": TridentMetadata,
-    "OffshoreMetadata": OffshoreMetadata,
-    "Clutch": Clutch,
-    "Turtle": Turtle,
-    "Net": Net,
-    "IncidentalCapture": IncidentalCapture,
-    "Tag": Tag,
-    "Morphometrics": Morphometrics,
-    "Sample": Sample,
-    "SampleTracking": SampleTracking
+    "Emergence": Emergence,
+    "Depredation": Depredation,
+    "Disorientation": Disorientation,
+    "Scarp": Scarp,
+    "FalseCrawl": FalseCrawl,
+    "DcCrawl": DcCrawl,
+    "BigSurvey": BigSurvey,
+    "NSRefuge": NSRefuge
 }
 
 # No SQLAlchemy built-in to see if relationship is one-to-one or one-to-many
 # List tables with one-to-many relationships here
-many_to_one_models = [Tag, Net, IncidentalCapture]
+many_to_one_models = [Emergence]
 
 # Return list of tables and fields for the frontend to display
-def field_lister():
+def survey_field_lister():
     data = {}
 
     for model in model_mapping:
@@ -95,7 +86,7 @@ def get_key_connecting_models(model1, model2):
     return None
 
 # Query and return CSV file
-def csv_export(data):
+def survey_csv_export(data):
     modelList = []
     many_to_one_dict = {}
     string_io = StringIO()
