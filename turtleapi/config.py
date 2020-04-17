@@ -10,10 +10,11 @@ def get_env_variable(name):
 def create_db_url(user, pw, url, db):
 	return f"postgresql://{user}:{pw}@{url}/{db}"
 
-POSTGRES_USER = get_env_variable("POSTGRES_USER")
-POSTGRES_PW = get_env_variable("POSTGRES_PW")
-POSTGRES_URL = get_env_variable("POSTGRES_URL")
-POSTGRES_DB = get_env_variable("POSTGRES_DB")
+# Database secrets
+POSTGRES_USER='MTRG_ADMIN',
+POSTGRES_PW='qR)SMn^w8LKxb4^iq^L2',
+POSTGRES_URL='turtledb2.cryuatlylxd4.us-east-1.rds.amazonaws.com',
+POSTGRES_DB='postgres'
 
 DB_URL = create_db_url(POSTGRES_USER, POSTGRES_PW, POSTGRES_URL, POSTGRES_DB)
 

@@ -21,6 +21,7 @@ def create_app(config_class=Config):
 	db = initialize_flask_sqlathanor(db)
 	migrate.init_app(app, db)
 
+	# AWS secrets
 	app.config.update(
 		ACCESS_KEY_ID='AKIAVA5HZOYYIC335DWA',
 		SECRET_ACCESS_KEY='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',
