@@ -4,8 +4,8 @@ from sqlathanor import declarative_base, Column, relationship
 from datetime import datetime
 from sqlalchemy.orm import backref
 
-#BaseModel = declarative_base()
-BaseModel = db.Model
+BaseModel = declarative_base()
+#BaseModel = db.Model
 
 def parse_time(value):
 	if value is None:
