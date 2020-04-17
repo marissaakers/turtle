@@ -17,8 +17,8 @@ def create_app(config_class=Config):
 	register_blueprints(app)
 
 	CORS(app)
-	db = SQLAlchemy(app, model_class=FlaskBaseModel)
-	db = initialize_flask_sqlathanor(db)
+	#db = SQLAlchemy(app, model_class=FlaskBaseModel)
+	#db = initialize_flask_sqlathanor(db)
 	migrate.init_app(app, db)
 
 	# AWS secrets
