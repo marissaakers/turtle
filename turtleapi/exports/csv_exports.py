@@ -239,5 +239,9 @@ def csv_export(data):
     output = make_response(string_io.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
     output.headers["Content-type"] = "text/csv"
+
+    # Sometimes this query fails to close the connection and holds locks for some reason
+    db.session.close()
+    db.engine.dispose()
+
     return output
-    return {}

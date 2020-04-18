@@ -12,7 +12,11 @@ migrate = Migrate()
 app = Flask(__name__)
 
 def exception_handler(e):
-    return {'error': str(e)}
+	# Make sure to release any locks
+	db.session.close()
+	db.engine.dispose()
+
+	return {'error': str(e)}
 
 def create_app(config_class=Config):
 	app.config.from_object(config_class)
