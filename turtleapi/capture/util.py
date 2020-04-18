@@ -210,16 +210,19 @@ def put_file(data):
                     str(conflicting_filename_check_img.encounter_id) + ' has this img_filename'}
 
     old_filename = None
-    if pdf_filename == "":
+    if pdf_filename:
         old_filename = encounter_result.pdf_filename
     else:
         old_filename = encounter_result.img_filename
 
     s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
-
+    
     if old_filename is not None:    # If old file exists, delete old file before uploading new file
-        s3.delete_object(Bucket=app.config['S3_BUCKET'], Key=old_filename)
-
+        try:
+            s3.delete_object(Bucket=app.config['S3_BUCKET'], Key=old_filename)
+        except:
+            print("Tried to delete nonexistent object")
+            
     try:
         if pdf_filename:
             #s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], pdf_filename, ExtraArgs={"ContentType": 'pdf'})
