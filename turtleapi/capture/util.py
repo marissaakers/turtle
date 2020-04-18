@@ -169,7 +169,6 @@ def get_file(data):
     if encounter_result is None:
         return {'error': 'No such encounter_id exists'}
 
-
     if pdf_filename == "" and encounter_result.pdf_filename is None:
         return {'message': 'No PDF file attached to this encounter'}
     if img_filename == "" and encounter_result.img_filename is None:
@@ -198,7 +197,7 @@ def put_file(data):
     if encounter_result is None:
         return {'error': 'No such encounter_id exists'}
 
-    if pdf_filename == "":    
+    if pdf_filename:    
         conflicting_filename_check_pdf = db.session.query(Encounter).filter(Encounter.pdf_filename == pdf_filename).first()
         if (conflicting_filename_check_pdf is not None) and (conflicting_filename_check_pdf.encounter_id != encounter_id):
             return {'error': 'Editing encounter_id ' + str(encounter_id) + ' but encounter_id ' + 
@@ -216,27 +215,24 @@ def put_file(data):
     else:
         old_filename = encounter_result.img_filename
 
-    if 'filedata' in data.keys():   # All clear to try putting
-        s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
+    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
 
-        if old_filename is not None:    # If old file exists, delete old file before uploading new file
-            s3.delete_object(Bucket=app.config['S3_BUCKET'], Key=old_filename)
+    if old_filename is not None:    # If old file exists, delete old file before uploading new file
+        s3.delete_object(Bucket=app.config['S3_BUCKET'], Key=old_filename)
 
-        fileobj = io.BytesIO(base64.b64decode(data['filedata'])) # Ugly, but avoids copying large file data
+    try:
+        if pdf_filename:
+            #s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], pdf_filename, ExtraArgs={"ContentType": 'pdf'})
+            encounter_result.pdf_filename = pdf_filename
+            db.session.commit()
+            return s3.generate_presigned_post(Bucket=app.config['S3_BUCKET'], Key=pdf_filename, ExpiresIn=3600)
+        else:
+            #s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], img_filename)
+            encounter_result.img_filename = img_filename
+            db.session.commit()
+            return s3.generate_presigned_post(Bucket=app.config['S3_BUCKET'], Key=img_filename, ExpiresIn=3600)
 
-        try:
-            if pdf_filename == "":
-                s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], pdf_filename, ExtraArgs={"ContentType": 'pdf'})
-                encounter_result.pdf_filename = pdf_filename
-                db.session.commit()
-            else:
-                s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], img_filename)
-                encounter_result.img_filename = img_filename
-                db.session.commit()
+    except Exception as e:
+        return {'error': str(e)}
 
-        except Exception as e:
-            return {'error': str(e)}
-
-        return {'message': 'file posted successfully'}
-    
-    return {'error': 'Missing filedata'}
+    return {'message': 'file posted successfully'}
