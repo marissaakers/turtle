@@ -11,6 +11,9 @@ ma = Marshmallow()
 migrate = Migrate()
 app = Flask(__name__)
 
+def exception_handler(e):
+    return {'error': str(e)}
+
 def create_app(config_class=Config):
 	app.config.from_object(config_class)
 
@@ -29,6 +32,8 @@ def create_app(config_class=Config):
 	)
 
 	from turtleapi.models import turtlemodels
+
+	app.register_error_handler(Exception, exception_handler)
 
 	return app
 
