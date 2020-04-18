@@ -148,15 +148,16 @@ def get_file(data):
     if encounter_result is None:
         return {'error': 'No such encounter_id exists'}
 
-    if pdf_filename and encounter_result.pdf_filename is None:
+
+    if pdf_filename == "" and encounter_result.pdf_filename is None:
         return {'message': 'No PDF file attached to this encounter'}
-    if img_filename and encounter_result.img_filename is None:
+    if img_filename == "" and encounter_result.img_filename is None:
         return {'message': 'No image file attached to this encounter'}
 
     s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
 
     url = None
-    if pdf_filename:
+    if pdf_filename == "":
         url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.pdf_filename}, ExpiresIn = 100)
     else:
         url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.img_filename}, ExpiresIn = 100)
@@ -176,19 +177,20 @@ def put_file(data):
     if encounter_result is None:
         return {'error': 'No such encounter_id exists'}
 
-    conflicting_filename_check_pdf = db.session.query(Encounter).filter(Encounter.pdf_filename == pdf_filename).first()
-    conflicting_filename_check_img = db.session.query(Encounter).filter(Encounter.pdf_filename == img_filename).first()
+    if pdf_filename == "":    
+        conflicting_filename_check_pdf = db.session.query(Encounter).filter(Encounter.pdf_filename == pdf_filename).first()
+        if (conflicting_filename_check_pdf is not None) and (conflicting_filename_check_pdf.encounter_id != encounter_id):
+            return {'error': 'Editing encounter_id ' + str(encounter_id) + ' but encounter_id ' + 
+                    str(conflicting_filename_check_pdf.encounter_id) + ' has this pdf_filename'}
 
-    if (conflicting_filename_check_pdf is not None) and (conflicting_filename_check_pdf.encounter_id != encounter_id):
-        return {'error': 'Editing encounter_id ' + str(encounter_id) + ' but encounter_id ' + 
-                str(conflicting_filename_check_pdf.encounter_id) + ' has this pdf_filename'}
-
-    elif (conflicting_filename_check_img is not None) and (conflicting_filename_check_img.encounter_id != encounter_id):
-        return {'error': 'Editing encounter_id ' + str(encounter_id) + ' but encounter_id ' + 
-                str(conflicting_filename_check_img.encounter_id) + ' has this img_filename'}
+    else:
+        conflicting_filename_check_img = db.session.query(Encounter).filter(Encounter.pdf_filename == img_filename).first()
+        if (conflicting_filename_check_img is not None) and (conflicting_filename_check_img.encounter_id != encounter_id):
+            return {'error': 'Editing encounter_id ' + str(encounter_id) + ' but encounter_id ' + 
+                    str(conflicting_filename_check_img.encounter_id) + ' has this img_filename'}
 
     old_filename = None
-    if pdf_filename:
+    if pdf_filename == "":
         old_filename = encounter_result.pdf_filename
     else:
         old_filename = encounter_result.img_filename
@@ -202,7 +204,7 @@ def put_file(data):
         fileobj = io.BytesIO(base64.b64decode(data['filedata'])) # Ugly, but avoids copying large file data
 
         try:
-            if pdf_filename:
+            if pdf_filename == "":
                 s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], pdf_filename, ExtraArgs={"ContentType": 'pdf'})
                 encounter_result.pdf_filename = pdf_filename
                 db.session.commit()
