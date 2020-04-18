@@ -65,6 +65,20 @@ def return_tag_status(tag_number):
     )
     return {'capture_type': qry.first()[0]}
 
+def return_tag_status_two(tags):
+    strange_encounter = False
+    recapture = False
+
+    for tag in tags:
+        turtle_id = db.session.query(Tag.turtle_id).filter(tag_number==tag['tag_number']).first()
+        if turtle_id is not None:
+            recapture = True
+        else:
+            if tag['new'] == False:
+                strange_encounter = True
+
+    return {'strange_encounter': strange_encounter, 'recapture': recapture}
+
 
 # For editing, insert any new tags
 # WIP & untested 
