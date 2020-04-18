@@ -1,6 +1,7 @@
 from turtleapi import db
 from sqlalchemy.orm import with_polymorphic
-from turtleapi.models.turtlemodels import Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, BeachEncounter, OffshoreEncounter
+from turtleapi.models.turtlemodels import (Turtle, Tag, Encounter, LagoonEncounter, TridentEncounter, 
+    BeachEncounter, OffshoreEncounter, OtherEncounter)
 import json
 from flask import jsonify, make_response, redirect
 import requests, os, boto3 # could remove this (maybe others?) if i move pdf to its own file?
@@ -43,6 +44,26 @@ def find_turtles_from_tags(tags):
                 taglist.append(y)
         return taglist
     return None
+
+def return_tag_status(tag_number):
+    # lagoon_qry = db.session.query(LagoonEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
+    # trident_qry = db.session.query(TridentEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
+    # beach_qry = db.session.query(BeachEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
+    # union_qry = db.session.execute(lagoon_qry.union(trident_qry).union(beach_qry))
+    turtle_id = db.session.query(Tag.turtle_id).filter(tag_number==tag_number).first()
+    if turtle_id is None:
+        return {'capture_type': 'NEW'}
+    qry = db.session.execute(
+            db.session.query(LagoonEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
+        .union(
+            db.session.query(TridentEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
+        )
+        .union(
+            db.session.query(BeachEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
+        )
+    )
+    return {'capture_type': qry.first()[0]}
+
 
 # For editing, insert any new tags
 # WIP & untested 

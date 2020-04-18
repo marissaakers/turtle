@@ -10,7 +10,7 @@ from turtleapi.capture.offshore import (mini_query_offshore, query_offshore, ins
 	delete_offshore)
 from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
 	update_tracking_entry, delete_tracking_entry)
-from turtleapi.capture.util import get_file, put_file
+from turtleapi.capture.util import get_file, put_file, return_tag_status
 
 capturebp = Blueprint('captureapi', __name__)
 api = Api(capturebp)
@@ -239,6 +239,11 @@ class SampleTracking(Resource):
 		response = delete_tracking_entry(sample_tracking_id)
 		return response, 200
 
+class TagStatus(Resource):
+	def post(self):
+		tag_number = request.get_json(force=True)['tag_number']
+		return return_tag_status(tag_number)
+
 api.add_resource(MiniQueryLagoon, '/api/capture/lagoon/mini_query')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
 api.add_resource(InsertLagoon, '/api/capture/lagoon/insert')
@@ -277,3 +282,5 @@ api.add_resource(PutFile, '/api/capture/file/put')
 api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
 api.add_resource(SampleTracking, '/api/capture/sample/tracking',
 								'/api/capture/sample/tracking/<int:sample_tracking_id>')
+
+api.add_resource(TagStatus, '/api/capture/tagstatus')
