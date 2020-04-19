@@ -18,6 +18,11 @@ def exception_handler(e):
 
 	return {'error': str(e)}
 
+@app.teardown_request
+def teardown_request(exception=None):
+	db.session.close()
+	db.engine.dispose()	
+
 def create_app(config_class=Config):
 	app.config.from_object(config_class)
 
