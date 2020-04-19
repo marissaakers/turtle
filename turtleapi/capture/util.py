@@ -156,6 +156,20 @@ def generate_miniquery_queries(filters, enc):
 
     return queries
 
+# boto3 head_object is VERY slow
+# Faster way to check if a file exists on s3
+def check_if_s3_file_exists(client, bucket, key):
+    response = client.list_objects_v2(
+        Bucket=bucket,
+        Prefix=key,
+    )
+    for obj in response.get('Contents', []):
+        if obj['Key'] == key:
+            return True
+    
+    return False
+
+
 def get_file(data):
     encounter_id = data.get('encounter_id')
     pdf_filename = data.get('pdf_filename')
@@ -190,10 +204,9 @@ def get_file(data):
         url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.img_filename}, ExpiresIn = 100)
         fname = encounter_result.img_filename
     
-    try:
-        s3.head_object(Bucket=app.config['S3_BUCKET'], Key=fname)
-    except:
+    if not check_if_s3_file_exists(s3, app.config['S3_BUCKET'], fname):
         return {'message': 'No such file attached to this encounter'}
+        #s3.head_object(Bucket=app.config['S3_BUCKET'], Key=fname) # Very slow for some reason
 
     return redirect(url, code=302)
 
