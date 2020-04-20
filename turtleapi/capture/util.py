@@ -194,13 +194,13 @@ def generate_miniquery_queries(filters, enc):
     if filters['encounter_date_end'] is not None and enc is not OffshoreEncounter:
         queries.append(enc.encounter_date <= filters['encounter_date_end'])
     if filters['entered_by'] is not None:
-        queries.append(enc.entered_by == filters['entered_by'])
+        queries.append(enc.entered_by.contains(filters['entered_by']))
     if filters['verified_by'] is not None:
-        queries.append(enc.verified_by == filters['verified_by'])
+        queries.append(enc.verified_by.contains(filters['verified_by']))
     if filters['investigated_by'] is not None:
-        queries.append(enc.investigated_by == filters['investigated_by'])
+        queries.append(enc.investigated_by.contains(filters['investigated_by']))
     if filters['species'] is not None:
-        queries.append(Turtle.species == filters['species'])
+        queries.append(Turtle.species.contains(filters['species']))
     if filters['metadata_id'] is not None:
         queries.append(Encounter.metadata_id == filters['metadata_id'])
     if filters['metadata_ids'] is not None:
