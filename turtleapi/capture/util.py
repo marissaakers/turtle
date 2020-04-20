@@ -8,6 +8,7 @@ import requests, os, boto3 # could remove this (maybe others?) if i move pdf to 
 from turtleapi import app
 import base64
 import io
+from datetime import date, timedelta
 
 # Match one turtle
 def find_turtle_from_tags(tags):
@@ -137,9 +138,12 @@ def generate_miniquery_queries(filters, enc):
         queries.append(Encounter.turtle_id.in_(filters['turtle_ids']))
     if filters['encounter_id'] is not None:
         queries.append(Encounter.encounter_id == filters['encounter_id'])
-    if filters['encounter_date_start'] is not None:
+    if filters['encounter_date_start'] is not None and enc is not OffshoreEncounter:
         queries.append(enc.encounter_date >= filters['encounter_date_start'])
-    if filters['encounter_date_end'] is not None:
+    else:
+        if enc is not OffshoreEncounter:
+            queries.append(enc.encounter_date >= (date.today() - timedelta(365)))  # If no start date, only do 1 year
+    if filters['encounter_date_end'] is not None and enc is not OffshoreEncounter:
         queries.append(enc.encounter_date <= filters['encounter_date_end'])
     if filters['entered_by'] is not None:
         queries.append(enc.entered_by == filters['entered_by'])

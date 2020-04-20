@@ -19,7 +19,7 @@ def mini_query_trident(data):
 
     queries = generate_miniquery_queries(filters, TridentEncounter)
 
-    result = db.session.query(Metadata.metadata_id, TridentEncounter.encounter_id, TridentEncounter.encounter_date, Turtle.turtle_id, Turtle.species).filter(*queries, Encounter.metadata_id==Metadata.metadata_id, Turtle.turtle_id==Encounter.turtle_id).all() # returns list of result objects
+    result = db.session.query(Metadata.metadata_id, TridentEncounter.encounter_id, TridentEncounter.encounter_date, Turtle.turtle_id, Turtle.species).filter(*queries, Encounter.metadata_id==Metadata.metadata_id, Turtle.turtle_id==Encounter.turtle_id).order_by(TridentEncounter.encounter_date.desc()).all() # returns list of result objects
     final_result = [x._asdict() for x in result] # json.dumps() strips the name of the field... convert to dict and json.dumps() saves it
 
     return Response(json.dumps(final_result, default = date_handler),mimetype = 'application/json')
