@@ -185,7 +185,7 @@ class LagoonMetadata(Metadata):
 	wind_speed = Column(db.Float(5), supports_dict=True, supports_json=True)
 	wind_dir = Column(db.String(20), supports_dict=True, supports_json=True)
 	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
-	weather = Column(db.String(100), supports_dict=True, supports_json=True)
+	weather = Column(db.Text, supports_dict=True, supports_json=True)
 	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_1_m = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -284,7 +284,7 @@ class OtherMetadata(Metadata):
 	# Various fields
 	metadata_date = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	environment_time = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
-	weather = Column(db.String(100), supports_dict=True, supports_json=True)
+	weather = Column(db.Text, supports_dict=True, supports_json=True)
 	air_temp = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_surface = Column(db.Float(5), supports_dict=True, supports_json=True)
 	water_temp_1_m = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -459,7 +459,7 @@ class BeachEncounter(Encounter):
 	days_45 = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	days_70 = Column(db.Date, supports_dict=True, supports_json=True, on_serialize=parse_date, on_deserialize=parse_date)
 	activity = Column(db.String(50), supports_dict=True, supports_json=True)
-	location_detail = Column(db.Float(5), supports_dict=True, supports_json=True)
+	location_detail = Column(db.Text, supports_dict=True, supports_json=True)
 	location_NS = Column(db.String(1), supports_dict=True, supports_json=True)
 	latitude = Column(db.Float(5), supports_dict=True, supports_json=True)
 	longitude = Column(db.Float(5), supports_dict=True, supports_json=True)
@@ -1484,6 +1484,7 @@ class Legacy(BaseModel):
 	time_text_high_tide = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	time_text_low_tide = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	notes_environment = Column(db.Text, supports_dict=True, supports_json=True)
+	clutch_other_egg_affected = Column(db.Integer, supports_dict=True, supports_json=True)
 	
 	### None of these seem to include tags successfully:
 

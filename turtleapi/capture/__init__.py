@@ -8,8 +8,8 @@ from turtleapi.capture.trident import (mini_query_trident, query_trident, query_
 from turtleapi.capture.beach import mini_query_beach, query_beach, insert_beach, edit_beach, delete_beach
 from turtleapi.capture.offshore import (mini_query_offshore, query_offshore, insert_offshore, edit_offshore,
 	delete_offshore)
-from turtleapi.capture.sample_tracking import (get_sample, add_tracking_entry,
-	update_tracking_entry, delete_tracking_entry)
+from turtleapi.capture.sample_tracking import (get_sample, update_sample, add_sample, delete_sample, 
+add_tracking_entry, update_tracking_entry, delete_tracking_entry)
 from turtleapi.capture.util import get_file, put_file, return_tag_status
 
 capturebp = Blueprint('captureapi', __name__)
@@ -222,10 +222,22 @@ class Sample(Resource):
 		response = get_sample(sample_id)
 		return response, 200
 
+	def post(self):
+		sample = request.get_json(force=True)
+		response = add_sample(sample)
+		return response, 201
+
+	def put(self):
+		json_data = request.get_json(force=True)
+		response = update_sample(json_data)
+		return response, 200
+
+	def delete(self, sample_id):
+		response = delete_sample(sample_id)
+		return response, 200
 class SampleTracking(Resource):
 
 	def post(self):
-		print(request.get_json(force=True))
 		tracking_entry = request.get_json(force=True)
 		response = add_tracking_entry(tracking_entry)
 		return response, 201
@@ -241,8 +253,8 @@ class SampleTracking(Resource):
 
 class TagStatus(Resource):
 	def post(self):
-		tag_number = request.get_json(force=True)['tag_number']
-		return return_tag_status(tag_number)
+		tags = request.get_json(force=True)
+		return return_tag_status(tags), 200
 
 api.add_resource(MiniQueryLagoon, '/api/capture/lagoon/mini_query')
 api.add_resource(QueryLagoon, '/api/capture/lagoon/query')
@@ -279,7 +291,7 @@ api.add_resource(DeleteBeach, '/api/capture/beach/delete')
 api.add_resource(GetFile, '/api/capture/file/get')
 api.add_resource(PutFile, '/api/capture/file/put')
 
-api.add_resource(Sample, '/api/capture/sample/<int:sample_id>')
+api.add_resource(Sample, '/api/capture/sample', '/api/capture/sample/<int:sample_id>')
 api.add_resource(SampleTracking, '/api/capture/sample/tracking',
 								'/api/capture/sample/tracking/<int:sample_tracking_id>')
 

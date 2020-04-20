@@ -10,10 +10,16 @@ def list_filters(username):
                 .filter(FilterSet.survey_filter_set=='N') \
                 .all()
     filter_sets = [{"filter_set_id": result[0], "filter_set_name": result[1]} for result in results]
+    # Sometimes this query fails to close the connection and holds locks for some reason
+    db.session.close()
+    db.engine.dispose()
     return Response(json.dumps(filter_sets), mimetype = 'application/json')
 
 def get_filters(filter_set_id):
     filter_set = db.session.query(FilterSet).filter_by(filter_set_id=filter_set_id).first()
+    # Sometimes this query fails to close the connection and holds locks for some reason
+    db.session.close()
+    db.engine.dispose()
     return Response(json.dumps(filter_set.to_dict()), mimetype='application/json')
 
 def save_filters(data):
@@ -27,4 +33,14 @@ def save_filters(data):
     db.session.add(filter_set)
     db.session.commit()
     # print(filter_set.filter_data)
+    # Sometimes this query fails to close the connection and holds locks for some reason
+    db.session.close()
+    db.engine.dispose()
     return {"message": "successfully saved filter set"}
+
+def delete_filters(filter_set_id):
+    db.session.query(FilterSet).filter_by(filter_set_id=filter_set_id).delete()
+    db.session.commit()
+    db.session.close()
+    db.engine.dispose()
+    return 'Successfully deleted filter set'

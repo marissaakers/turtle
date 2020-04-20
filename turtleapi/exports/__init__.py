@@ -2,8 +2,9 @@ from flask import Blueprint, request
 from turtleapi.capture.lagoon import query_lagoon
 from turtleapi.exports.csv_exports import csv_export, field_lister
 from turtleapi.exports.survey_csv_exports import survey_csv_export, survey_field_lister
-from turtleapi.exports.filters import save_filters, list_filters, get_filters
-from turtleapi.exports.survey_filters import save_survey_filters, list_survey_filters, get_survey_filters
+from turtleapi.exports.filters import save_filters, list_filters, get_filters, delete_filters
+from turtleapi.exports.survey_filters import (save_survey_filters, list_survey_filters, 
+    get_survey_filters, delete_survey_filters)
 
 exportsbp = Blueprint('exports', __name__, url_prefix='/api/exports')
 
@@ -38,6 +39,10 @@ def save_filter_set():
     json_data = request.get_json(force=True)
     return save_filters(json_data)
 
+@exportsbp.route('/filters/delete/<int:filter_set_id>', methods=['DELETE'])
+def delete_filter_set(filter_set_id):
+    return delete_filters(filter_set_id)
+
 @exportsbp.route('/csv/survey', methods=['GET', 'POST'])
 def postsurvey():
     # Grab the JSON coming in
@@ -68,3 +73,7 @@ def get_survey_filter_set_by_id():
 def save_survey_filter_set():
     json_data = request.get_json(force=True)
     return save_survey_filters(json_data)
+
+@exportsbp.route('/filters/delete/<int:filter_set_id>', methods=['DELETE'])
+def delete_survey_filter_set(filter_set_id):
+    return delete_survey_filters(filter_set_id)

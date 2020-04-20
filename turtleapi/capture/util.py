@@ -46,14 +46,44 @@ def find_turtles_from_tags(tags):
         return taglist
     return None
 
-def return_tag_status(tag_number):
-    # lagoon_qry = db.session.query(LagoonEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
-    # trident_qry = db.session.query(TridentEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
-    # beach_qry = db.session.query(BeachEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
-    # union_qry = db.session.execute(lagoon_qry.union(trident_qry).union(beach_qry))
-    turtle_id = db.session.query(Tag.turtle_id).filter(tag_number==tag_number).first()
+def return_tag_status(tags):
+    if len(tags) == 0:
+        return {'message': 'Please enter at least one tag to check tag status.'}
+
+    multiple_turtle_indexes = []
+    id_list = []
+
+    for tag in tags:
+        res = db.session.query(Tag.turtle_id).filter(Tag.tag_number==tag['tag_number']).first()
+        if res is not None:
+            id_list.append(res)
+
+    # handle edge case
+    if len(id_list) == 0:
+        return {'message' : 'Tags not found in database; this is a new encounter.'}
+    elif len(id_list) > 1:
+        # find multiple turtles
+        for i in range (0, len(id_list)-1):
+            for j in range (1, len(id_list)):
+                if id_list[i] != id_list[j]:
+                    multiple_turtle_indexes.append(i)
+                    multiple_turtle_indexes.append(j)
+                    break
+
+    # if multiple turtles, tell the user
+    if len(multiple_turtle_indexes) > 0:
+        return {'message': 'Error: tag number ' + tags[multiple_turtle_indexes[0]]['tag_number'] + ' belongs to turtle ' 
+                    + id_list[0] + ', while tag number ' + tags[multiple_turtle_indexes[1]]['tag_number'] + ' belongs to '
+                    + 'turtle ' + id_list[1] + '. Please double check the tag numbers.'}
+
+    # We can return a normal response if we get to this point
+    turtle_id = id_list[0]
+
+    # no tags found
     if turtle_id is None:
-        return {'capture_type': 'NEW'}
+        return {'message': 'Tag(s) not found in database; this is a new encounter.'}
+
+    # at least one tag found
     qry = db.session.execute(
             db.session.query(LagoonEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
         .union(
@@ -63,7 +93,11 @@ def return_tag_status(tag_number):
             db.session.query(BeachEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
         )
     )
-    return {'capture_type': qry.first()[0]}
+    res = qry.first()[0]
+    if res is not None:
+        return {'message': 'Turtle found in database based on these tags; this is a ' + res + ' encounter.'}
+    else:
+        return {'message': 'Turtle found in database based on these tags; this is a recapture encounter.'}
 
 def return_tag_status_two(tags):
     strange_encounter = False
