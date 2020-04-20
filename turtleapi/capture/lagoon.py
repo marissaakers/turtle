@@ -91,8 +91,13 @@ def query_lagoon_metadata(data):
         print("Error: Metadata matching criteria not found")
         return {'error': 'Metadata matching criteria not found'}
 
-    result_encounter = result.to_dict(max_nesting=2)
-    
+    nets = db.session.query(Net).filter(Net.metadata_id == result.metadata_id).all()
+    incidental_captures = db.session.query(IncidentalCapture).filter(IncidentalCapture.metadata_id == result.metadata_id).all()
+
+    result_encounter = result.to_dict()
+    result_encounter['nets'] = [x.to_dict() for x in nets]
+    result_encounter['incidental_captures'] = [x.to_dict() for x in incidental_captures]
+
     return Response(json.dumps(result_encounter, default = date_handler),mimetype = 'application/json')
 
 # inserts all info assoc. w/lagoon encounter
