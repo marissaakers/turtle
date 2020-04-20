@@ -318,16 +318,16 @@ def put_file(data):
             #s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], pdf_filename, ExtraArgs={"ContentType": 'pdf'})
             encounter_result.pdf_filename = pdf_filename
             db.session.commit()
-            #return s3.generate_presigned_post(Bucket=app.config['S3_BUCKET'], Key=pdf_filename, ExpiresIn=3600)
+            return s3.generate_presigned_post(Bucket=app.config['S3_BUCKET'], Key=pdf_filename, ExpiresIn=3600)
             #return s3.generate_presigned_url(Bucket=app.config['S3_BUCKET'], Key=pdf_filename, ExpiresIn=3600)
-            return s3.generate_presigned_url('put_object', Params={'Bucket':app.config['S3_BUCKET'],'Key':pdf_filename}, ExpiresIn=3600, HttpMethod='PUT')
+            #return s3.generate_presigned_url('put_object', Params={'Bucket':app.config['S3_BUCKET'],'Key':pdf_filename}, ExpiresIn=3600, HttpMethod='PUT', Content-Type: 'application/octet-stream')
         else:
             img_filename = str(encounter_result.encounter_id) + "i-" + img_filename
             #s3.upload_fileobj(fileobj, app.config['S3_BUCKET'], img_filename)
             encounter_result.img_filename = img_filename
             db.session.commit()
-            #return s3.generate_presigned_post(Bucket=app.config['S3_BUCKET'], Key=img_filename, ExpiresIn=3600)
-            return s3.generate_presigned_url('put_object', Params={'Bucket':app.config['S3_BUCKET'],'Key':img_filename}, ExpiresIn=3600, HttpMethod='PUT')
+            return s3.generate_presigned_post(Bucket=app.config['S3_BUCKET'], Key=img_filename, ExpiresIn=3600)
+            #return s3.generate_presigned_url('put_object', Params={'Bucket':app.config['S3_BUCKET'],'Key':img_filename}, ExpiresIn=3600, HttpMethod='PUT', Content-Type: 'application/octet-stream')
 
     except Exception as e:
         return {'error': str(e)}
