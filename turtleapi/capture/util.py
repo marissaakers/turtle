@@ -47,57 +47,60 @@ def find_turtles_from_tags(tags):
     return None
 
 def return_tag_status(tags):
-    if len(tags) == 0:
-        return {'message': 'Please enter at least one tag to check tag status.'}
+    print(tags)
+    NO_TAGS_SENT = 'Please enter at least one tag to check tag status.'
+    TAGS_NOT_FOUND = 'Tag(s) not found in database; '
+    TAGS_FOUND = 'Tag(s) found in database; '
+    NEW_ENCOUNTER = 'this is a new encounter.'
+    STRANGE_ENCOUNTER = 'this is a strange encounter.'
+    RECAP_ENCOUNTER = 'this is a recapture encounter.'
+    STRANGE_RECAP_ENCOUNTER = 'this is a strange recapture encounter.'
 
+    if len(tags) == 0:
+        return {'message': NO_TAGS_SENT}
+
+    strange_encounter = False
+    recapture = False
+    id_list = {}
     multiple_turtle_indexes = []
-    id_list = []
 
     for tag in tags:
-        res = db.session.query(Tag.turtle_id).filter(Tag.tag_number==tag['tag_number']).first()
-        if res is not None:
-            id_list.append(res)
+        turtle_id = db.session.query(Tag.turtle_id).filter(Tag.tag_number==tag['tag_number']).first()
+        if turtle_id is not None:
+            recapture = True
+            id_list[tag['tag_number']] = turtle_id[0]
+        else:
+            if tag['new'] == False:
+                strange_encounter = True
 
-    # handle edge case
     if len(id_list) == 0:
-        return {'message' : 'Tags not found in database; this is a new encounter.'}
+        return {'message': TAGS_NOT_FOUND + (STRANGE_ENCOUNTER if strange_encounter else NEW_ENCOUNTER)}
     elif len(id_list) > 1:
         # find multiple turtles
         for i in range (0, len(id_list)-1):
             for j in range (1, len(id_list)):
-                if id_list[i] != id_list[j]:
+                tag1 = tags[i]["tag_number"]
+                tag2 = tags[j]["tag_number"]
+                if id_list[tag1] != id_list[tag2]:
                     multiple_turtle_indexes.append(i)
                     multiple_turtle_indexes.append(j)
                     break
-
     # if multiple turtles, tell the user
     if len(multiple_turtle_indexes) > 0:
-        return {'message': 'Error: tag number ' + tags[multiple_turtle_indexes[0]]['tag_number'] + ' belongs to turtle ' 
-                    + id_list[0] + ', while tag number ' + tags[multiple_turtle_indexes[1]]['tag_number'] + ' belongs to '
-                    + 'turtle ' + id_list[1] + '. Please double check the tag numbers.'}
+        tag1 = tags[multiple_turtle_indexes[0]]['tag_number']
+        tag2 = tags[multiple_turtle_indexes[1]]['tag_number']
+        return {'message': 'Error: tag number ' + tag1 + ' belongs to '
+                + 'turtle id ' + str(id_list[tag1]) + ', while tag number ' + tag2
+                + ' belongs to turtle id ' + str(id_list[tag2]) + '. '
+                + 'Please double check the tag numbers.'}
 
     # We can return a normal response if we get to this point
-    turtle_id = id_list[0]
-
+    turtle_id = id_list[tags[0]['tag_number']]
     # no tags found
     if turtle_id is None:
-        return {'message': 'Tag(s) not found in database; this is a new encounter.'}
-
-    # at least one tag found
-    qry = db.session.execute(
-            db.session.query(LagoonEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
-        .union(
-            db.session.query(TridentEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
-        )
-        .union(
-            db.session.query(BeachEncounter.capture_type).filter(Encounter.turtle_id==turtle_id)
-        )
-    )
-    res = qry.first()[0]
-    if res is not None:
-        return {'message': 'Turtle found in database based on these tags; this is a ' + res + ' encounter.'}
-    else:
-        return {'message': 'Turtle found in database based on these tags; this is a recapture encounter.'}
+        return {'message': TAGS_NOT_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else NEW_ENCOUNTER)}
+    # at least one tag found so it's a recap
+    return {'message': TAGS_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else RECAP_ENCOUNTER)}
 
 def return_tag_status_two(tags):
     strange_encounter = False
