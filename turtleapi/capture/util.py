@@ -249,7 +249,7 @@ def get_file(data):
     if not pdf and encounter_result.img_filename is None:
         return {'message': 'No image file attached to this encounter'}
 
-    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'])
+    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1')
 
     url = None
     if pdf:
