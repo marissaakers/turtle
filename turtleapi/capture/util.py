@@ -253,17 +253,18 @@ def get_file(data):
 
     url = None
     if pdf:
-        url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.pdf_filename}, ExpiresIn = 100)
+        url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.pdf_filename}, ExpiresIn = 3600)
         fname = encounter_result.pdf_filename
     else:
-        url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.img_filename}, ExpiresIn = 100)
+        url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.img_filename}, ExpiresIn = 3600)
         fname = encounter_result.img_filename
     
     if not check_if_s3_file_exists(s3, app.config['S3_BUCKET'], fname):
         return {'message': 'No such file attached to this encounter'}
         #s3.head_object(Bucket=app.config['S3_BUCKET'], Key=fname) # Very slow for some reason
 
-    return redirect(url, code=302)
+    #return redirect(url, code=302)
+    return {'url': url}
 
 def put_file(data):
     encounter_id = data.get('encounter_id')
