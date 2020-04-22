@@ -255,8 +255,8 @@ def get_file(data):
         return {'message': 'No image file attached to this encounter'}
 
 
-    config = Config(connect_timeout=5, retries={'max_attempts': 4})
-    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1', config=config)
+    #config = Config(connect_timeout=5, retries={'max_attempts': 4})
+    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1')
 
     print("called3")
 
@@ -323,7 +323,7 @@ def put_file(data):
         old_filename = encounter_result.img_filename
 
     config = Config(connect_timeout=5, retries={'max_attempts': 4})
-    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1', config=config)
+    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1')
     
     if old_filename is not None:    # If old file exists, delete old file before uploading new file
         try:
