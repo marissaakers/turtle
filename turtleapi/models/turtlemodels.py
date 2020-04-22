@@ -508,6 +508,9 @@ class OffshoreEncounter(Encounter):
 	magnet_off = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	tag1 = Column(db.String(30), supports_dict=True, supports_json=True)
 	tag2 = Column(db.String(30), supports_dict=True, supports_json=True)
+	scanner_number = Column(db.Text, supports_dict=True, supports_json=True)
+	entered_by = Column(db.Date, supports_dict=True, supports_json=True, on_deserialize=parse_date, on_serialize=parse_date)
+	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
 
 	# Polymorphism
 	__mapper_args__ = {
