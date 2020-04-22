@@ -9,6 +9,7 @@ from turtleapi import app
 import base64
 import io
 from datetime import date, timedelta
+from botocore.client import Config
 
 # Match one turtle
 def find_turtle_from_tags(tags):
@@ -229,6 +230,8 @@ def get_file(data):
     encounter_id = data.get('encounter_id')
     pdf_filename = data.get('pdf_filename')
     img_filename = data.get('img_filename')
+    print("CATCHMYEYE")
+    print("called")
 
     pdf = None
     if pdf_filename == '' or pdf_filename:
@@ -241,6 +244,8 @@ def get_file(data):
 
     encounter_result = db.session.query(Encounter).get(encounter_id)
 
+    print("called2")
+
     if encounter_result is None:
         return {'error': 'No such encounter_id exists'}
 
@@ -249,7 +254,12 @@ def get_file(data):
     if not pdf and encounter_result.img_filename is None:
         return {'message': 'No image file attached to this encounter'}
 
-    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1')
+
+    config = Config(connect_timeout=5, retries={'max_attempts': 4})
+    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1', config=config)
+
+    print("called3")
+
 
     url = None
     if pdf:
@@ -259,9 +269,13 @@ def get_file(data):
         url = s3.generate_presigned_url('get_object', Params = {'Bucket': app.config['S3_BUCKET'], 'Key': encounter_result.img_filename}, ExpiresIn = 3600)
         fname = encounter_result.img_filename
     
+    print("called4")
+
     if not check_if_s3_file_exists(s3, app.config['S3_BUCKET'], fname):
         return {'message': 'No such file attached to this encounter'}
         #s3.head_object(Bucket=app.config['S3_BUCKET'], Key=fname) # Very slow for some reason
+
+    print("called5")
 
     #return redirect(url, code=302)
     return {'url': url}
@@ -308,7 +322,8 @@ def put_file(data):
     else:
         old_filename = encounter_result.img_filename
 
-    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1')
+    config = Config(connect_timeout=5, retries={'max_attempts': 4})
+    s3 = boto3.client('s3', aws_access_key_id=app.config['ACCESS_KEY_ID'], aws_secret_access_key=app.config['SECRET_ACCESS_KEY'], region_name='us-east-1', config=config)
     
     if old_filename is not None:    # If old file exists, delete old file before uploading new file
         try:
