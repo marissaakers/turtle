@@ -171,7 +171,7 @@ def insert_lagoon(data):
     db.session.add(encounter)
     db.session.commit()
 
-    return {'message': 'no errors'}
+    return {'message': 'no errors', 'encounter_id': encounter.encounter_id, 'metadata_id': encounter.metadata_id}
 
 # inserting lagoon metadata
 def insert_lagoon_metadata(data):

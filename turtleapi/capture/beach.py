@@ -126,7 +126,7 @@ def insert_beach(data):
     db.session.add(encounter)
     db.session.commit()
 
-    return {'message': 'no errors'}
+    return {'message': 'no errors', 'encounter_id': encounter.encounter_id}
 
 # editing a beach encounter and all assoc. tables
 def edit_beach(data):

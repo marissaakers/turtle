@@ -138,7 +138,7 @@ def insert_offshore(data):
     db.session.add(metadata)
     db.session.commit()
 
-    return {'message': 'no errors'}
+    return {'message': 'no errors', 'encounter_id': encounter.encounter_id, 'metadata_id': encounter.metadata_id}
 
 # editing offshore metadata/encounter (along w/assoc. tables)
 def edit_offshore(data):
