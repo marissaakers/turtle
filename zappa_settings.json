@@ -1,10 +1,5 @@
 {
     "dev": {
-        "cors": {
-            "allowed_headers": "*",
-            "allowed_methods": "*",
-            "allowed_origin": "*"
-        },
         "app_function": "setup.app",
         "aws_region": "us-east-1",
         "project_name": "backend",

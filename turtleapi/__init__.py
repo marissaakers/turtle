@@ -18,17 +18,24 @@ def exception_handler(e):
 
 	return {'error': str(e)}
 
+# 	response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+
 @app.teardown_request
 def teardown_request(exception=None):
 	db.session.close()
 	db.engine.dispose()	
+
+# @app.after_request
+# def add_header(response):
+# 	response.headers['Access-Control-Allow-Origin'] = '*'
+# 	response.headers['Access-Control-Allow-Headers'] = '*'
+# 	return response
 
 def create_app(config_class=Config):
 	app.config.from_object(config_class)
 
 	register_blueprints(app)
 
-	CORS(app)
 	db = SQLAlchemy(app, model_class=FlaskBaseModel)
 	db = initialize_flask_sqlathanor(db)
 	migrate.init_app(app, db)
@@ -44,6 +51,8 @@ def create_app(config_class=Config):
 
 	app.register_error_handler(Exception, exception_handler)
 
+	CORS(app)
+#	app.config['CORS_HEADERS'] = 'Content-Type'
 	return app
 
 def register_blueprints(app):

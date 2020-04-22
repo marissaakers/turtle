@@ -165,7 +165,11 @@ def csv_export(data):
                     print("Extra key (field), ignoring")
 
     # Query for normal tables
-    table_result = db.session.query(*query_columns).filter(*query_filters).all()
+    table_result = db.session.query(*query_columns).filter(*query_filters)
+    num_results = table_result.count()
+    if num_results > 500000:
+        return {'error': 'result too long; bad query?'}
+    table_result = table_result.all()
 
     ### Handle one-to-many relationships
     more_dict = {}
@@ -236,12 +240,15 @@ def csv_export(data):
         writer.writerow(new_list)
 
     # Send the csv back to the user
-    output = make_response(string_io.getvalue())
-    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
-    output.headers["Content-type"] = "text/csv"
+    #output = make_response(string_io.getvalue())
+    #output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    #output.headers["Content-type"] = "text/csv"
+    #output.headers['Access-Control-Allow-Origin'] =  '*'
+    #output.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
 
     # Sometimes this query fails to close the connection and holds locks for some reason
     db.session.close()
     db.engine.dispose()
 
-    return output
+    #return output
+    return string_io.getvalue()
