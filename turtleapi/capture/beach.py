@@ -184,7 +184,23 @@ def edit_beach(data):
         edit_encounter = db.session.query(BeachEncounter).filter(BeachEncounter.encounter_id == encounter_id).first()
         for t in tags:
             tag_id = t.get('tag_id')
-            if tag_id is not None:
+            if tag_id is None or not tag_id:
+                edit_tag = db.session.query(Tag).filter(Tag.tag_number == t.get('tag_number')).first()
+                if edit_tag is None:
+                    edit_tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
+                    db.session.add(edit_tag)
+                else:
+                    new_tag_values = edit_tag.to_dict()
+                    new_tag_values.update(t)
+                    edit_tag.update_from_dict(new_tag_values, error_on_extra_keys=False, drop_extra_keys=True)
+                if edit_encounter.tag1 is None or edit_encounter.tag1 == "":
+                    setattr(edit_encounter,'tag1',edit_tag.tag_number)
+                else:
+                    if edit_encounter.tag2 is None or edit_encounter.tag2 == "":
+                        setattr(edit_encounter,'tag2',edit_tag.tag_number)
+                    else:
+                        setattr(edit_encounter,'tag3',edit_tag.tag_number)
+            else:
                 edit_tag = db.session.query(Tag).filter(Tag.tag_id == tag_id).first()
                 if edit_tag is not None:
                     old_tag_number = edit_tag.tag_number
