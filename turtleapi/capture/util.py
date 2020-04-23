@@ -58,7 +58,7 @@ def return_tag_status(tags):
     STRANGE_RECAP_ENCOUNTER = 'this is a strange recapture encounter.'
 
     if len(tags) == 0:
-        return {'message': NO_TAGS_SENT}
+        return {'message': NO_TAGS_SENT, 'capture_type': 'NEW'}
 
     strange_encounter = False
     recapture = False
@@ -75,7 +75,8 @@ def return_tag_status(tags):
                 strange_encounter = True
 
     if len(id_list) == 0:
-        return {'message': TAGS_NOT_FOUND + (STRANGE_ENCOUNTER if strange_encounter else NEW_ENCOUNTER)}
+        return {'message': TAGS_NOT_FOUND + (STRANGE_ENCOUNTER if strange_encounter else NEW_ENCOUNTER),
+                    'capture_type': 'STRANGE' if strange_encounter else 'NEW'}
     elif len(id_list) > 1:
         # find multiple turtles
         for i in range (0, len(id_list)-1):
@@ -93,15 +94,18 @@ def return_tag_status(tags):
         return {'message': 'Error: tag number ' + tag1 + ' belongs to '
                 + 'turtle id ' + str(id_list[tag1]) + ', while tag number ' + tag2
                 + ' belongs to turtle id ' + str(id_list[tag2]) + '. '
-                + 'Please double check the tag numbers.'}
+                + 'Please double check the tag numbers.',
+                'capture_type': 'ERROR'}
 
     # We can return a normal response if we get to this point
     turtle_id = id_list[tags[0]['tag_number']]
     # no tags found
     if turtle_id is None:
-        return {'message': TAGS_NOT_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else NEW_ENCOUNTER)}
+        return {'message': TAGS_NOT_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else NEW_ENCOUNTER),
+                    'capture_type': 'STRANGE' if strange_encounter else 'NEW'}
     # at least one tag found so it's a recap
-    return {'message': TAGS_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else RECAP_ENCOUNTER)}
+    return {'message': TAGS_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else RECAP_ENCOUNTER),
+                    'capture_type': 'STRANGE RECAP' if strange_encounter else 'RECAP'}
 
 def return_tag_status_two(tags):
     strange_encounter = False
