@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy.orm import backref
 
 BaseModel = declarative_base()
-#BaseModel = db.Model
+# BaseModel = db.Model
 
 def parse_time(value):
 	if value is None:
@@ -503,13 +503,14 @@ class OffshoreEncounter(Encounter):
 	# Fields unique to offshore encounters
 	trip_number = Column(db.Text, supports_dict=True, supports_json=True)
 	capture_habitat = Column(db.Text, supports_dict=True, supports_json=True)
+	capture_type = Column(db.String(40), supports_dict=True, supports_json=True)
 	notes = Column(db.Text, supports_dict=True, supports_json=True)
 	scanned = Column(db.Boolean, supports_dict=True, supports_json=True)
 	magnet_off = Column(db.Time, supports_dict=True, supports_json=True, on_deserialize=parse_time, on_serialize=parse_time)
 	tag1 = Column(db.String(30), supports_dict=True, supports_json=True)
 	tag2 = Column(db.String(30), supports_dict=True, supports_json=True)
 	scanner_number = Column(db.Text, supports_dict=True, supports_json=True)
-	entered_by = Column(db.Date, supports_dict=True, supports_json=True, on_deserialize=parse_date, on_serialize=parse_date)
+	entered_date = Column(db.Date, supports_dict=True, supports_json=True, on_deserialize=parse_date, on_serialize=parse_date)
 	entered_by = Column(db.String(30), supports_dict=True, supports_json=True)
 
 	# Polymorphism

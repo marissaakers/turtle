@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 7b3f09b3e3aa
+Revision ID: 98a49495dea2
 Revises: 
-Create Date: 2020-03-23 12:54:42.257463
+Create Date: 2020-04-23 13:50:17.740499
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7b3f09b3e3aa'
+revision = '98a49495dea2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -97,7 +97,7 @@ def upgrade():
     sa.Column('km_75_0n_5_t_cm_nests', sa.Integer(), nullable=True),
     sa.Column('km_75_0n_5_o_cm_nests', sa.Integer(), nullable=True),
     sa.Column('km_8_05n_55_b_cc_nests', sa.Integer(), nullable=True),
-    sa.Column('km_8_05n_55__cc_nests', sa.Integer(), nullable=True),
+    sa.Column('km_8_05n_55_t_cc_nests', sa.Integer(), nullable=True),
     sa.Column('km_8_05n_55_o_cc_nests', sa.Integer(), nullable=True),
     sa.Column('km_8_05n_55_b_cm_nests', sa.Integer(), nullable=True),
     sa.Column('km_8_05n_55_t_cm_nests', sa.Integer(), nullable=True),
@@ -633,12 +633,6 @@ def upgrade():
     sa.Column('hatchling', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('disorientation_id')
     )
-    op.create_table('emergence',
-    sa.Column('emergence_id', sa.Integer(), nullable=False),
-    sa.Column('stake_number_1', sa.String(length=30), nullable=True),
-    sa.Column('stake_number_2', sa.String(length=30), nullable=True),
-    sa.PrimaryKeyConstraint('emergence_id')
-    )
     op.create_table('false_crawl',
     sa.Column('false_crawl_id', sa.Integer(), nullable=False),
     sa.Column('date', sa.Date(), nullable=True),
@@ -652,6 +646,14 @@ def upgrade():
     sa.Column('latitude', sa.Float(precision=5), nullable=True),
     sa.Column('longitude', sa.Float(precision=5), nullable=True),
     sa.PrimaryKeyConstraint('false_crawl_id')
+    )
+    op.create_table('filter_set',
+    sa.Column('filter_set_id', sa.Integer(), nullable=False),
+    sa.Column('username', sa.String(length=50), nullable=True),
+    sa.Column('filter_set_name', sa.String(length=50), nullable=True),
+    sa.Column('filter_data', sa.Text(), nullable=True),
+    sa.Column('survey_filter_set', sa.String(length=1), nullable=True),
+    sa.PrimaryKeyConstraint('filter_set_id')
     )
     op.create_table('metadata',
     sa.Column('metadata_id', sa.Integer(), nullable=False),
@@ -821,18 +823,31 @@ def upgrade():
     op.create_table('turtle',
     sa.Column('turtle_id', sa.Integer(), nullable=False),
     sa.Column('species', sa.String(length=30), nullable=True),
+    sa.Column('sex', sa.Text(), nullable=True),
     sa.Column('old_turtle_id', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('turtle_id')
+    )
+    op.create_table('emergence',
+    sa.Column('emergence_id', sa.Integer(), nullable=False),
+    sa.Column('big_survey_id', sa.Integer(), nullable=False),
+    sa.Column('stake_number_1', sa.String(length=30), nullable=True),
+    sa.Column('stake_number_2', sa.String(length=30), nullable=True),
+    sa.ForeignKeyConstraint(['big_survey_id'], ['big_survey.big_survey_id'], ),
+    sa.PrimaryKeyConstraint('emergence_id')
     )
     op.create_table('encounter',
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('metadata_id', sa.Integer(), nullable=True),
     sa.Column('turtle_id', sa.Integer(), nullable=False),
     sa.Column('old_encounter_id', sa.Integer(), nullable=True),
+    sa.Column('pdf_filename', sa.Text(), nullable=True),
+    sa.Column('img_filename', sa.Text(), nullable=True),
     sa.Column('type', sa.String(length=30), nullable=True),
     sa.ForeignKeyConstraint(['metadata_id'], ['metadata.metadata_id'], ),
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
-    sa.PrimaryKeyConstraint('encounter_id')
+    sa.PrimaryKeyConstraint('encounter_id'),
+    sa.UniqueConstraint('img_filename'),
+    sa.UniqueConstraint('pdf_filename')
     )
     op.create_table('incidental_capture',
     sa.Column('incidental_capture_id', sa.Integer(), nullable=False),
@@ -856,7 +871,7 @@ def upgrade():
     sa.Column('wind_speed', sa.Float(precision=5), nullable=True),
     sa.Column('wind_dir', sa.String(length=20), nullable=True),
     sa.Column('environment_time', sa.Time(), nullable=True),
-    sa.Column('weather', sa.String(length=100), nullable=True),
+    sa.Column('weather', sa.Text(), nullable=True),
     sa.Column('air_temp', sa.Float(precision=5), nullable=True),
     sa.Column('water_temp_surface', sa.Float(precision=5), nullable=True),
     sa.Column('water_temp_1_m', sa.Float(precision=5), nullable=True),
@@ -918,16 +933,32 @@ def upgrade():
     sa.ForeignKeyConstraint(['metadata_id'], ['metadata.metadata_id'], ),
     sa.PrimaryKeyConstraint('metadata_id')
     )
+    op.create_table('other_metadata',
+    sa.Column('metadata_id', sa.Integer(), nullable=False),
+    sa.Column('metadata_date', sa.Date(), nullable=True),
+    sa.Column('environment_time', sa.Time(), nullable=True),
+    sa.Column('weather', sa.Text(), nullable=True),
+    sa.Column('air_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('water_temp_surface', sa.Float(precision=5), nullable=True),
+    sa.Column('water_temp_1_m', sa.Float(precision=5), nullable=True),
+    sa.Column('water_temp_2_m', sa.Float(precision=5), nullable=True),
+    sa.Column('water_temp_6_m', sa.Float(precision=5), nullable=True),
+    sa.Column('water_temp_bottom', sa.Float(precision=5), nullable=True),
+    sa.Column('salinity_surface', sa.Float(precision=5), nullable=True),
+    sa.Column('salinity_1_m', sa.Float(precision=5), nullable=True),
+    sa.Column('salinity_2_m', sa.Float(precision=5), nullable=True),
+    sa.Column('salinity_6_m', sa.Float(precision=5), nullable=True),
+    sa.Column('salinity_bottom', sa.Float(precision=5), nullable=True),
+    sa.ForeignKeyConstraint(['metadata_id'], ['metadata.metadata_id'], ),
+    sa.PrimaryKeyConstraint('metadata_id')
+    )
     op.create_table('tag',
     sa.Column('tag_id', sa.Integer(), nullable=False),
     sa.Column('turtle_id', sa.Integer(), nullable=False),
     sa.Column('tag_number', sa.String(length=30), nullable=True),
-    sa.Column('tag_scars', sa.Boolean(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('tag_type', sa.String(length=30), nullable=True),
     sa.Column('pit', sa.Boolean(), nullable=True),
-    sa.Column('scanned', sa.Boolean(), nullable=True),
-    sa.Column('scanner_number', sa.String(length=30), nullable=True),
     sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
     sa.PrimaryKeyConstraint('tag_id')
     )
@@ -943,7 +974,7 @@ def upgrade():
     sa.Column('wind_speed', sa.Float(precision=5), nullable=True),
     sa.Column('wind_dir', sa.String(length=20), nullable=True),
     sa.Column('environment_time', sa.Time(), nullable=True),
-    sa.Column('weather', sa.String(length=100), nullable=True),
+    sa.Column('weather', sa.Text(), nullable=True),
     sa.Column('air_temp', sa.Float(precision=5), nullable=True),
     sa.Column('water_temp_surface', sa.Float(precision=5), nullable=True),
     sa.Column('water_temp_1_m', sa.Float(precision=5), nullable=True),
@@ -968,6 +999,12 @@ def upgrade():
     sa.Column('entered_date', sa.Date(), nullable=True),
     sa.Column('verified_by', sa.String(length=30), nullable=True),
     sa.Column('verified_date', sa.Date(), nullable=True),
+    sa.Column('scanned', sa.Boolean(), nullable=True),
+    sa.Column('tag_scars', sa.String(length=20), nullable=True),
+    sa.Column('scanner_number', sa.String(length=30), nullable=True),
+    sa.Column('tag1', sa.String(length=30), nullable=True),
+    sa.Column('tag2', sa.String(length=30), nullable=True),
+    sa.Column('tag3', sa.String(length=30), nullable=True),
     sa.Column('prime_tag', sa.String(length=30), nullable=True),
     sa.Column('days_45', sa.Date(), nullable=True),
     sa.Column('days_70', sa.Date(), nullable=True),
@@ -988,7 +1025,7 @@ def upgrade():
     sa.Column('obvious_stake_planted_in', sa.Text(), nullable=True),
     sa.Column('dist_to_dune', sa.Float(precision=5), nullable=True),
     sa.Column('dist_to_high_tide', sa.Float(precision=5), nullable=True),
-    sa.Column('can_buried', sa.Boolean(), nullable=True),
+    sa.Column('can_buried', sa.String(length=10), nullable=True),
     sa.Column('can_buried_NS', sa.String(length=1), nullable=True),
     sa.Column('sign_stake_in_place', sa.Boolean(), nullable=True),
     sa.Column('scarp_over_46_cm', sa.Boolean(), nullable=True),
@@ -1001,12 +1038,11 @@ def upgrade():
     )
     op.create_table('clutch',
     sa.Column('clutch_id', sa.Integer(), nullable=False),
-    sa.Column('turtle_id', sa.Integer(), nullable=False),
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('stake_number', sa.String(length=30), nullable=True),
     sa.Column('clutch_deposited', sa.Boolean(), nullable=True),
     sa.Column('sand_type', sa.String(length=50), nullable=True),
-    sa.Column('placement', sa.String(length=50), nullable=True),
+    sa.Column('placement', sa.String(length=20), nullable=True),
     sa.Column('emergence_date', sa.Date(), nullable=True),
     sa.Column('inventory_date', sa.Date(), nullable=True),
     sa.Column('hidden_stake_in_place', sa.Boolean(), nullable=True),
@@ -1060,7 +1096,6 @@ def upgrade():
     sa.Column('substrate', sa.String(length=50), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
-    sa.ForeignKeyConstraint(['turtle_id'], ['turtle.turtle_id'], ),
     sa.PrimaryKeyConstraint('clutch_id')
     )
     op.create_table('lagoon_encounter',
@@ -1074,6 +1109,11 @@ def upgrade():
     sa.Column('verified_by', sa.String(length=30), nullable=True),
     sa.Column('verified_date', sa.Date(), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('scanned', sa.Boolean(), nullable=True),
+    sa.Column('tag_scars', sa.String(length=20), nullable=True),
+    sa.Column('tag1', sa.String(length=30), nullable=True),
+    sa.Column('tag2', sa.String(length=30), nullable=True),
+    sa.Column('tag3', sa.String(length=30), nullable=True),
     sa.Column('paps_present', sa.Boolean(), nullable=True),
     sa.Column('pap_category', sa.Integer(), nullable=True),
     sa.Column('paps_regression', sa.String(length=40), nullable=True),
@@ -1088,20 +1128,71 @@ def upgrade():
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
     sa.PrimaryKeyConstraint('encounter_id')
     )
+    op.create_table('legacy',
+    sa.Column('legacy_id', sa.Integer(), nullable=False),
+    sa.Column('encounter_id', sa.Integer(), nullable=False),
+    sa.Column('recapture_linear_dates', sa.Text(), nullable=True),
+    sa.Column('pap_mapped', sa.Boolean(), nullable=True),
+    sa.Column('papilloma_description', sa.Text(), nullable=True),
+    sa.Column('disposal_of_specimen', sa.Text(), nullable=True),
+    sa.Column('stake_summary', sa.Text(), nullable=True),
+    sa.Column('survery_full_location', sa.Float(precision=5), nullable=True),
+    sa.Column('clutch_moved', sa.Text(), nullable=True),
+    sa.Column('clutch_fate', sa.Text(), nullable=True),
+    sa.Column('eggs_yolked', sa.Integer(), nullable=True),
+    sa.Column('eggs_broken', sa.Integer(), nullable=True),
+    sa.Column('eggs_yolkless', sa.Integer(), nullable=True),
+    sa.Column('eggs_research', sa.Integer(), nullable=True),
+    sa.Column('in_place_foil', sa.Boolean(), nullable=True),
+    sa.Column('in_place_metal', sa.Boolean(), nullable=True),
+    sa.Column('carap_l_greatest', sa.Float(precision=5), nullable=True),
+    sa.Column('cloaca_temp', sa.Float(precision=5), nullable=True),
+    sa.Column('interanal_scute', sa.Text(), nullable=True),
+    sa.Column('date_laid', sa.Date(), nullable=True),
+    sa.Column('c1_embryo', sa.Integer(), nullable=True),
+    sa.Column('c2_fetus', sa.Integer(), nullable=True),
+    sa.Column('c6_infertile_eggs', sa.Integer(), nullable=True),
+    sa.Column('d1_research', sa.Integer(), nullable=True),
+    sa.Column('d2_poached', sa.Integer(), nullable=True),
+    sa.Column('e2_washout', sa.Integer(), nullable=True),
+    sa.Column('e3_inundated', sa.Integer(), nullable=True),
+    sa.Column('d_nest_disturbed_summary', sa.Text(), nullable=True),
+    sa.Column('nest_data_collection_problems', sa.Text(), nullable=True),
+    sa.Column('wind_speed_min_mph', sa.Float(precision=5), nullable=True),
+    sa.Column('wind_speed_max_mph', sa.Float(precision=5), nullable=True),
+    sa.Column('wind_speed_min_mps', sa.Float(precision=5), nullable=True),
+    sa.Column('wind_speed_max_mps', sa.Float(precision=5), nullable=True),
+    sa.Column('depth', sa.Float(precision=5), nullable=True),
+    sa.Column('length_units', sa.Text(), nullable=True),
+    sa.Column('water_temp_3', sa.Float(precision=5), nullable=True),
+    sa.Column('salinity_3', sa.Float(precision=5), nullable=True),
+    sa.Column('secchi_depth', sa.Float(precision=5), nullable=True),
+    sa.Column('secchi_distance_from_shore', sa.Float(precision=5), nullable=True),
+    sa.Column('time_text_high_tide', sa.Time(), nullable=True),
+    sa.Column('time_text_low_tide', sa.Time(), nullable=True),
+    sa.Column('notes_environment', sa.Text(), nullable=True),
+    sa.Column('clutch_other_egg_affected', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
+    sa.PrimaryKeyConstraint('legacy_id')
+    )
     op.create_table('morphometrics',
     sa.Column('morphometrics_id', sa.Integer(), nullable=False),
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('curved_length', sa.Float(precision=5), nullable=True),
+    sa.Column('curved_length_over_barnacles', sa.Boolean(), nullable=True),
     sa.Column('straight_length', sa.Float(precision=5), nullable=True),
     sa.Column('minimum_length', sa.Float(precision=5), nullable=True),
     sa.Column('plastron_length', sa.Float(precision=5), nullable=True),
+    sa.Column('plastron_length_over_barnacles', sa.Boolean(), nullable=True),
     sa.Column('weight', sa.Float(precision=5), nullable=True),
     sa.Column('curved_width', sa.Float(precision=5), nullable=True),
+    sa.Column('curved_width_over_barnacles', sa.Boolean(), nullable=True),
     sa.Column('straight_width', sa.Float(precision=5), nullable=True),
     sa.Column('tail_length_pl_vent', sa.Float(precision=5), nullable=True),
     sa.Column('tail_length_pl_tip', sa.Float(precision=5), nullable=True),
     sa.Column('head_width', sa.Float(precision=5), nullable=True),
     sa.Column('body_depth', sa.Float(precision=5), nullable=True),
+    sa.Column('body_depth_over_barnacles', sa.Boolean(), nullable=True),
     sa.Column('flipper_damage', sa.Text(), nullable=True),
     sa.Column('carapace_damage', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
@@ -1111,7 +1202,31 @@ def upgrade():
     sa.Column('encounter_id', sa.Integer(), nullable=False),
     sa.Column('trip_number', sa.Text(), nullable=True),
     sa.Column('capture_habitat', sa.Text(), nullable=True),
+    sa.Column('capture_type', sa.String(length=40), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('scanned', sa.Boolean(), nullable=True),
+    sa.Column('magnet_off', sa.Time(), nullable=True),
+    sa.Column('tag1', sa.String(length=30), nullable=True),
+    sa.Column('tag2', sa.String(length=30), nullable=True),
+    sa.Column('scanner_number', sa.Text(), nullable=True),
+    sa.Column('entered_by', sa.String(length=30), nullable=True),
+    sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
+    sa.PrimaryKeyConstraint('encounter_id')
+    )
+    op.create_table('other_encounter',
+    sa.Column('encounter_id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=30), nullable=True),
+    sa.Column('encounter_date', sa.Date(), nullable=True),
+    sa.Column('encounter_time', sa.Time(), nullable=True),
+    sa.Column('investigated_by', sa.String(length=500), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('paps_present', sa.Boolean(), nullable=True),
+    sa.Column('pap_category', sa.Integer(), nullable=True),
+    sa.Column('paps_regressed', sa.String(length=40), nullable=True),
+    sa.Column('pap_photo', sa.Boolean(), nullable=True),
+    sa.Column('leeches', sa.Boolean(), nullable=True),
+    sa.Column('leeches_where', sa.Text(), nullable=True),
+    sa.Column('leech_eggs', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['encounter_id'], ['encounter.encounter_id'], ),
     sa.PrimaryKeyConstraint('encounter_id')
     )
@@ -1138,6 +1253,11 @@ def upgrade():
     sa.Column('verified_by', sa.String(length=30), nullable=True),
     sa.Column('verified_date', sa.Date(), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('scanned', sa.Boolean(), nullable=True),
+    sa.Column('tag_scars', sa.String(length=20), nullable=True),
+    sa.Column('tag1', sa.String(length=30), nullable=True),
+    sa.Column('tag2', sa.String(length=30), nullable=True),
+    sa.Column('tag3', sa.String(length=30), nullable=True),
     sa.Column('capture_location', sa.String(length=50), nullable=True),
     sa.Column('capture_method', sa.String(length=50), nullable=True),
     sa.Column('number_on_carapace', sa.Integer(), nullable=True),
@@ -1172,24 +1292,28 @@ def downgrade():
     op.drop_table('sample_tracking')
     op.drop_table('trident_encounter')
     op.drop_table('sample')
+    op.drop_table('other_encounter')
     op.drop_table('offshore_encounter')
     op.drop_table('morphometrics')
+    op.drop_table('legacy')
     op.drop_table('lagoon_encounter')
     op.drop_table('clutch')
     op.drop_table('beach_encounter')
     op.drop_table('trident_metadata')
     op.drop_table('tag')
+    op.drop_table('other_metadata')
     op.drop_table('offshore_metadata')
     op.drop_table('net')
     op.drop_table('lagoon_metadata')
     op.drop_table('incidental_capture')
     op.drop_table('encounter')
+    op.drop_table('emergence')
     op.drop_table('turtle')
     op.drop_table('scarp')
     op.drop_table('ns_refuge')
     op.drop_table('metadata')
+    op.drop_table('filter_set')
     op.drop_table('false_crawl')
-    op.drop_table('emergence')
     op.drop_table('disorientation')
     op.drop_table('depredation')
     op.drop_table('dc_crawl')

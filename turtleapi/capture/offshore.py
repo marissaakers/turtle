@@ -4,7 +4,7 @@ from turtleapi.models.turtlemodels import (OffshoreEncounter, Encounter, Turtle,
                                            Metadata)
 from datetime import datetime, timedelta
 import json
-from turtleapi.capture.util import find_turtle_from_tags, date_handler, get_miniquery_filters, generate_miniquery_queries
+from turtleapi.capture.util import find_turtle_from_tags, date_handler, get_miniquery_filters, generate_miniquery_queries, return_tag_status
 from flask import jsonify, Response
 import random # we can remove this when we're done and don't do the manual test insertions anymore
 
@@ -89,11 +89,10 @@ def insert_offshore(data):
 
     # handling turtle
     turtle = find_turtle_from_tags(data2['turtle']['tags'])
+    returndict = return_tag_status(data2['turtle']['tags'])
+    data2['metadata']['encounters']['capture_type'] = returndict['capture_type'].lower()
     # turtle is a recapture
     if turtle is not None:
-        if data2['metadata']['encounters']['capture_type'] != "strange recap":
-            data2['metadata']['encounters']['capture_type'] = "recap"
-
         compare_tags = db.session.query(Tag).filter(Tag.turtle_id==turtle.turtle_id,Tag.active==True)
         # updating existing tags
         for c in compare_tags:
@@ -108,23 +107,12 @@ def insert_offshore(data):
                 setattr(c,'active',False)
         # adding new tags
         for t in data2['turtle']['tags']:
-            # handling strange tags
-            if t['isNew'] == False:
-                data2['metadata']['encounters']['capture_type'] = "strange recap"
             tag = Tag.new_from_dict(t, error_on_extra_keys=False, drop_extra_keys=True)
             tag.turtle_id = turtle.turtle_id
             db.session.add(tag)
         del data2['turtle']
     # turtle is a new capture
     else:
-        if data2['metadata']['encounters']['capture_type'] != "strange recap":
-            data2['metadata']['encounters']['capture_type'] = "new"
-
-        # handling strange tags
-        for t in data2['turtle']['tags']:
-            if t['isNew'] == False:
-                data2['metadata']['encounters']['capture_type'] = "strange recap"
-
         turtle = Turtle.new_from_dict(data2['turtle'], error_on_extra_keys=False, drop_extra_keys=True)
         del data2['turtle']
     
