@@ -48,7 +48,6 @@ def find_turtles_from_tags(tags):
     return None
 
 def return_tag_status(tags):
-    print(tags)
     NO_TAGS_SENT = 'Please enter at least one tag to check tag status.'
     TAGS_NOT_FOUND = 'Tag(s) not found in database; '
     TAGS_FOUND = 'Tag(s) found in database; '
@@ -71,7 +70,7 @@ def return_tag_status(tags):
             recapture = True
             id_list[tag['tag_number']] = turtle_id[0]
         else:
-            if tag['new'] == False:
+            if tag['isNew'] == False:
                 strange_encounter = True
 
     if len(id_list) == 0:
@@ -104,7 +103,7 @@ def return_tag_status(tags):
         return {'message': TAGS_NOT_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else NEW_ENCOUNTER),
                     'capture_type': 'STRANGE' if strange_encounter else 'NEW'}
     # at least one tag found so it's a recap
-    return {'message': TAGS_FOUND + '' + (STRANGE_ENCOUNTER if strange_encounter else RECAP_ENCOUNTER),
+    return {'message': TAGS_FOUND + '' + (STRANGE_RECAP_ENCOUNTER if strange_encounter else RECAP_ENCOUNTER),
                     'capture_type': 'STRANGE RECAP' if strange_encounter else 'RECAP'}
 
 def return_tag_status_two(tags):
@@ -116,7 +115,7 @@ def return_tag_status_two(tags):
         if turtle_id is not None:
             recapture = True
         else:
-            if tag['new'] == False:
+            if tag['isNew'] == False:
                 strange_encounter = True
 
     return {'strange_encounter': strange_encounter, 'recapture': recapture}
