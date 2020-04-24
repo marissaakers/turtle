@@ -13,7 +13,7 @@ from sqlalchemy.inspection import inspect
 import itertools
 
 # Easy way to convert incoming JSON string to database model / table
-model_mapping = {
+model_mapping_capture = {
     "LagoonEncounter": LagoonEncounter,
     "TridentEncounter": TridentEncounter,
     "BeachEncounter": BeachEncounter,
@@ -33,10 +33,10 @@ model_mapping = {
 
 # No SQLAlchemy built-in to see if relationship is one-to-one or one-to-many
 # List tables with one-to-many relationships here
-many_to_one_models = [Tag, Net, IncidentalCapture]
+many_to_one_models_capture = [Tag, Net, IncidentalCapture]
 
 # Return list of tables and fields for the frontend to display
-def field_lister():
+def field_lister(model_mapping, many_to_one_models):
     data = {}
 
     for model in model_mapping:
@@ -95,7 +95,7 @@ def get_key_connecting_models(model1, model2):
     return None
 
 # Query and return CSV file
-def csv_export(data):
+def csv_export(data, model_mapping, many_to_one_models):
     modelList = []
     many_to_one_dict = {}
     string_io = StringIO()
@@ -167,7 +167,7 @@ def csv_export(data):
     # Query for normal tables
     table_result = db.session.query(*query_columns).filter(*query_filters)
     num_results = table_result.count()
-    if num_results > 500000:
+    if num_results > 600000:
         return {'error': 'result too long; bad query?'}
     table_result = table_result.all()
 
