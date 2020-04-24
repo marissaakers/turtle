@@ -130,6 +130,7 @@ def insert_beach(data):
 
 # editing a beach encounter and all assoc. tables
 def edit_beach(data):
+    print("1")
     # editing turtle
     turtle = data.get('turtle')
     if turtle is not None:
@@ -140,7 +141,7 @@ def edit_beach(data):
                 new_turtle_values = edit_turtle.to_dict()       # Get current DB values
                 new_turtle_values.update(turtle)                # Update with any new values from incoming JSON
                 edit_turtle.update_from_dict(new_turtle_values) # Update DB entry
-
+    print("2")
     # editing actual encounter instance
     encounter = data.get('encounter')
     if encounter is not None:
@@ -150,10 +151,57 @@ def edit_beach(data):
             # return Response(json.dumps(edit_encounter.to_dict(max_nesting=5), default = date_handler),mimetype = 'application/json')
 
             if edit_encounter is not None:
-                new_encounter_values = edit_encounter.to_dict()
+                new_encounter_values = { # edit_encounter.to_dict()
+                    "activity": edit_encounter.activity,
+                    "can_buried": edit_encounter.can_buried,
+                    # "encounter_id": encounter_id,
+                    "can_buried_NS": edit_encounter.can_buried_NS,
+                    "capture_type": edit_encounter.capture_type,
+                    "days_45": edit_encounter.days_45,
+                    "days_70": edit_encounter.days_70,
+                    "dist_to_dune": edit_encounter.dist_to_dune,
+                    "dist_to_hidden_stake": edit_encounter.dist_to_hidden_stake,
+                    "dist_to_high_tide": edit_encounter.dist_to_high_tide,
+                    "dist_to_obvious_stake": edit_encounter.dist_to_obvious_stake,
+                    "encounter_date": edit_encounter.encounter_date,
+                    "encounter_time": edit_encounter.encounter_time,
+                    "entered_by": edit_encounter.entered_by,
+                    "entered_date": edit_encounter.entered_date,
+                    "hidden_stake_planted_in": edit_encounter.hidden_stake_planted_in,
+                    "investigated_by": edit_encounter.investigated_by,
+                    "latitude": edit_encounter.latitude,
+                    "location_NS": edit_encounter.location_NS,
+                    "location_detail": edit_encounter.location_detail,
+                    "longitude": edit_encounter.longitude,
+                    "notes": edit_encounter.notes,
+                    "obvious_stake_planted_in": edit_encounter.obvious_stake_planted_in,
+                    "outgoing_crawl_width": edit_encounter.outgoing_crawl_width,
+                    "paps_present": edit_encounter.paps_present,
+                    "photo_taken_by": edit_encounter.photo_taken_by,
+                    "pink_spot_photo_taken": edit_encounter.pink_spot_photo_taken,
+                    "prime_tag": edit_encounter.prime_tag,
+                    "scarp_over_46_cm": edit_encounter.scarp_over_46_cm,
+                    "seaward_of_structure": edit_encounter.seaward_of_structure,
+                    "sign_stake_in_place": edit_encounter.sign_stake_in_place,
+                    "site_description": edit_encounter.site_description,
+                    "structure_description": edit_encounter.structure_description,
+                    "verified_by": edit_encounter.verified_by,
+                    "verified_date": edit_encounter.verified_date,
+                    "within_1_m_of_structure": edit_encounter.within_1_m_of_structure,
+                    "yolkless_collected": edit_encounter.yolkless_collected,
+                    "scanned": edit_encounter.scanned,
+                    "scanner_number": edit_encounter.scanner_number,
+                    "tag_scars": edit_encounter.tag_scars,
+                    "tag1": edit_encounter.tag1,
+                    "tag2": edit_encounter.tag2,
+                    "tag3": edit_encounter.tag3
+                }
                 new_encounter_values.update(encounter)
-                edit_encounter.update_from_dict(new_encounter_values)
-
+                for x in edit_encounter.__table__.columns:
+                    col = str(x).split('.')[1]
+                    setattr(edit_encounter, col, new_encounter_values[col])
+                #edit_encounter.update_from_dict(new_encounter_values)
+    print("3")
     # editing morphometrics
     morphometrics = data.get('morphometrics')
     if morphometrics is not None:
@@ -164,7 +212,7 @@ def edit_beach(data):
                 new_morphometrics_values = edit_morphometrics.to_dict()
                 new_morphometrics_values.update(morphometrics)
                 edit_morphometrics.update_from_dict(new_morphometrics_values)
-
+    print("4")
     # editing samples
     samples = data.get('samples')
     if samples is not None:
@@ -176,7 +224,7 @@ def edit_beach(data):
                     new_sample_values = edit_sample.to_dict()
                     new_sample_values.update(s)
                     edit_sample.update_from_dict(new_sample_values)
-
+    print("5")
     # editing tags
     tags = data.get('tags')
     if tags is not None:
@@ -222,7 +270,7 @@ def edit_beach(data):
                     new_tag_values = edit_tag.to_dict()
                     new_tag_values.update(t)
                     edit_tag.update_from_dict(new_tag_values, error_on_extra_keys=False, drop_extra_keys=True)
-    
+    print("6")
     # editing clutch
     clutches = data.get('clutches')
     if clutches is not None:
@@ -231,10 +279,71 @@ def edit_beach(data):
             if clutch_id is not None:
                 edit_clutch = db.session.query(Clutch).filter(Clutch.clutch_id == clutch_id).first()
                 if edit_clutch is not None:
-                    new_clutch_values = edit_clutch.to_dict()
+                    new_clutch_values = {
+                        'clutch_deposited': edit_clutch.clutch_deposited,
+                        'encounter_id': edit_clutch.encounter_id,
+                        'clutch_size': edit_clutch.clutch_size,
+                        'dead_hatchlings': edit_clutch.dead_hatchlings,
+                        'egg_damaged_plant_roots': edit_clutch.egg_damaged_plant_roots,
+                        'eggs_addled': edit_clutch.eggs_addled,
+                        'eggs_broken': edit_clutch.eggs_broken,
+                        'eggs_damaged_another_turtle': edit_clutch.eggs_damaged_another_turtle,
+                        'eggs_damaged_beach_sunflower': edit_clutch.eggs_damaged_beach_sunflower,
+                        'eggs_damaged_bobcat': edit_clutch.eggs_damaged_bobcat,
+                        'eggs_damaged_ghost_crabs': edit_clutch.eggs_damaged_ghost_crabs,
+                        'eggs_damaged_other': edit_clutch.eggs_damaged_other,
+                        'eggs_damaged_raccoons': edit_clutch.eggs_damaged_raccoons,
+                        'eggs_damaged_railroad_vine': edit_clutch.eggs_damaged_railroad_vine,
+                        'eggs_damaged_sea_grape': edit_clutch.eggs_damaged_sea_grape,
+                        'eggs_damaged_sea_oats': edit_clutch.eggs_damaged_sea_oats,
+                        'eggs_damaged_sea_purslane': edit_clutch.eggs_damaged_sea_purslane,
+                        'eggs_embryo_1_4': edit_clutch.eggs_embryo_1_4,
+                        'eggs_embryo_2_4': edit_clutch.eggs_embryo_2_4,
+                        'eggs_embryo_3_4': edit_clutch.eggs_embryo_3_4,
+                        'eggs_embryo_4_4': edit_clutch.eggs_embryo_4_4,
+                        'eggs_other': edit_clutch.eggs_other,
+                        'eggs_other_details': edit_clutch.eggs_other_details,
+                        'eggs_sampled_for_sac': edit_clutch.eggs_sampled_for_sac,
+                        'eggs_undeveloped': edit_clutch.eggs_undeveloped,
+                        'eggs_washout': edit_clutch.eggs_washout,
+                        'eggs_yolkless_dehydrated': edit_clutch.eggs_yolkless_dehydrated,
+                        'eggs_yolkless_hydrated': edit_clutch.eggs_yolkless_hydrated,
+                        'emergence': edit_clutch.emergence,
+                        'emergence_date': edit_clutch.emergence_date,
+                        'entered_by': edit_clutch.entered_by,
+                        'entered_date': edit_clutch.entered_date,
+                        'hatched': edit_clutch.hatched,
+                        'hatchlings_emerged': edit_clutch.hatchlings_emerged,
+                        'hidden_stake_in_place': edit_clutch.hidden_stake_in_place,
+                        'inundated': edit_clutch.inundated,
+                        'inventoried_by': edit_clutch.inventoried_by,
+                        'inventory_date': edit_clutch.inventory_date,
+                        'live_hatchlings': edit_clutch.live_hatchlings,
+                        'n_can_in_place': edit_clutch.n_can_in_place,
+                        'notes': edit_clutch.notes,
+                        'obvious_stake_in_place': edit_clutch.obvious_stake_in_place,
+                        'pipped_dead': edit_clutch.pipped_dead,
+                        'pipped_live': edit_clutch.pipped_live,
+                        'placement': edit_clutch.placement,
+                        'poached': edit_clutch.poached,
+                        'post_hatch': edit_clutch.post_hatch,
+                        'predated': edit_clutch.predated,
+                        's_can_in_place': edit_clutch.s_can_in_place,
+                        'sand_type': edit_clutch.sand_type,
+                        'stake_number': edit_clutch.stake_number,
+                        'substrate': edit_clutch.substrate,
+                        'verified_by': edit_clutch.verified_by,
+                        'verified_date': edit_clutch.verified_date,
+                        'washed_out': edit_clutch.washed_out,
+                        'washed_out_post_hatch': edit_clutch.washed_out_post_hatch,
+                        'washed_over': edit_clutch.washed_over
+                    }#edit_clutch.to_dict()
                     new_clutch_values.update(c)
-                    edit_clutch.update_from_dict(new_clutch_values)
-
+                for x in edit_clutch.__table__.columns:
+                    col = str(x).split('.')[1]
+                    setattr(edit_clutch, col, new_clutch_values[col])
+                    # edit_clutch.update_from_dict(new_clutch_values)
+    print("7")
     db.session.commit()
 
     return {'message':'Beach encounter edited successfully'}
